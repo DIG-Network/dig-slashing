@@ -13,7 +13,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-001 — OffenseType BPS mapping (500/300/100/100)
 - [ ] DSL-002 — SlashingEvidence::hash deterministic + sensitive
 - [x] DSL-003 — Checkpoint roundtrip
-- [ ] DSL-004 — AttestationData::signing_root domain-prefixed
+- [x] DSL-004 — AttestationData::signing_root domain-prefixed
 - [ ] DSL-005 — IndexedAttestation::validate_structure
 - [ ] DSL-006 — IndexedAttestation::verify_signature (aggregate BLS)
 - [ ] DSL-007 — AttesterSlashing::slashable_indices (intersection)

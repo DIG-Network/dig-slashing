@@ -34,6 +34,7 @@ pub mod evidence;
 // ── Public re-exports (alphabetical within category) ────────────────────────
 
 pub use constants::{
-    ATTESTATION_BASE_BPS, EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS,
+    ATTESTATION_BASE_BPS, DOMAIN_BEACON_ATTESTER, EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS,
+    MAX_PENALTY_BPS,
 };
-pub use evidence::{Checkpoint, OffenseType};
+pub use evidence::{AttestationData, Checkpoint, OffenseType};
