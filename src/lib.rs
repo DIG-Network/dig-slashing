@@ -36,4 +36,4 @@ pub mod evidence;
 pub use constants::{
     ATTESTATION_BASE_BPS, EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS,
 };
-pub use evidence::OffenseType;
+pub use evidence::{Checkpoint, OffenseType};

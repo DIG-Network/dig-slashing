@@ -8,6 +8,8 @@
 //! here is consumed by the lifecycle, appeal, and REMARK modules but does
 //! NOT depend on them (one-way edge).
 
+pub mod checkpoint;
 pub mod offense;
 
+pub use checkpoint::Checkpoint;
 pub use offense::OffenseType;
