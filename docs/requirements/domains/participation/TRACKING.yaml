@@ -1,0 +1,139 @@
+domain_id: participation
+normative: NORMATIVE.md
+verification: VERIFICATION.md
+
+items:
+  - id: DSL-074
+    section: "ParticipationFlags"
+    summary: "ParticipationFlags::set / has per bit"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-074.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-074"
+    tests: []
+    notes: ""
+
+  - id: DSL-075
+    section: "Timeliness Classification"
+    summary: "classify_timeliness TIMELY_SOURCE"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-075.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-075"
+    tests: []
+    notes: ""
+
+  - id: DSL-076
+    section: "Timeliness Classification"
+    summary: "classify_timeliness TIMELY_TARGET"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-076.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-076"
+    tests: []
+    notes: ""
+
+  - id: DSL-077
+    section: "Timeliness Classification"
+    summary: "classify_timeliness TIMELY_HEAD"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-077.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-077"
+    tests: []
+    notes: ""
+
+  - id: DSL-078
+    section: "Tracker"
+    summary: "ParticipationTracker::record_attestation sets flags"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-078.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-078"
+    tests: []
+    notes: ""
+
+  - id: DSL-079
+    section: "Tracker"
+    summary: "ParticipationTracker rejects non-ascending indices"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-079.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-079"
+    tests: []
+    notes: ""
+
+  - id: DSL-080
+    section: "Tracker"
+    summary: "ParticipationTracker::rotate_epoch"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-080.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-080"
+    tests: []
+    notes: ""
+
+  - id: DSL-081
+    section: "Base Reward"
+    summary: "base_reward = eff_bal * 64 / isqrt(total_active)"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-081.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-081"
+    tests: []
+    notes: ""
+
+  - id: DSL-082
+    section: "Flag Deltas"
+    summary: "compute_flag_deltas awards on hit"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-082.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-082"
+    tests: []
+    notes: ""
+
+  - id: DSL-083
+    section: "Flag Deltas"
+    summary: "compute_flag_deltas penalises SOURCE/TARGET miss; HEAD miss exempt"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-083.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-083"
+    tests: []
+    notes: ""
+
+  - id: DSL-084
+    section: "Flag Deltas"
+    summary: "compute_flag_deltas zeroes rewards in finality stall"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-084.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-084"
+    tests: []
+    notes: ""
+
+  - id: DSL-085
+    section: "Proposer Reward"
+    summary: "proposer_inclusion_reward = base * 8 / 56"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-085.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-085"
+    tests: []
+    notes: ""
+
+  - id: DSL-086
+    section: "Weight Denominator"
+    summary: "WEIGHT_DENOMINATOR = 64 with 2 units reserved (no sync committee)"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-086.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-086"
+    tests: []
+    notes: ""
+
+  - id: DSL-153
+    section: "Reorg"
+    summary: "ParticipationTracker::rewind_on_reorg ring-buffer restore"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-153.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-153"
+    tests: []
+    notes: ""
+
+  - id: DSL-154
+    section: "Serde"
+    summary: "ParticipationFlags serde roundtrip"
+    status: gap
+    spec_ref: "docs/requirements/domains/participation/specs/DSL-154.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-154"
+    tests: []
+    notes: ""

@@ -1,0 +1,139 @@
+domain_id: traits
+normative: NORMATIVE.md
+verification: VERIFICATION.md
+
+items:
+  - id: DSL-131
+    section: "ValidatorView + ValidatorEntry"
+    summary: "ValidatorEntry::slash_absolute saturation"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-131.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-131"
+    tests: []
+    notes: ""
+
+  - id: DSL-132
+    section: "ValidatorView + ValidatorEntry"
+    summary: "ValidatorEntry::credit_stake"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-132.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-132"
+    tests: []
+    notes: ""
+
+  - id: DSL-133
+    section: "ValidatorView + ValidatorEntry"
+    summary: "ValidatorEntry::restore_status"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-133.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-133"
+    tests: []
+    notes: ""
+
+  - id: DSL-134
+    section: "ValidatorView + ValidatorEntry"
+    summary: "ValidatorEntry::is_active_at_epoch boundary"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-134.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-134"
+    tests: []
+    notes: ""
+
+  - id: DSL-135
+    section: "ValidatorView + ValidatorEntry"
+    summary: "ValidatorEntry::schedule_exit"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-135.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-135"
+    tests: []
+    notes: ""
+
+  - id: DSL-136
+    section: "ValidatorView + ValidatorEntry"
+    summary: "ValidatorView::get / get_mut"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-136.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-136"
+    tests: []
+    notes: ""
+
+  - id: DSL-137
+    section: "EffectiveBalanceView + PublicKeyLookup"
+    summary: "EffectiveBalanceView::get / total_active"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-137.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-137"
+    tests: []
+    notes: ""
+
+  - id: DSL-138
+    section: "EffectiveBalanceView + PublicKeyLookup"
+    summary: "PublicKeyLookup::pubkey_of"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-138.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-138"
+    tests: []
+    notes: ""
+
+  - id: DSL-139
+    section: "CollateralSlasher"
+    summary: "CollateralSlasher slash+credit symmetry"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-139.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-139"
+    tests: []
+    notes: ""
+
+  - id: DSL-140
+    section: "Bonds + Rewards"
+    summary: "BondEscrow::escrowed"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-140.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-140"
+    tests: []
+    notes: ""
+
+  - id: DSL-141
+    section: "Bonds + Rewards"
+    summary: "RewardPayout::pay"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-141.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-141"
+    tests: []
+    notes: ""
+
+  - id: DSL-142
+    section: "Bonds + Rewards"
+    summary: "RewardClawback::claw_back partial"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-142.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-142"
+    tests: []
+    notes: ""
+
+  - id: DSL-143
+    section: "Fork-Choice Oracles"
+    summary: "JustificationView contract"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-143.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-143"
+    tests: []
+    notes: ""
+
+  - id: DSL-144
+    section: "Fork-Choice Oracles"
+    summary: "ProposerView::proposer_at_slot"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-144.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-144"
+    tests: []
+    notes: ""
+
+  - id: DSL-145
+    section: "Fork-Choice Oracles"
+    summary: "InvalidBlockOracle::re_execute determinism"
+    status: gap
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-145.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-145"
+    tests: []
+    notes: ""

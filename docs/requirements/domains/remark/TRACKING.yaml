@@ -1,0 +1,175 @@
+domain_id: remark
+normative: NORMATIVE.md
+verification: VERIFICATION.md
+
+items:
+  - id: DSL-102
+    section: "Evidence Wire"
+    summary: "Evidence REMARK wire roundtrip"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-102.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-102"
+    tests: []
+    notes: ""
+
+  - id: DSL-103
+    section: "Evidence Wire"
+    summary: "Evidence puzzle_reveal emits one REMARK"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-103.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-103"
+    tests: []
+    notes: ""
+
+  - id: DSL-104
+    section: "Evidence Admission"
+    summary: "Admission accepts matching coin"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-104.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-104"
+    tests: []
+    notes: ""
+
+  - id: DSL-105
+    section: "Evidence Admission"
+    summary: "Admission rejects mismatched payload"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-105.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-105"
+    tests: []
+    notes: ""
+
+  - id: DSL-106
+    section: "Evidence Mempool Policy"
+    summary: "Expired rejected"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-106.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-106"
+    tests: []
+    notes: ""
+
+  - id: DSL-107
+    section: "Evidence Mempool Policy"
+    summary: "Duplicate rejected"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-107.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-107"
+    tests: []
+    notes: ""
+
+  - id: DSL-108
+    section: "Evidence Mempool Policy"
+    summary: "Block cap"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-108.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-108"
+    tests: []
+    notes: ""
+
+  - id: DSL-109
+    section: "Evidence Mempool Policy"
+    summary: "Payload cap"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-109.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-109"
+    tests: []
+    notes: ""
+
+  - id: DSL-110
+    section: "Appeal Wire"
+    summary: "Appeal REMARK wire roundtrip"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-110.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-110"
+    tests: []
+    notes: ""
+
+  - id: DSL-111
+    section: "Appeal Wire"
+    summary: "Appeal puzzle_reveal emits one REMARK"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-111.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-111"
+    tests: []
+    notes: ""
+
+  - id: DSL-112
+    section: "Appeal Admission"
+    summary: "Appeal admission matching coin"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-112.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-112"
+    tests: []
+    notes: ""
+
+  - id: DSL-113
+    section: "Appeal Admission"
+    summary: "Appeal admission mismatch rejected"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-113.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-113"
+    tests: []
+    notes: ""
+
+  - id: DSL-114
+    section: "Appeal Mempool Policy"
+    summary: "AppealForUnknownSlash"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-114.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-114"
+    tests: []
+    notes: ""
+
+  - id: DSL-115
+    section: "Appeal Mempool Policy"
+    summary: "AppealWindowExpired"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-115.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-115"
+    tests: []
+    notes: ""
+
+  - id: DSL-116
+    section: "Appeal Mempool Policy"
+    summary: "AppealForFinalisedSlash"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-116.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-116"
+    tests: []
+    notes: ""
+
+  - id: DSL-117
+    section: "Appeal Mempool Policy"
+    summary: "AppealVariantMismatch"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-117.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-117"
+    tests: []
+    notes: ""
+
+  - id: DSL-118
+    section: "Appeal Mempool Policy"
+    summary: "Duplicate appeal rejected"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-118.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-118"
+    tests: []
+    notes: ""
+
+  - id: DSL-119
+    section: "Appeal Mempool Policy"
+    summary: "Appeal block cap"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-119.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-119"
+    tests: []
+    notes: ""
+
+  - id: DSL-120
+    section: "Appeal Mempool Policy"
+    summary: "Appeal payload cap"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-120.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-120"
+    tests: []
+    notes: ""

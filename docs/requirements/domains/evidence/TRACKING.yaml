@@ -1,0 +1,212 @@
+domain_id: evidence
+normative: NORMATIVE.md
+verification: VERIFICATION.md
+
+items:
+  - id: DSL-001
+    section: "Types"
+    summary: "OffenseType::base_penalty_bps returns 500/300/100/100, all < MAX_PENALTY_BPS"
+    status: verified
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-001.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.1"
+    tests:
+      - dsl_001_offense_type_bps_mapping_test
+    notes: "OffenseType in src/evidence/offense.rs; BPS constants in src/constants.rs. 5-test suite covers per-variant mapping + exhaustive MAX_PENALTY_BPS cap + >0 floor."
+
+  - id: DSL-002
+    section: "Types"
+    summary: "SlashingEvidence::hash deterministic; mutation of any field shifts hash"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-002.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.1"
+    tests: []
+    notes: ""
+
+  - id: DSL-003
+    section: "Types"
+    summary: "Checkpoint serde + equality + hash round-trip"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-003.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.1"
+    tests: []
+    notes: ""
+
+  - id: DSL-004
+    section: "Types"
+    summary: "AttestationData::signing_root deterministic, domain-prefixed, mutation-sensitive"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-004.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.1"
+    tests: []
+    notes: ""
+
+  - id: DSL-005
+    section: "Types"
+    summary: "IndexedAttestation::validate_structure rejects non-ascending/dups/empty/over-cap/bad-sig-width"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-005.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.1"
+    tests: []
+    notes: ""
+
+  - id: DSL-006
+    section: "Types"
+    summary: "IndexedAttestation::verify_signature aggregate BLS verify success/failure"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-006.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.1"
+    tests: []
+    notes: ""
+
+  - id: DSL-007
+    section: "Types"
+    summary: "AttesterSlashing::slashable_indices returns sorted intersection"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-007.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.1"
+    tests: []
+    notes: ""
+
+  - id: DSL-008
+    section: "Types"
+    summary: "InvalidBlockProof + InvalidBlockReason construction + serde round-trip"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-008.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.1"
+    tests: []
+    notes: ""
+
+  - id: DSL-009
+    section: "Types"
+    summary: "SignedBlockHeader serde round-trip"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-009.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.1"
+    tests: []
+    notes: ""
+
+  - id: DSL-010
+    section: "Types"
+    summary: "SlashingEvidence::slashable_validators returns 1 for Proposer/InvalidBlock, N for Attester"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-010.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.1"
+    tests: []
+    notes: ""
+
+  - id: DSL-011
+    section: "Verification"
+    summary: "verify_evidence rejects OffenseTooOld when evidence.epoch + SLASH_LOOKBACK_EPOCHS < current_epoch"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-011.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-012
+    section: "Verification"
+    summary: "verify_evidence rejects ReporterIsAccused when reporter_index in slashable_validators"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-012.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-013
+    section: "Verification"
+    summary: "verify_proposer_slashing enforces same-slot/same-proposer/different-root/valid-sigs/active"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-013.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-014
+    section: "Verification"
+    summary: "verify_attester_slashing accepts double-vote (same target, different data)"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-014.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-015
+    section: "Verification"
+    summary: "verify_attester_slashing accepts surround-vote (a.src < b.src AND a.tgt > b.tgt)"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-015.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-016
+    section: "Verification"
+    summary: "verify_attester_slashing rejects EmptySlashableIntersection"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-016.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-017
+    section: "Verification"
+    summary: "verify_attester_slashing rejects AttesterSlashingNotSlashable (neither predicate)"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-017.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-018
+    section: "Verification"
+    summary: "verify_invalid_block enforces signature over dig_block::block_signing_message"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-018.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-019
+    section: "Verification"
+    summary: "verify_invalid_block rejects when header.epoch != evidence.epoch"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-019.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-020
+    section: "Verification"
+    summary: "verify_invalid_block calls InvalidBlockOracle::verify_failure when oracle supplied"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-020.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-021
+    section: "Verification"
+    summary: "verify_evidence_for_inclusion parity with verify_evidence minus state mutation"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-021.md"
+    catalogue_ref: "docs/resources/SPEC.md#22.2"
+    tests: []
+    notes: ""
+
+  - id: DSL-157
+    section: "Serialization"
+    summary: "SlashingEvidence + payload serde roundtrip"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-157.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-157"
+    tests: []
+    notes: ""
+
+  - id: DSL-158
+    section: "Serialization"
+    summary: "IndexedAttestation serde roundtrip"
+    status: gap
+    spec_ref: "docs/requirements/domains/evidence/specs/DSL-158.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-158"
+    tests: []
+    notes: ""
