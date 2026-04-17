@@ -13,6 +13,8 @@ chia-protocol = { version = "0.26", features = ["serde"] }
 chia-sha2 = "0.26"
 dig-protocol = "0.1"
 serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11"
+thiserror = "2"
 
 [dev-dependencies]
 bincode = "1.3"

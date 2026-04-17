@@ -14,7 +14,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [ ] DSL-002 — SlashingEvidence::hash deterministic + sensitive
 - [x] DSL-003 — Checkpoint roundtrip
 - [x] DSL-004 — AttestationData::signing_root domain-prefixed
-- [ ] DSL-005 — IndexedAttestation::validate_structure
+- [x] DSL-005 — IndexedAttestation::validate_structure
 - [ ] DSL-006 — IndexedAttestation::verify_signature (aggregate BLS)
 - [ ] DSL-007 — AttesterSlashing::slashable_indices (intersection)
 - [ ] DSL-008 — InvalidBlockProof + InvalidBlockReason roundtrip

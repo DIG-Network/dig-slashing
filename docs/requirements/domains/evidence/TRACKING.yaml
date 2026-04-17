@@ -45,10 +45,11 @@ items:
   - id: DSL-005
     section: "Types"
     summary: "IndexedAttestation::validate_structure rejects non-ascending/dups/empty/over-cap/bad-sig-width"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-005.md"
     catalogue_ref: "docs/resources/SPEC.md#22.1"
-    tests: []
+    tests:
+      - dsl_005_indexed_attestation_validate_structure_test
     notes: ""
 
   - id: DSL-006

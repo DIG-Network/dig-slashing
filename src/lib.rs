@@ -29,12 +29,14 @@
 //! (Further modules land as their DSL-NNN requirements are implemented.)
 
 pub mod constants;
+pub mod error;
 pub mod evidence;
 
 // ── Public re-exports (alphabetical within category) ────────────────────────
 
 pub use constants::{
-    ATTESTATION_BASE_BPS, DOMAIN_BEACON_ATTESTER, EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS,
-    MAX_PENALTY_BPS,
+    ATTESTATION_BASE_BPS, BLS_PUBLIC_KEY_SIZE, BLS_SIGNATURE_SIZE, DOMAIN_BEACON_ATTESTER,
+    EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS, MAX_VALIDATORS_PER_COMMITTEE,
 };
-pub use evidence::{AttestationData, Checkpoint, OffenseType};
+pub use error::SlashingError;
+pub use evidence::{AttestationData, Checkpoint, IndexedAttestation, OffenseType};
