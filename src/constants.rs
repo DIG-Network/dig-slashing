@@ -71,3 +71,31 @@ pub const MAX_PENALTY_BPS: u16 = 1_000;
 /// attester-slashing / attestation-participation context so a signature
 /// produced here cannot be replayed as a proposer signature (DSL-050).
 pub const DOMAIN_BEACON_ATTESTER: &[u8] = b"DIG_BEACON_ATTESTER_V1";
+
+// ── BLS widths (SPEC §2.10) ─────────────────────────────────────────────────
+//
+// Canonical BLS12-381 byte widths used by `chia-bls`. Re-declared here so
+// every wire-format check in this crate cites a single constant, and so
+// breaking upstream changes show up as compile-time edits to one place.
+
+/// BLS12-381 G2 signature compressed width (bytes).
+///
+/// Traces to SPEC §2.10. Used by `IndexedAttestation::validate_structure`
+/// (DSL-005) as the exact equality check on `signature.len()`.
+pub const BLS_SIGNATURE_SIZE: usize = 96;
+
+/// BLS12-381 G1 public key compressed width (bytes).
+///
+/// Traces to SPEC §2.10.
+pub const BLS_PUBLIC_KEY_SIZE: usize = 48;
+
+// ── Committee size cap (SPEC §2.7) ──────────────────────────────────────────
+
+/// Maximum number of validator indices in a single `IndexedAttestation`.
+///
+/// Traces to SPEC §2.7, Ethereum-parity value. Bounds memory + aggregate-
+/// verify cost per attestation. `IndexedAttestation::validate_structure`
+/// (DSL-005) rejects lengths strictly greater than this cap; the cap
+/// itself is valid (boundary behaviour enforced by
+/// `test_dsl_005_at_cap_accepted`).
+pub const MAX_VALIDATORS_PER_COMMITTEE: usize = 2_048;

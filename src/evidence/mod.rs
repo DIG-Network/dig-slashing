@@ -10,8 +10,10 @@
 
 pub mod attestation_data;
 pub mod checkpoint;
+pub mod indexed_attestation;
 pub mod offense;
 
 pub use attestation_data::AttestationData;
 pub use checkpoint::Checkpoint;
+pub use indexed_attestation::IndexedAttestation;
 pub use offense::OffenseType;
