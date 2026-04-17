@@ -1,0 +1,400 @@
+domain_id: appeal
+normative: NORMATIVE.md
+verification: VERIFICATION.md
+
+items:
+  - id: DSL-034
+    section: "Proposer Appeal"
+    summary: "ProposerAppeal HeadersIdentical sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-034.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-034"
+    tests: []
+    notes: ""
+
+  - id: DSL-035
+    section: "Proposer Appeal"
+    summary: "ProposerAppeal ProposerIndexMismatch sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-035.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-035"
+    tests: []
+    notes: ""
+
+  - id: DSL-036
+    section: "Proposer Appeal"
+    summary: "ProposerAppeal SignatureAInvalid sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-036.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-036"
+    tests: []
+    notes: ""
+
+  - id: DSL-037
+    section: "Proposer Appeal"
+    summary: "ProposerAppeal SignatureBInvalid sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-037.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-037"
+    tests: []
+    notes: ""
+
+  - id: DSL-038
+    section: "Proposer Appeal"
+    summary: "ProposerAppeal SlotMismatch sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-038.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-038"
+    tests: []
+    notes: ""
+
+  - id: DSL-039
+    section: "Proposer Appeal"
+    summary: "ProposerAppeal ValidatorNotActiveAtEpoch sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-039.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-039"
+    tests: []
+    notes: ""
+
+  - id: DSL-040
+    section: "Proposer Appeal"
+    summary: "ProposerAppeal rejected on false claim"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-040.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-040"
+    tests: []
+    notes: ""
+
+  - id: DSL-041
+    section: "Attester Appeal"
+    summary: "AttesterAppeal AttestationsIdentical sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-041.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-041"
+    tests: []
+    notes: ""
+
+  - id: DSL-042
+    section: "Attester Appeal"
+    summary: "AttesterAppeal NotSlashableByPredicate sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-042.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-042"
+    tests: []
+    notes: ""
+
+  - id: DSL-043
+    section: "Attester Appeal"
+    summary: "AttesterAppeal EmptyIntersection sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-043.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-043"
+    tests: []
+    notes: ""
+
+  - id: DSL-044
+    section: "Attester Appeal"
+    summary: "AttesterAppeal SignatureAInvalid sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-044.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-044"
+    tests: []
+    notes: ""
+
+  - id: DSL-045
+    section: "Attester Appeal"
+    summary: "AttesterAppeal SignatureBInvalid sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-045.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-045"
+    tests: []
+    notes: ""
+
+  - id: DSL-046
+    section: "Attester Appeal"
+    summary: "AttesterAppeal InvalidIndexedAttestationStructure sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-046.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-046"
+    tests: []
+    notes: ""
+
+  - id: DSL-047
+    section: "Attester Appeal"
+    summary: "AttesterAppeal ValidatorNotInIntersection sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-047.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-047"
+    tests: []
+    notes: ""
+
+  - id: DSL-048
+    section: "Attester Appeal"
+    summary: "AttesterAppeal rejected on genuine slash"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-048.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-048"
+    tests: []
+    notes: ""
+
+  - id: DSL-049
+    section: "InvalidBlock Appeal"
+    summary: "InvalidBlockAppeal BlockActuallyValid sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-049.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-049"
+    tests: []
+    notes: ""
+
+  - id: DSL-050
+    section: "InvalidBlock Appeal"
+    summary: "InvalidBlockAppeal ProposerSignatureInvalid sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-050.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-050"
+    tests: []
+    notes: ""
+
+  - id: DSL-051
+    section: "InvalidBlock Appeal"
+    summary: "InvalidBlockAppeal FailureReasonMismatch sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-051.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-051"
+    tests: []
+    notes: ""
+
+  - id: DSL-052
+    section: "InvalidBlock Appeal"
+    summary: "InvalidBlockAppeal EvidenceEpochMismatch sustained"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-052.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-052"
+    tests: []
+    notes: ""
+
+  - id: DSL-053
+    section: "InvalidBlock Appeal"
+    summary: "InvalidBlockAppeal MissingOracle error"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-053.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-053"
+    tests: []
+    notes: ""
+
+  - id: DSL-054
+    section: "InvalidBlock Appeal"
+    summary: "InvalidBlockAppeal rejected on genuine invalid block"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-054.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-054"
+    tests: []
+    notes: ""
+
+  - id: DSL-055
+    section: "Submission Preconditions"
+    summary: "submit_appeal UnknownEvidence"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-055.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-055"
+    tests: []
+    notes: ""
+
+  - id: DSL-056
+    section: "Submission Preconditions"
+    summary: "submit_appeal WindowExpired"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-056.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-056"
+    tests: []
+    notes: ""
+
+  - id: DSL-057
+    section: "Submission Preconditions"
+    summary: "submit_appeal VariantMismatch"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-057.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-057"
+    tests: []
+    notes: ""
+
+  - id: DSL-058
+    section: "Submission Preconditions"
+    summary: "submit_appeal DuplicateAppeal"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-058.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-058"
+    tests: []
+    notes: ""
+
+  - id: DSL-059
+    section: "Submission Preconditions"
+    summary: "submit_appeal TooManyAttempts"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-059.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-059"
+    tests: []
+    notes: ""
+
+  - id: DSL-060
+    section: "Submission Preconditions"
+    summary: "submit_appeal SlashAlreadyReverted"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-060.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-060"
+    tests: []
+    notes: ""
+
+  - id: DSL-061
+    section: "Submission Preconditions"
+    summary: "submit_appeal SlashAlreadyFinalised"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-061.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-061"
+    tests: []
+    notes: ""
+
+  - id: DSL-062
+    section: "Submission Preconditions"
+    summary: "submit_appeal escrows appellant bond"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-062.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-062"
+    tests: []
+    notes: ""
+
+  - id: DSL-063
+    section: "Submission Preconditions"
+    summary: "submit_appeal PayloadTooLarge"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-063.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-063"
+    tests: []
+    notes: ""
+
+  - id: DSL-064
+    section: "Adjudicator"
+    summary: "Adjudicate Sustained reverts base slash via credit_stake"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-064.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-064"
+    tests: []
+    notes: ""
+
+  - id: DSL-065
+    section: "Adjudicator"
+    summary: "Adjudicate Sustained reverts collateral"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-065.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-065"
+    tests: []
+    notes: ""
+
+  - id: DSL-066
+    section: "Adjudicator"
+    summary: "Adjudicate Sustained restores validator status"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-066.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-066"
+    tests: []
+    notes: ""
+
+  - id: DSL-067
+    section: "Adjudicator"
+    summary: "Adjudicate Sustained clawback wb + prop rewards"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-067.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-067"
+    tests: []
+    notes: ""
+
+  - id: DSL-068
+    section: "Adjudicator"
+    summary: "Adjudicate Sustained reporter-bond 50/50 split"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-068.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-068"
+    tests: []
+    notes: ""
+
+  - id: DSL-069
+    section: "Adjudicator"
+    summary: "Adjudicate Sustained reporter penalty"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-069.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-069"
+    tests: []
+    notes: ""
+
+  - id: DSL-070
+    section: "Adjudicator"
+    summary: "Adjudicate Sustained status Reverted"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-070.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-070"
+    tests: []
+    notes: ""
+
+  - id: DSL-071
+    section: "Adjudicator"
+    summary: "Adjudicate Rejected appellant-bond 50/50 split"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-071.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-071"
+    tests: []
+    notes: ""
+
+  - id: DSL-072
+    section: "Adjudicator"
+    summary: "Adjudicate Rejected keeps ChallengeOpen + appeal_count+1"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-072.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-072"
+    tests: []
+    notes: ""
+
+  - id: DSL-073
+    section: "Adjudicator"
+    summary: "Adjudicate clawback shortfall absorbed from bond"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-073.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-073"
+    tests: []
+    notes: ""
+
+  - id: DSL-159
+    section: "SlashAppeal Hash + Serde"
+    summary: "SlashAppeal::hash determinism + sensitivity"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-159.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-159"
+    tests: []
+    notes: ""
+
+  - id: DSL-160
+    section: "SlashAppeal Hash + Serde"
+    summary: "SlashAppeal + SlashAppealPayload serde roundtrip"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-160.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-160"
+    tests: []
+    notes: ""
+
+  - id: DSL-161
+    section: "SlashAppeal Hash + Serde"
+    summary: "PendingSlash + AppealAttempt + PendingSlashStatus serde"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-161.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-161"
+    tests: []
+    notes: ""
+
+  - id: DSL-164
+    section: "SlashAppeal Hash + Serde"
+    summary: "AppealAdjudicationResult serde roundtrip"
+    status: gap
+    spec_ref: "docs/requirements/domains/appeal/specs/DSL-164.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-164"
+    tests: []
+    notes: ""

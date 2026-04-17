@@ -1,0 +1,9 @@
+[package]
+name = "dig-slashing"
+version = "0.1.0"
+edition = "2024"
+description = "Validator slashing, attestation participation, inactivity accounting, and fraud-proof appeals for the DIG Network L2 blockchain."
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+

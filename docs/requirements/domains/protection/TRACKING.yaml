@@ -1,0 +1,85 @@
+domain_id: protection
+normative: NORMATIVE.md
+verification: VERIFICATION.md
+
+items:
+  - id: DSL-094
+    section: "Monotonicity"
+    summary: "check_proposal_slot monotonic"
+    status: gap
+    spec_ref: "docs/requirements/domains/protection/specs/DSL-094.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-094"
+    tests: []
+    notes: ""
+
+  - id: DSL-095
+    section: "Monotonicity"
+    summary: "check_attestation same-epoch-different-hash fails"
+    status: gap
+    spec_ref: "docs/requirements/domains/protection/specs/DSL-095.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-095"
+    tests: []
+    notes: ""
+
+  - id: DSL-096
+    section: "Monotonicity"
+    summary: "would_surround self-check"
+    status: gap
+    spec_ref: "docs/requirements/domains/protection/specs/DSL-096.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-096"
+    tests: []
+    notes: ""
+
+  - id: DSL-097
+    section: "Recording"
+    summary: "record_proposal / record_attestation persist"
+    status: gap
+    spec_ref: "docs/requirements/domains/protection/specs/DSL-097.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-097"
+    tests: []
+    notes: ""
+
+  - id: DSL-098
+    section: "Tip Reconciliation"
+    summary: "rewind_attestation_to_epoch clears hash"
+    status: gap
+    spec_ref: "docs/requirements/domains/protection/specs/DSL-098.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-098"
+    tests: []
+    notes: ""
+
+  - id: DSL-099
+    section: "Tip Reconciliation"
+    summary: "reconcile_with_chain_tip rewinds both"
+    status: gap
+    spec_ref: "docs/requirements/domains/protection/specs/DSL-099.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-099"
+    tests: []
+    notes: ""
+
+  - id: DSL-100
+    section: "Persistence"
+    summary: "Legacy JSON loads with hash=None"
+    status: gap
+    spec_ref: "docs/requirements/domains/protection/specs/DSL-100.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-100"
+    tests: []
+    notes: ""
+
+  - id: DSL-101
+    section: "Persistence"
+    summary: "Save/load roundtrip"
+    status: gap
+    spec_ref: "docs/requirements/domains/protection/specs/DSL-101.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-101"
+    tests: []
+    notes: ""
+
+  - id: DSL-156
+    section: "Proposal Rewind"
+    summary: "SlashingProtection::rewind_proposal_to_slot"
+    status: gap
+    spec_ref: "docs/requirements/domains/protection/specs/DSL-156.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-156"
+    tests: []
+    notes: ""

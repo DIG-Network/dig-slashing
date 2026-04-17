@@ -1,0 +1,76 @@
+domain_id: inactivity
+normative: NORMATIVE.md
+verification: VERIFICATION.md
+
+items:
+  - id: DSL-087
+    section: "Finality-Stall Detection"
+    summary: "in_finality_stall returns true iff current - finalized > MIN_EPOCHS_TO_INACTIVITY_PENALTY (4)"
+    status: gap
+    spec_ref: "docs/requirements/domains/inactivity/specs/DSL-087.md"
+    tests:
+      - dsl_087_in_finality_stall_threshold_test
+    notes: "Saturating subtraction; strict `>` comparison matches Ethereum process_inactivity_updates."
+
+  - id: DSL-088
+    section: "Score Update"
+    summary: "InactivityScoreTracker::update_for_epoch decrements score by 1 (saturating) on target-timely hit"
+    status: gap
+    spec_ref: "docs/requirements/domains/inactivity/specs/DSL-088.md"
+    tests:
+      - dsl_088_inactivity_score_hit_decrement_test
+    notes: "Decrement applies independently of in_finality_stall; saturating at 0."
+
+  - id: DSL-089
+    section: "Score Update"
+    summary: "InactivityScoreTracker::update_for_epoch increments by INACTIVITY_SCORE_BIAS (4) on target miss during stall"
+    status: gap
+    spec_ref: "docs/requirements/domains/inactivity/specs/DSL-089.md"
+    tests:
+      - dsl_089_inactivity_score_miss_in_stall_increment_test
+    notes: "Saturating_add; no bias applied outside of stall."
+
+  - id: DSL-090
+    section: "Score Update"
+    summary: "Global recovery decrement INACTIVITY_SCORE_RECOVERY_RATE (16) applied to all validators when out of stall"
+    status: gap
+    spec_ref: "docs/requirements/domains/inactivity/specs/DSL-090.md"
+    tests:
+      - dsl_090_inactivity_score_out_of_stall_recovery_test
+    notes: "Applied after per-validator pass; saturating at 0; no recovery during stall."
+
+  - id: DSL-091
+    section: "Per-Epoch Penalty"
+    summary: "InactivityScoreTracker::epoch_penalties returns empty vec when out of stall"
+    status: gap
+    spec_ref: "docs/requirements/domains/inactivity/specs/DSL-091.md"
+    tests:
+      - dsl_091_inactivity_penalty_no_stall_empty_test
+    notes: "No inactivity penalty assessed outside of finality stall regardless of score values."
+
+  - id: DSL-092
+    section: "Per-Epoch Penalty"
+    summary: "Per-epoch penalty formula eff_bal * score / INACTIVITY_PENALTY_QUOTIENT (16_777_216)"
+    status: gap
+    spec_ref: "docs/requirements/domains/inactivity/specs/DSL-092.md"
+    tests:
+      - dsl_092_inactivity_penalty_formula_test
+    notes: "Integer division; only non-zero penalty tuples returned; zero-score or truncated-to-zero entries omitted."
+
+  - id: DSL-093
+    section: "Resize"
+    summary: "InactivityScoreTracker::resize_for grows scores vec; new entries start at 0"
+    status: gap
+    spec_ref: "docs/requirements/domains/inactivity/specs/DSL-093.md"
+    tests:
+      - dsl_093_inactivity_resize_test
+    notes: "Prior entries preserved; idempotent when sizes equal; grow-only for new activations."
+
+  - id: DSL-155
+    section: "Reorg"
+    summary: "InactivityScoreTracker::rewind_on_reorg ring-buffer restore"
+    status: gap
+    spec_ref: "docs/requirements/domains/inactivity/specs/DSL-155.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-155"
+    tests: []
+    notes: ""

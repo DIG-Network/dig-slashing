@@ -1,0 +1,28 @@
+# Optimistic Slashing Lifecycle — Verification
+
+| ID | Status | Summary | Verification Approach |
+|----|--------|---------|----------------------|
+| [DSL-022](NORMATIVE.md#DSL-022) | ❌ | submit_evidence base_slash = max(bps, quotient) | Unit test of the per-validator formula with BPS-dominant, quotient-dominant, and tie cases; confirms `slash_absolute` called with expected amount. |
+| [DSL-023](NORMATIVE.md#DSL-023) | ❌ | submit_evidence escrows REPORTER_BOND_MOJOS via BondEscrow::lock | MockBondEscrow records `lock(reporter_idx, REPORTER_BOND_MOJOS, BondTag::Reporter(hash))`; `SlashingResult::reporter_bond_escrowed` verified. |
+| [DSL-024](NORMATIVE.md#DSL-024) | ❌ | submit_evidence inserts PendingSlash { Accepted, window_expires } | Post-submit inspection of `PendingSlashBook::get(hash)`: status == Accepted, epochs match, per-validator vec populated. |
+| [DSL-025](NORMATIVE.md#DSL-025) | ❌ | submit_evidence routes wb_reward + prop_reward | MockRewardPayout captures payments; reporter ph receives `eff_bal/512`, proposer ph receives `wb/8`; `burn_amount = total_base - wb - prop`. |
+| [DSL-026](NORMATIVE.md#DSL-026) | ❌ | submit_evidence rejects AlreadySlashed on duplicate | Submit same evidence twice; second call returns `Err(SlashingError::AlreadySlashed)`; no state mutation. |
+| [DSL-027](NORMATIVE.md#DSL-027) | ❌ | submit_evidence rejects PendingBookFull at capacity | Fill book to `MAX_PENDING_SLASHES`; next submit returns `Err(PendingBookFull)`; no bond lock, no mutation. |
+| [DSL-028](NORMATIVE.md#DSL-028) | ❌ | submit_evidence rejects BondLockFailed on insufficient stake | Configure MockBondEscrow to return `InsufficientBalance`; expect `Err(BondLockFailed)`; validator state untouched. |
+| [DSL-029](NORMATIVE.md#DSL-029) | ❌ | finalise transitions Accepted/ChallengeOpen to Finalised | Submit evidence, advance epoch past window, call finalise; status becomes `Finalised { finalised_at_epoch }`; FinalisationResult emitted. |
+| [DSL-030](NORMATIVE.md#DSL-030) | ❌ | finalise applies correlation penalty | Populate slashed_in_window with cohort; verify `eff_bal * min(cohort*3, total) / total` debited; caps at `eff_bal` when saturating. |
+| [DSL-031](NORMATIVE.md#DSL-031) | ❌ | finalise returns reporter bond in full | MockBondEscrow records `release(reporter_idx, REPORTER_BOND_MOJOS, Reporter(hash))`; `reporter_bond_returned == REPORTER_BOND_MOJOS`. |
+| [DSL-032](NORMATIVE.md#DSL-032) | ❌ | finalise schedules exit lock `current + SLASH_LOCK_EPOCHS` | MockValidatorSet captures `schedule_exit(epoch)`; `FinalisationResult::exit_lock_until_epoch` verified; all slashed validators receive the call. |
+| [DSL-033](NORMATIVE.md#DSL-033) | ❌ | finalise skips already-Reverted slashes | Force status to Reverted via mock; call finalise; verify no validator mutation, no bond release, no FinalisationResult for that hash. |
+| [DSL-146](NORMATIVE.md#DSL-146) | ❌ | PendingSlashBook basic ops | 4 tests: new/insert/get/remove contract. |
+| [DSL-147](NORMATIVE.md#DSL-147) | ❌ | PendingSlashBook::expired_by | 4 tests: expired returned, boundary excluded, Reverted excluded, ordered. |
+| [DSL-148](NORMATIVE.md#DSL-148) | ❌ | SlashingManager::new + set_epoch | 4 tests: empty state, epoch preserved, set_epoch updates, distinct from genesis. |
+| [DSL-149](NORMATIVE.md#DSL-149) | ❌ | SlashingManager::is_slashed | 3 tests: slashed true, active false, unknown false. |
+| [DSL-150](NORMATIVE.md#DSL-150) | ❌ | is_processed + pending + prune | 6 tests. |
+| [DSL-151](NORMATIVE.md#DSL-151) | ❌ | Correlation penalty saturation clamp | 5 tests: small, mass, exact ceiling, zero total, overflow. |
+| [DSL-152](NORMATIVE.md#DSL-152) | ❌ | submit_evidence ReporterIsAccused short-circuit | 4 tests: proposer + attester self-accuse, no state mutation, distinct ok. |
+
+| [DSL-162](NORMATIVE.md#DSL-162) | ❌ | submit_evidence skips already-slashed indices | 4 tests: single skipped, partial intersection, all indices slashed, no window insert. |
+| [DSL-163](NORMATIVE.md#DSL-163) | ❌ | SlashingResult + PerValidatorSlash + FinalisationResult serde | 5 tests: bincode all types, json all types, zero preserved. |
+
+**Status legend:** ✅ verified · ⚠️ partial · ❌ gap

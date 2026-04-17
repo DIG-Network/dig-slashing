@@ -1,0 +1,67 @@
+domain_id: bonds
+normative: NORMATIVE.md
+verification: VERIFICATION.md
+
+items:
+  - id: DSL-121
+    section: "BondEscrow Trait"
+    summary: "BondEscrow::lock InsufficientBalance"
+    status: gap
+    spec_ref: "docs/requirements/domains/bonds/specs/DSL-121.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-121"
+    tests: []
+    notes: ""
+
+  - id: DSL-122
+    section: "BondEscrow Trait"
+    summary: "BondEscrow::forfeit returns mojos"
+    status: gap
+    spec_ref: "docs/requirements/domains/bonds/specs/DSL-122.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-122"
+    tests: []
+    notes: ""
+
+  - id: DSL-123
+    section: "BondEscrow Trait"
+    summary: "BondEscrow::release full"
+    status: gap
+    spec_ref: "docs/requirements/domains/bonds/specs/DSL-123.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-123"
+    tests: []
+    notes: ""
+
+  - id: DSL-124
+    section: "Bond Sizes"
+    summary: "REPORTER_BOND_MOJOS = MIN_EFFECTIVE_BALANCE / 64"
+    status: gap
+    spec_ref: "docs/requirements/domains/bonds/specs/DSL-124.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-124"
+    tests: []
+    notes: ""
+
+  - id: DSL-125
+    section: "Bond Sizes"
+    summary: "APPELLANT_BOND_MOJOS = MIN_EFFECTIVE_BALANCE / 64"
+    status: gap
+    spec_ref: "docs/requirements/domains/bonds/specs/DSL-125.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-125"
+    tests: []
+    notes: ""
+
+  - id: DSL-126
+    section: "Bond Award Split"
+    summary: "BOND_AWARD_TO_WINNER_BPS = 5_000"
+    status: gap
+    spec_ref: "docs/requirements/domains/bonds/specs/DSL-126.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-126"
+    tests: []
+    notes: ""
+
+  - id: DSL-166
+    section: "BondTag"
+    summary: "BondTag::Reporter vs Appellant distinguishable"
+    status: gap
+    spec_ref: "docs/requirements/domains/bonds/specs/DSL-166.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-166"
+    tests: []
+    notes: ""

@@ -1,0 +1,22 @@
+# Participation & Rewards — Verification
+
+| ID | Status | Summary | Verification Approach |
+|----|--------|---------|----------------------|
+| [DSL-074](NORMATIVE.md#DSL-074) | ❌ | ParticipationFlags bits set/has | 3 tests: set each bit, has returns true, other bits untouched. |
+| [DSL-075](NORMATIVE.md#DSL-075) | ❌ | classify_timeliness TIMELY_SOURCE | 4 tests: delay in [1,5] + justified → set; out-of-range or unjustified → unset. |
+| [DSL-076](NORMATIVE.md#DSL-076) | ❌ | classify_timeliness TIMELY_TARGET | 4 tests: delay in [1,32] + canonical → set; beyond range or non-canonical → unset. |
+| [DSL-077](NORMATIVE.md#DSL-077) | ❌ | classify_timeliness TIMELY_HEAD | 4 tests: delay == 1 + canonical head → set; delay > 1 → unset. |
+| [DSL-078](NORMATIVE.md#DSL-078) | ❌ | ParticipationTracker::record_attestation | 4 tests: sets flags per index, additive with prior flags, respects array bounds. |
+| [DSL-079](NORMATIVE.md#DSL-079) | ❌ | ParticipationTracker non-ascending rejection | 3 tests: non-ascending → error, duplicate → error, single-element ok. |
+| [DSL-080](NORMATIVE.md#DSL-080) | ❌ | ParticipationTracker::rotate_epoch | 4 tests: swap, zero current, resize, epoch number update. |
+| [DSL-081](NORMATIVE.md#DSL-081) | ❌ | base_reward formula | 4 tests: formula exact for known pairs, isqrt behaviour, saturation, zero-balance edge. |
+| [DSL-082](NORMATIVE.md#DSL-082) | ❌ | compute_flag_deltas reward on hit | 4 tests: each flag alone, all flags set, weight math. |
+| [DSL-083](NORMATIVE.md#DSL-083) | ❌ | compute_flag_deltas penalty head exempt | 4 tests: SOURCE miss penalty, TARGET miss penalty, HEAD miss no penalty, all-miss composite. |
+| [DSL-084](NORMATIVE.md#DSL-084) | ❌ | compute_flag_deltas stall zeroes rewards | 3 tests: stall → reward=0; penalties still applied; out-of-stall normal. |
+| [DSL-085](NORMATIVE.md#DSL-085) | ❌ | proposer_inclusion_reward formula | 3 tests: base * 8 / 56 exact; zero-base edge; rounding. |
+| [DSL-086](NORMATIVE.md#DSL-086) | ❌ | WEIGHT_DENOMINATOR = 64 no sync | 2 tests: denominator value, sum of assigned weights == 62. |
+
+| [DSL-153](NORMATIVE.md#DSL-153) | ❌ | ParticipationTracker::rewind_on_reorg | 4 tests: restores snapshot, epoch decrements, resize applied, depth=0 no-op. |
+| [DSL-154](NORMATIVE.md#DSL-154) | ❌ | ParticipationFlags serde roundtrip | 4 tests: bincode, serde_json, vec, all bit patterns. |
+
+**Status legend:** ✅ verified · ⚠️ partial · ❌ gap

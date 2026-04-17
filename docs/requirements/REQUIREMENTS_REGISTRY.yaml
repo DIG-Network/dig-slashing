@@ -1,0 +1,116 @@
+schema_version: 1
+
+status_values:
+  active: "Requirements in use for dig-slashing implementation"
+  planned: "Scoped; not yet verified"
+
+domains:
+  - id: evidence
+    title: "Evidence"
+    summary: "Offense catalogue, evidence envelopes, attestation data model, per-offense deterministic verifiers. ProposerSlashing, AttesterSlashing (double-vote + surround-vote), InvalidBlockProof."
+    dsl_range: "DSL-001..021"
+    status: active
+    paths:
+      normative: domains/evidence/NORMATIVE.md
+      verification: domains/evidence/VERIFICATION.md
+      tracking: domains/evidence/TRACKING.yaml
+      requirement_specs: domains/evidence
+
+  - id: lifecycle
+    title: "Optimistic Slashing Lifecycle"
+    summary: "SlashingManager state machine. submit_evidence applies base slash optimistically, escrows reporter bond, routes whistleblower + proposer rewards, creates PendingSlash. finalise_expired_slashes applies correlation penalty + exit lock after appeal window."
+    dsl_range: "DSL-022..033"
+    status: active
+    paths:
+      normative: domains/lifecycle/NORMATIVE.md
+      verification: domains/lifecycle/VERIFICATION.md
+      tracking: domains/lifecycle/TRACKING.yaml
+      requirement_specs: domains/lifecycle
+
+  - id: appeal
+    title: "Fraud-Proof Appeal System"
+    summary: "Appeal envelopes + per-offense payload variants + per-ground fraud-proof verifiers. AppealAdjudicator reverts base slash on sustained, forfeits bonds per BOND_AWARD_TO_WINNER_BPS, clawback rewards, penalises false reporter."
+    dsl_range: "DSL-034..073"
+    status: active
+    paths:
+      normative: domains/appeal/NORMATIVE.md
+      verification: domains/appeal/VERIFICATION.md
+      tracking: domains/appeal/TRACKING.yaml
+      requirement_specs: domains/appeal
+
+  - id: participation
+    title: "Attestation Participation & Rewards"
+    summary: "Ethereum Altair (minus sync committee) participation accounting. TIMELY_SOURCE/TIMELY_TARGET/TIMELY_HEAD flags. base_reward = eff_bal * 64 / isqrt(total_active). compute_flag_deltas. proposer_inclusion_reward."
+    dsl_range: "DSL-074..086"
+    status: active
+    paths:
+      normative: domains/participation/NORMATIVE.md
+      verification: domains/participation/VERIFICATION.md
+      tracking: domains/participation/TRACKING.yaml
+      requirement_specs: domains/participation
+
+  - id: inactivity
+    title: "Inactivity Accounting"
+    summary: "Continuous per-epoch inactivity scoring (Ethereum Bellatrix). Score += 4 on target miss in stall; -= 1 on target hit; recovery rate 16 out of stall. Penalty = eff_bal * score / 16_777_216 during stall only."
+    dsl_range: "DSL-087..093"
+    status: active
+    paths:
+      normative: domains/inactivity/NORMATIVE.md
+      verification: domains/inactivity/VERIFICATION.md
+      tracking: domains/inactivity/TRACKING.yaml
+      requirement_specs: domains/inactivity
+
+  - id: protection
+    title: "Validator-Local Slashing Protection"
+    summary: "SlashingProtection JSON watermarks. Proposal-slot monotonicity. Attestation source + target epoch monotonicity. Surround-vote self-check. Tip-rewind + reconcile. Legacy JSON compatibility."
+    dsl_range: "DSL-094..101"
+    status: active
+    paths:
+      normative: domains/protection/NORMATIVE.md
+      verification: domains/protection/VERIFICATION.md
+      tracking: domains/protection/TRACKING.yaml
+      requirement_specs: domains/protection
+
+  - id: remark
+    title: "REMARK Admission"
+    summary: "Evidence + appeal REMARK wire formats. Magic prefix + JSON payload. CLVM puzzle-reveal via clvm-utils::tree_hash. Admission enforcement (puzzle-hash match). Mempool policy (lookback, duplicates, block caps)."
+    dsl_range: "DSL-102..120"
+    status: active
+    paths:
+      normative: domains/remark/NORMATIVE.md
+      verification: domains/remark/VERIFICATION.md
+      tracking: domains/remark/TRACKING.yaml
+      requirement_specs: domains/remark
+
+  - id: bonds
+    title: "Bond Escrow & Rewards Routing"
+    summary: "BondEscrow trait (lock / release / forfeit / escrowed) with BondTag::Reporter(evidence_hash) + BondTag::Appellant(appeal_hash). Bond sizes = MIN_EFFECTIVE_BALANCE / 64. BOND_AWARD_TO_WINNER_BPS = 5_000 (50/50 winner/burn)."
+    dsl_range: "DSL-121..126"
+    status: active
+    paths:
+      normative: domains/bonds/NORMATIVE.md
+      verification: domains/bonds/VERIFICATION.md
+      tracking: domains/bonds/TRACKING.yaml
+      requirement_specs: domains/bonds
+
+  - id: orchestration
+    title: "Epoch Boundary, Genesis, Reorg"
+    summary: "run_epoch_boundary (fixed ordering: rotate, deltas, inactivity, finalise). SlashingSystem::genesis. SlashingManager::rewind_on_reorg. rewind_all_on_reorg (participation + inactivity + protection + manager)."
+    dsl_range: "DSL-127..130"
+    status: active
+    paths:
+      normative: domains/orchestration/NORMATIVE.md
+      verification: domains/orchestration/VERIFICATION.md
+      tracking: domains/orchestration/TRACKING.yaml
+      requirement_specs: domains/orchestration
+
+  - id: traits
+    title: "External-State Trait Contracts"
+    summary: "ValidatorView/Entry, EffectiveBalanceView, PublicKeyLookup, CollateralSlasher, BondEscrow::escrowed, RewardPayout, RewardClawback, JustificationView, ProposerView, InvalidBlockOracle. Contracts for downstream implementations."
+    dsl_range: "DSL-131..145"
+    status: active
+    paths:
+      normative: domains/traits/NORMATIVE.md
+      verification: domains/traits/VERIFICATION.md
+      tracking: domains/traits/TRACKING.yaml
+      requirement_specs: domains/traits

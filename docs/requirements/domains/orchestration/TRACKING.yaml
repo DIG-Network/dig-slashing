@@ -1,0 +1,49 @@
+domain_id: orchestration
+normative: NORMATIVE.md
+verification: VERIFICATION.md
+
+items:
+  - id: DSL-127
+    section: "Epoch Boundary"
+    summary: "run_epoch_boundary fixed ordering"
+    status: gap
+    spec_ref: "docs/requirements/domains/orchestration/specs/DSL-127.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-127"
+    tests: []
+    notes: ""
+
+  - id: DSL-128
+    section: "Genesis"
+    summary: "SlashingSystem::genesis"
+    status: gap
+    spec_ref: "docs/requirements/domains/orchestration/specs/DSL-128.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-128"
+    tests: []
+    notes: ""
+
+  - id: DSL-129
+    section: "Manager Reorg"
+    summary: "SlashingManager::rewind_on_reorg"
+    status: gap
+    spec_ref: "docs/requirements/domains/orchestration/specs/DSL-129.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-129"
+    tests: []
+    notes: ""
+
+  - id: DSL-130
+    section: "Global Reorg"
+    summary: "rewind_all_on_reorg + ReorgTooDeep"
+    status: gap
+    spec_ref: "docs/requirements/domains/orchestration/specs/DSL-130.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-130"
+    tests: []
+    notes: ""
+
+  - id: DSL-165
+    section: "Serialization"
+    summary: "EpochBoundaryReport + ReorgReport + FlagDelta serde"
+    status: gap
+    spec_ref: "docs/requirements/domains/orchestration/specs/DSL-165.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-165"
+    tests: []
+    notes: ""

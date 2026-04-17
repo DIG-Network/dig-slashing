@@ -1,0 +1,193 @@
+domain_id: lifecycle
+normative: NORMATIVE.md
+verification: VERIFICATION.md
+
+items:
+  - id: DSL-022
+    section: "Optimistic Admission"
+    summary: "submit_evidence applies base_slash = max(eff_bal*bps/10_000, eff_bal/32)"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-022.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-022"
+    tests: []
+    notes: ""
+
+  - id: DSL-023
+    section: "Optimistic Admission"
+    summary: "submit_evidence escrows REPORTER_BOND_MOJOS via BondEscrow::lock"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-023.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-023"
+    tests: []
+    notes: ""
+
+  - id: DSL-024
+    section: "Optimistic Admission"
+    summary: "submit_evidence creates PendingSlash { status: Accepted, window_expires_at_epoch }"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-024.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-024"
+    tests: []
+    notes: ""
+
+  - id: DSL-025
+    section: "Optimistic Admission"
+    summary: "submit_evidence routes wb_reward to reporter and prop_reward to block proposer"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-025.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-025"
+    tests: []
+    notes: ""
+
+  - id: DSL-026
+    section: "Optimistic Admission"
+    summary: "submit_evidence rejects AlreadySlashed on duplicate evidence_hash"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-026.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-026"
+    tests: []
+    notes: ""
+
+  - id: DSL-027
+    section: "Optimistic Admission"
+    summary: "submit_evidence rejects PendingBookFull at MAX_PENDING_SLASHES capacity"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-027.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-027"
+    tests: []
+    notes: ""
+
+  - id: DSL-028
+    section: "Optimistic Admission"
+    summary: "submit_evidence rejects BondLockFailed on insufficient reporter stake"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-028.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-028"
+    tests: []
+    notes: ""
+
+  - id: DSL-029
+    section: "Finalisation"
+    summary: "finalise_expired_slashes transitions Accepted/ChallengeOpen to Finalised after window"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-029.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-029"
+    tests: []
+    notes: ""
+
+  - id: DSL-030
+    section: "Finalisation"
+    summary: "finalise_expired_slashes applies correlation penalty eff_bal * min(cohort*3, total) / total"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-030.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-030"
+    tests: []
+    notes: ""
+
+  - id: DSL-031
+    section: "Finalisation"
+    summary: "finalise_expired_slashes returns reporter bond in full via BondEscrow::release"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-031.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-031"
+    tests: []
+    notes: ""
+
+  - id: DSL-032
+    section: "Finalisation"
+    summary: "finalise_expired_slashes schedules exit lock until current_epoch + SLASH_LOCK_EPOCHS"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-032.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-032"
+    tests: []
+    notes: ""
+
+  - id: DSL-033
+    section: "Finalisation"
+    summary: "finalise_expired_slashes skips already-Reverted pending slashes"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-033.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-033"
+    tests: []
+    notes: ""
+
+  - id: DSL-146
+    section: "PendingSlashBook"
+    summary: "PendingSlashBook basic ops (new/insert/get/remove/len)"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-146.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-146"
+    tests: []
+    notes: ""
+
+  - id: DSL-147
+    section: "PendingSlashBook"
+    summary: "PendingSlashBook::expired_by"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-147.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-147"
+    tests: []
+    notes: ""
+
+  - id: DSL-148
+    section: "SlashingManager Construction"
+    summary: "SlashingManager::new + set_epoch"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-148.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-148"
+    tests: []
+    notes: ""
+
+  - id: DSL-149
+    section: "SlashingManager Query"
+    summary: "SlashingManager::is_slashed delegates to ValidatorView"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-149.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-149"
+    tests: []
+    notes: ""
+
+  - id: DSL-150
+    section: "SlashingManager Query"
+    summary: "SlashingManager is_processed + pending + prune"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-150.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-150"
+    tests: []
+    notes: ""
+
+  - id: DSL-151
+    section: "Correlation Penalty"
+    summary: "Correlation penalty saturation clamp at total_active_balance"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-151.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-151"
+    tests: []
+    notes: ""
+
+  - id: DSL-152
+    section: "submit_evidence Short-Circuits"
+    summary: "submit_evidence ReporterIsAccused short-circuit"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-152.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-152"
+    tests: []
+    notes: ""
+
+  - id: DSL-162
+    section: "submit_evidence Short-Circuits"
+    summary: "submit_evidence skips already-slashed indices"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-162.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-162"
+    tests: []
+    notes: ""
+
+  - id: DSL-163
+    section: "Serialization"
+    summary: "SlashingResult + PerValidatorSlash + FinalisationResult serde"
+    status: gap
+    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-163.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-163"
+    tests: []
+    notes: ""
