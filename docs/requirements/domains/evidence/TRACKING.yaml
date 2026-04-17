@@ -35,10 +35,11 @@ items:
   - id: DSL-004
     section: "Types"
     summary: "AttestationData::signing_root deterministic, domain-prefixed, mutation-sensitive"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-004.md"
     catalogue_ref: "docs/resources/SPEC.md#22.1"
-    tests: []
+    tests:
+      - dsl_004_attestation_data_signing_root_test
     notes: ""
 
   - id: DSL-005
