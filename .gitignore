@@ -1,3 +1,4 @@
 /target
 /.repomix
+/.claude
 Cargo.lock
