@@ -54,3 +54,20 @@ pub const ATTESTATION_BASE_BPS: u16 = 100;
 /// may exceed this cap (proportional slashing applies on top); this constant
 /// bounds only the initial optimistic debit.
 pub const MAX_PENALTY_BPS: u16 = 1_000;
+
+// ── Domain separation tags (SPEC §2.10) ─────────────────────────────────────
+//
+// Byte-string tags prefixed into every SHA-256 digest so a hash produced for
+// one protocol context (e.g. an attester signing root) cannot be reinterpreted
+// in another context (e.g. a proposer signing root). These are `&[u8]`
+// constants because `chia_sha2::Sha256::update` accepts `impl AsRef<[u8]>`.
+//
+// Tags are frozen at protocol-version level; changes require a `_V2` rename
+// alongside the old tag kept live during migration.
+
+/// Domain tag for `AttestationData::signing_root` (DSL-004).
+///
+/// Traces to SPEC §2.10. Binds every attester BLS signing message to the
+/// attester-slashing / attestation-participation context so a signature
+/// produced here cannot be replayed as a proposer signature (DSL-050).
+pub const DOMAIN_BEACON_ATTESTER: &[u8] = b"DIG_BEACON_ATTESTER_V1";
