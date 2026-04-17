@@ -64,10 +64,11 @@ items:
   - id: DSL-007
     section: "Types"
     summary: "AttesterSlashing::slashable_indices returns sorted intersection"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-007.md"
     catalogue_ref: "docs/resources/SPEC.md#22.1"
-    tests: []
+    tests:
+      - dsl_007_attester_slashing_slashable_indices_test
     notes: ""
 
   - id: DSL-008
