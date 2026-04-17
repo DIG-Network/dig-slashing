@@ -39,4 +39,6 @@ pub use constants::{
     EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS, MAX_VALIDATORS_PER_COMMITTEE,
 };
 pub use error::SlashingError;
-pub use evidence::{AttestationData, Checkpoint, IndexedAttestation, OffenseType};
+pub use evidence::{
+    AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, OffenseType,
+};
