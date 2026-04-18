@@ -480,6 +480,51 @@ pub fn verify_attester_appeal_invalid_indexed_attestation_structure(
     }
 }
 
+/// Verify `AttesterAppealGround::ValidatorNotInIntersection { validator_index }`.
+///
+/// Implements [DSL-047](../../../docs/requirements/domains/appeal/specs/DSL-047.md).
+/// Traces to SPEC §6.3.
+///
+/// # Predicate
+///
+/// `!evidence.slashable_indices().contains(&validator_index)` —
+/// the named validator is NOT in the two-pointer sorted
+/// intersection (DSL-007). Used to rescue a falsely-included
+/// validator from a buggy verifier admission without touching the
+/// other slashed indices.
+///
+/// # Verdict
+///
+/// - `Sustained { ValidatorNotInIntersection }` iff the named
+///   index is absent from the intersection.
+/// - `Rejected { GroundDoesNotHold }` iff present.
+///
+/// # Per-validator scope
+///
+/// The verdict references only the index the appellant named. Any
+/// other originally-slashed index MUST be appealed independently —
+/// the adjudicator (DSL-064) credits back only the named index on
+/// a sustain. Callers get this for free because the function is
+/// parameterised on `validator_index`, not on the evidence alone.
+///
+/// Evidence-derived; witness ignored (the `validator_index` comes
+/// from the ground variant, not witness bytes).
+#[must_use]
+pub fn verify_attester_appeal_validator_not_in_intersection(
+    evidence: &AttesterSlashing,
+    validator_index: u32,
+) -> AppealVerdict {
+    if evidence.slashable_indices().contains(&validator_index) {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    } else {
+        AppealVerdict::Sustained {
+            reason: AppealSustainReason::ValidatorNotInIntersection,
+        }
+    }
+}
+
 /// Verify `AttesterAppealGround::AttestationsIdentical`.
 ///
 /// Implements [DSL-041](../../../docs/requirements/domains/appeal/specs/DSL-041.md).
