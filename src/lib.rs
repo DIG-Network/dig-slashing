@@ -40,6 +40,7 @@ pub mod participation;
 pub mod pending;
 pub mod protection;
 pub mod remark;
+pub mod system;
 pub mod traits;
 
 // ── Public re-exports (alphabetical within category) ────────────────────────
@@ -115,6 +116,7 @@ pub use remark::{
     slash_appeal_remark_puzzle_reveal_v1, slashing_evidence_remark_puzzle_hash_v1,
     slashing_evidence_remark_puzzle_reveal_v1,
 };
+pub use system::{GenesisParameters, SlashingSystem};
 pub use traits::{
     CollateralSlasher, EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, ProposerView,
     PublicKeyLookup, RewardClawback, RewardPayout, ValidatorEntry, ValidatorView,
