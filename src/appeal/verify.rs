@@ -28,9 +28,10 @@ use crate::appeal::verdict::{AppealRejectReason, AppealSustainReason, AppealVerd
 use crate::constants::BLS_SIGNATURE_SIZE;
 use crate::evidence::attester_slashing::AttesterSlashing;
 use crate::evidence::indexed_attestation::IndexedAttestation;
+use crate::evidence::invalid_block::InvalidBlockProof;
 use crate::evidence::proposer_slashing::ProposerSlashing;
 use crate::evidence::verify::block_signing_message;
-use crate::traits::{PublicKeyLookup, ValidatorView};
+use crate::traits::{ExecutionOutcome, InvalidBlockOracle, PublicKeyLookup, ValidatorView};
 
 /// Verify `ProposerAppealGround::HeadersIdentical`.
 ///
@@ -552,6 +553,63 @@ pub fn verify_attester_appeal_attestations_identical(evidence: &AttesterSlashing
         AppealVerdict::Rejected {
             reason: AppealRejectReason::GroundDoesNotHold,
         }
+    }
+}
+
+/// Verify `InvalidBlockAppealGround::BlockActuallyValid`.
+///
+/// Implements [DSL-049](../../../docs/requirements/domains/appeal/specs/DSL-049.md).
+/// Traces to SPEC §6.4, §15.3.
+///
+/// # Predicate
+///
+/// Delegates to [`InvalidBlockOracle::re_execute`] (DSL-145). The
+/// oracle re-runs full block validation with the caller-supplied
+/// appeal witness (trie proofs, pre-state, parent refs). If
+/// re-execution succeeds the original `InvalidBlockProof` was a
+/// lie — the slash MUST be reverted.
+///
+/// # Witness passthrough
+///
+/// The appeal's own `witness: &[u8]` is passed through to the
+/// oracle verbatim — NOT `evidence.failure_witness`. The appellant
+/// may supply different replay material than the slasher; the
+/// oracle adjudicates based on what the appeal asserts.
+///
+/// # Verdict
+///
+/// - `Sustained { BlockActuallyValid }` iff oracle returns
+///   `Valid`.
+/// - `Rejected { GroundDoesNotHold }` iff oracle returns
+///   `Invalid(_)` (oracle disagrees with the appeal's assertion).
+/// - `Rejected { MalformedWitness }` iff the oracle returns `Err`
+///   (witness bytes did not decode / replay aborted). The
+///   appellant failed to produce usable replay material — distinct
+///   from "oracle says invalid".
+/// - `Rejected { MissingOracle }` iff no oracle was supplied. The
+///   appeal requires external state that the slashing crate does
+///   not own (SPEC §15.3 bootstrap mode).
+#[must_use]
+pub fn verify_invalid_block_appeal_block_actually_valid(
+    evidence: &InvalidBlockProof,
+    appeal_witness: &[u8],
+    oracle: Option<&dyn InvalidBlockOracle>,
+) -> AppealVerdict {
+    let Some(oracle) = oracle else {
+        return AppealVerdict::Rejected {
+            reason: AppealRejectReason::MissingOracle,
+        };
+    };
+    match oracle.re_execute(&evidence.signed_header.message, appeal_witness) {
+        Ok(ExecutionOutcome::Valid) => AppealVerdict::Sustained {
+            reason: AppealSustainReason::BlockActuallyValid,
+        },
+        Ok(ExecutionOutcome::Invalid(_)) => AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        },
+        Err(_) => AppealVerdict::Rejected {
+            reason: AppealRejectReason::MalformedWitness,
+        },
     }
 }
 
