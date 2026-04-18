@@ -71,7 +71,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-048 — AttesterAppeal rejected on genuine slash
 
 ### Invalid-Block Appeal Grounds
-- [ ] DSL-049 — InvalidBlockAppeal BlockActuallyValid sustained
+- [x] DSL-049 — InvalidBlockAppeal BlockActuallyValid sustained
 - [ ] DSL-050 — InvalidBlockAppeal ProposerSignatureInvalid sustained
 - [ ] DSL-051 — InvalidBlockAppeal FailureReasonMismatch sustained
 - [ ] DSL-052 — InvalidBlockAppeal EvidenceEpochMismatch sustained

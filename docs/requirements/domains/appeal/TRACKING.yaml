@@ -156,11 +156,12 @@ items:
   - id: DSL-049
     section: "InvalidBlock Appeal"
     summary: "InvalidBlockAppeal BlockActuallyValid sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-049.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-049"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_049_invalid_block_appeal_block_valid_test
+    notes: "verify_invalid_block_appeal_block_actually_valid(evidence, appeal_witness, oracle: Option<&dyn InvalidBlockOracle>) delegates to oracle.re_execute(&header, appeal_witness). Ok(Valid) → Sustained{BlockActuallyValid}, Ok(Invalid(_)) → Rejected{GroundDoesNotHold}, Err(_) → Rejected{MalformedWitness}, None oracle → Rejected{MissingOracle}. Critical design: forwards the APPEAL's witness (not evidence.failure_witness) so the appellant can supply fresh replay material. 4-test suite: Valid/Invalid/None/passthrough byte-equality."
 
   - id: DSL-050
     section: "InvalidBlock Appeal"
