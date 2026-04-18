@@ -50,11 +50,24 @@ pub struct GenesisParameters {
 /// Each field is independently exported by the crate; the
 /// aggregate exists only to give embedders a single struct to
 /// serialise / snapshot / pass into `run_epoch_boundary`.
+///
+/// # `network_id`
+///
+/// Stored privately under DSL-170. The accessor
+/// [`SlashingSystem::network_id`] returns a borrow. Consumed by
+/// downstream admission flows (DSL-168
+/// `process_block_admissions`) that need domain-separated
+/// signature verification without requiring every embedder call
+/// site to thread `network_id` through its arg list.
 #[derive(Debug)]
 pub struct SlashingSystem {
     pub manager: SlashingManager,
     pub participation: ParticipationTracker,
     pub inactivity: InactivityScoreTracker,
+    /// Network identifier captured at genesis. See DSL-170 for
+    /// the rationale for carrying this on the aggregate rather
+    /// than reconstructing it per call.
+    network_id: Bytes32,
 }
 
 impl SlashingSystem {
@@ -73,6 +86,8 @@ impl SlashingSystem {
     ///     `initial_validator_count` entries.
     ///   - `inactivity.validator_count() == initial_validator_count`
     ///     and every score is `0`.
+    ///   - `network_id()` returns the exact `params.network_id`
+    ///     (DSL-170).
     #[must_use]
     pub fn genesis(params: &GenesisParameters) -> Self {
         Self {
@@ -82,6 +97,30 @@ impl SlashingSystem {
                 params.genesis_epoch,
             ),
             inactivity: InactivityScoreTracker::new(params.initial_validator_count),
+            network_id: params.network_id,
         }
+    }
+
+    /// Network identifier captured at genesis.
+    ///
+    /// Implements [DSL-170](../docs/requirements/domains/orchestration/specs/DSL-170.md).
+    /// Traces to SPEC §11.
+    ///
+    /// # Lifetime
+    ///
+    /// Returns `&Bytes32` borrowed from `&self`. Callers that need
+    /// an owned value copy by `*system.network_id()` — `Bytes32`
+    /// is a fixed-width byte wrapper that implements `Copy`.
+    ///
+    /// # Consumers
+    ///
+    /// - DSL-168 `process_block_admissions` reads this so the
+    ///   admission pipeline can reconstruct signing-message
+    ///   domain-separated digests without a per-call arg.
+    /// - Embedders persisting the aggregate across chain forks
+    ///   use this to detect cross-fork replay at load time.
+    #[must_use]
+    pub fn network_id(&self) -> &Bytes32 {
+        &self.network_id
     }
 }

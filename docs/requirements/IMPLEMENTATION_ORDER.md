@@ -253,7 +253,7 @@ Public-API coherence gaps identified in audit of shipped catalogue. Each closes 
 
 ### Orchestration — Wire Unused Traits + Fields
 - [ ] DSL-169 — run_epoch_boundary wires reward_payout + inactivity penalty slashes
-- [ ] DSL-170 — SlashingSystem carries network_id
+- [x] DSL-170 — SlashingSystem carries network_id
 
 ---
 

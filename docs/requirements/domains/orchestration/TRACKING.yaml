@@ -65,8 +65,9 @@ items:
   - id: DSL-170
     section: "Phase 12 Integration Closures"
     summary: "SlashingSystem carries network_id"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/orchestration/specs/DSL-170.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-170"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_170_slashing_system_network_id_test
+    notes: "Adds private `network_id: Bytes32` field to SlashingSystem + pub `fn network_id(&self) -> &Bytes32` accessor in src/system.rs. genesis stores params.network_id verbatim. GenesisParameters + SlashingManager::submit_evidence signatures unchanged. 4-test suite: 0xAA round-trip + DSL-128 siblings preserved, accessor borrow stable + Copy dereference, distinct systems keep distinct ids, GenesisParameters struct-literal compile-gate."
