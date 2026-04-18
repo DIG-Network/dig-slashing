@@ -55,6 +55,22 @@ pub const ATTESTATION_BASE_BPS: u16 = 100;
 /// bounds only the initial optimistic debit.
 pub const MAX_PENALTY_BPS: u16 = 1_000;
 
+/// BPS denominator: `10_000` basis points = 100%.
+///
+/// Traces to SPEC §2.1. Divisor for every BPS-parameterised formula in
+/// the crate (base slash, correlation-penalty, bond-award split).
+/// Declared `u64` to match the numerator types in the slash formula
+/// and avoid per-call casts.
+pub const BPS_DENOMINATOR: u64 = 10_000;
+
+/// Ethereum-parity minimum-slashing-penalty quotient — `32`.
+///
+/// Traces to SPEC §2.2, §4. Sets the floor term `eff_bal /
+/// MIN_SLASHING_PENALTY_QUOTIENT` in the base slash formula (DSL-022).
+/// Guarantees a non-trivial burn even on low-bps offenses (100 bps
+/// attester votes → `eff_bal / 32` > `eff_bal / 100`).
+pub const MIN_SLASHING_PENALTY_QUOTIENT: u64 = 32;
+
 // ── Domain separation tags (SPEC §2.10) ─────────────────────────────────────
 //
 // Byte-string tags prefixed into every SHA-256 digest so a hash produced for
