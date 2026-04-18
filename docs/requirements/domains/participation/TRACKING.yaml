@@ -126,11 +126,12 @@ items:
   - id: DSL-086
     section: "Weight Denominator"
     summary: "WEIGHT_DENOMINATOR = 64 with 2 units reserved (no sync committee)"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-086.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-086"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_086_weight_denominator_no_sync_test
+    notes: "Constants-sanity test. Test-only (no src/ changes — all constants already defined). Asserts WEIGHT_DENOMINATOR=64, TIMELY_SOURCE_WEIGHT+TIMELY_TARGET_WEIGHT+TIMELY_HEAD_WEIGHT+PROPOSER_WEIGHT=62 (14+26+14+8), gap of 2 preserved for unused SYNC_REWARD_WEIGHT slot. Individual weight pins surface any drift in diff. Closes Phase 3 Participation."
 
   - id: DSL-153
     section: "Reorg"

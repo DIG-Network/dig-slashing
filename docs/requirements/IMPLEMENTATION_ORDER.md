@@ -115,7 +115,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-083 — compute_flag_deltas penalty (source+target), head exempt
 - [x] DSL-084 — compute_flag_deltas in-stall zeroes rewards
 - [x] DSL-085 — proposer_inclusion_reward formula
-- [ ] DSL-086 — WEIGHT_DENOMINATOR = 64 (no sync committee, 2 units reserved)
+- [x] DSL-086 — WEIGHT_DENOMINATOR = 64 (no sync committee, 2 units reserved)
 
 ## Phase 4: Inactivity Accounting (DSL-087..093)
 
