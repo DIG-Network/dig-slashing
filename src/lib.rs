@@ -84,7 +84,9 @@ pub use evidence::{
     verify_evidence, verify_evidence_for_inclusion, verify_invalid_block, verify_proposer_slashing,
 };
 pub use manager::{FinalisationResult, PerValidatorSlash, SlashingManager, SlashingResult};
-pub use participation::{ParticipationFlags, classify_timeliness};
+pub use participation::{
+    ParticipationError, ParticipationFlags, ParticipationTracker, classify_timeliness,
+};
 pub use pending::{
     AppealAttempt, AppealOutcome, PendingSlash, PendingSlashBook, PendingSlashStatus,
 };

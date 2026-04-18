@@ -46,11 +46,12 @@ items:
   - id: DSL-078
     section: "Tracker"
     summary: "ParticipationTracker::record_attestation sets flags"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-078.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-078"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_078_participation_tracker_record_test
+    notes: "Opens ParticipationTracker state machine (src/participation/tracker.rs + error.rs). Two-epoch Vec<ParticipationFlags> storage sized at construction. record_attestation(data, attesting_indices, flags) bit-ORs flags.0 into current_epoch[idx] for each index; returns IndexOutOfRange on first offending index (later indices untouched). Does NOT advance current_epoch_number. Accessors: current_flags/previous_flags/validator_count/current_epoch_number. Adds ParticipationError{IndexOutOfRange(u32), NonAscendingIndices} (DSL-079 uses the second variant). 4-test suite: 3-index SOURCE applied + unrelated untouched, SOURCE then TARGET additive + idempotent on repeat, out-of-range error with leading in-range indices, epoch_number unchanged."
 
   - id: DSL-079
     section: "Tracker"

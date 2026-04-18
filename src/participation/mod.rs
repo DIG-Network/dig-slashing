@@ -20,8 +20,12 @@
 //!   - DSL-078..080: `ParticipationTracker` state machine
 //!   - DSL-081..086: reward / penalty deltas
 
+pub mod error;
 pub mod flags;
 pub mod timeliness;
+pub mod tracker;
 
+pub use error::ParticipationError;
 pub use flags::ParticipationFlags;
 pub use timeliness::classify_timeliness;
+pub use tracker::ParticipationTracker;
