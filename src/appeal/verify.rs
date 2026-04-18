@@ -280,6 +280,50 @@ fn verify_proposer_appeal_signature_side(
     }
 }
 
+/// Verify `AttesterAppealGround::NotSlashableByPredicate`.
+///
+/// Implements [DSL-042](../../../docs/requirements/domains/appeal/specs/DSL-042.md).
+/// Traces to SPEC §6.3.
+///
+/// # Predicate
+///
+/// Mirrors DSL-017 rejection: sustains when NEITHER double-vote
+/// nor surround-vote holds on the two `AttestationData`s.
+///
+/// ```text
+/// double_vote ⟺ a.target.epoch == b.target.epoch AND a.data != b.data
+/// surround_vote ⟺
+///     (a.src < b.src AND a.tgt > b.tgt)
+///     OR (b.src < a.src AND b.tgt > a.tgt)
+/// sustain ⟺ !(double_vote || surround_vote)
+/// ```
+///
+/// # Verdict
+///
+/// - `Sustained { NotSlashableByPredicate }` iff neither holds.
+/// - `Rejected { GroundDoesNotHold }` otherwise.
+///
+/// Evidence-only; witness ignored.
+#[must_use]
+pub fn verify_attester_appeal_not_slashable_by_predicate(
+    evidence: &AttesterSlashing,
+) -> AppealVerdict {
+    let a = &evidence.attestation_a.data;
+    let b = &evidence.attestation_b.data;
+    let double_vote = a.target.epoch == b.target.epoch && a != b;
+    let surround_vote = (a.source.epoch < b.source.epoch && a.target.epoch > b.target.epoch)
+        || (b.source.epoch < a.source.epoch && b.target.epoch > a.target.epoch);
+    if !(double_vote || surround_vote) {
+        AppealVerdict::Sustained {
+            reason: AppealSustainReason::NotSlashableByPredicate,
+        }
+    } else {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    }
+}
+
 /// Verify `AttesterAppealGround::AttestationsIdentical`.
 ///
 /// Implements [DSL-041](../../../docs/requirements/domains/appeal/specs/DSL-041.md).
