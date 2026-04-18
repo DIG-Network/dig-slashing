@@ -192,7 +192,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-139 — CollateralSlasher slash+credit symmetry
 - [x] DSL-140 — BondEscrow::escrowed
 - [x] DSL-141 — RewardPayout::pay
-- [ ] DSL-142 — RewardClawback::claw_back partial
+- [x] DSL-142 — RewardClawback::claw_back partial
 - [ ] DSL-143 — JustificationView contract
 - [ ] DSL-144 — ProposerView::proposer_at_slot
 - [ ] DSL-145 — InvalidBlockOracle::re_execute determinism
