@@ -25,11 +25,42 @@
 //! `adjudicate_appeal` dispatcher composes them once enough
 //! slices exist to be worth orchestrating.
 
+use dig_protocol::Bytes32;
+use serde::{Deserialize, Serialize};
+
 use crate::appeal::envelope::{SlashAppeal, SlashAppealPayload};
 use crate::appeal::ground::AttesterAppealGround;
 use crate::appeal::verdict::{AppealSustainReason, AppealVerdict};
+use crate::constants::{PROPOSER_REWARD_QUOTIENT, WHISTLEBLOWER_REWARD_QUOTIENT};
 use crate::pending::PendingSlash;
-use crate::traits::{CollateralSlasher, ValidatorView};
+use crate::traits::{CollateralSlasher, RewardClawback, ValidatorView};
+
+/// Outcome of a reward clawback pass.
+///
+/// Traces to [SPEC §12.2](../../../docs/resources/SPEC.md). Returned
+/// by [`adjudicate_sustained_clawback_rewards`] so callers (the
+/// top-level adjudicator dispatcher + DSL-073 bond-absorption
+/// logic) can reason about the shortfall.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct ClawbackResult {
+    /// Recomputed whistleblower reward =
+    /// `total_eff_bal_at_slash / WHISTLEBLOWER_REWARD_QUOTIENT`.
+    pub wb_amount: u64,
+    /// Recomputed proposer inclusion reward =
+    /// `wb_amount / PROPOSER_REWARD_QUOTIENT`.
+    pub prop_amount: u64,
+    /// Mojos actually clawed back from the reporter's reward
+    /// account. May be less than `wb_amount` if the reporter
+    /// already withdrew (partial clawback — DSL-142 contract).
+    pub wb_clawed: u64,
+    /// Mojos actually clawed back from the proposer's reward
+    /// account.
+    pub prop_clawed: u64,
+    /// `(wb_amount + prop_amount) - (wb_clawed + prop_clawed)`
+    /// — the residual debt that DSL-073 absorbs from the
+    /// forfeited reporter bond.
+    pub shortfall: u64,
+}
 
 /// Revert base-slash amounts on a sustained appeal by calling
 /// `ValidatorEntry::credit_stake(amount)` per affected index.
@@ -242,6 +273,94 @@ pub fn adjudicate_sustained_revert_collateral(
         credited.push(slash.validator_index);
     }
     credited
+}
+
+/// Claw back the whistleblower + proposer rewards paid at
+/// optimistic admission (DSL-025).
+///
+/// Implements [DSL-067](../../../docs/requirements/domains/appeal/specs/DSL-067.md).
+/// Traces to SPEC §6.5, §12.2.
+///
+/// # Scope
+///
+/// Clawback is FULL on any sustained ground — including
+/// `ValidatorNotInIntersection` (DSL-047). Rationale: the
+/// rewards were paid to the reporter + proposer in exchange for
+/// producing correct evidence. A sustained appeal, even a
+/// per-validator one, proves the evidence was at least partially
+/// wrong, so the admission-time rewards must unwind. Partial
+/// per-validator clawback would complicate reasoning without
+/// adding protection — DSL-047 is rare enough that full
+/// clawback is the simplest honest disposition.
+///
+/// Rejected → no-op, returns a zero-filled `ClawbackResult`.
+///
+/// # Formula
+///
+/// `wb_amount = total_eff_bal_at_slash / WHISTLEBLOWER_REWARD_QUOTIENT`
+/// `prop_amount = wb_amount / PROPOSER_REWARD_QUOTIENT`
+///
+/// Both amounts are RECOMPUTED from
+/// `pending.base_slash_per_validator[*].effective_balance_at_slash`
+/// — NOT read from the original `SlashingResult`. This keeps the
+/// adjudicator self-contained and lets it ignore `SlashingResult`
+/// drift. DSL-022 +DSL-025 uses the same formula, so numbers
+/// agree by construction.
+///
+/// # Shortfall
+///
+/// `RewardClawback::claw_back` returns the mojos ACTUALLY clawed
+/// back (DSL-142 contract). The principal may have already
+/// withdrawn the reward. The shortfall
+/// `(wb_amount + prop_amount) - (wb_clawed + prop_clawed)` is
+/// returned for DSL-073 bond-absorption.
+///
+/// # Call pattern
+///
+/// Two `claw_back` calls issued unconditionally, matching the
+/// admission-side two-call `RewardPayout::pay` pattern (DSL-025).
+/// Consensus auditors rely on the deterministic call shape.
+#[must_use]
+pub fn adjudicate_sustained_clawback_rewards(
+    pending: &PendingSlash,
+    verdict: &AppealVerdict,
+    reward_clawback: &mut dyn RewardClawback,
+    proposer_puzzle_hash: Bytes32,
+) -> ClawbackResult {
+    // Rejected branch → no-op. Zero-filled result signals
+    // "no clawback was attempted".
+    if matches!(verdict, AppealVerdict::Rejected { .. }) {
+        return ClawbackResult {
+            wb_amount: 0,
+            prop_amount: 0,
+            wb_clawed: 0,
+            prop_clawed: 0,
+            shortfall: 0,
+        };
+    }
+
+    let total_eff_bal: u64 = pending
+        .base_slash_per_validator
+        .iter()
+        .map(|p| p.effective_balance_at_slash)
+        .sum();
+    let wb_amount = total_eff_bal / WHISTLEBLOWER_REWARD_QUOTIENT;
+    let prop_amount = wb_amount / PROPOSER_REWARD_QUOTIENT;
+
+    let wb_clawed = reward_clawback.claw_back(pending.evidence.reporter_puzzle_hash, wb_amount);
+    let prop_clawed = reward_clawback.claw_back(proposer_puzzle_hash, prop_amount);
+
+    let expected = wb_amount + prop_amount;
+    let got = wb_clawed + prop_clawed;
+    let shortfall = expected.saturating_sub(got);
+
+    ClawbackResult {
+        wb_amount,
+        prop_amount,
+        wb_clawed,
+        prop_clawed,
+        shortfall,
+    }
 }
 
 /// Extract the named `validator_index` from an attester
