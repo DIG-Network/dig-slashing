@@ -26,11 +26,12 @@ items:
   - id: DSL-133
     section: "ValidatorView + ValidatorEntry"
     summary: "ValidatorEntry::restore_status"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-133.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-133"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_133_validator_entry_restore_status_test
+    notes: "Pins restore_status via reference MockValidator. Returns true iff state actually flipped (Slashed→Active); false on no-op. Consumers DSL-066 + DSL-129 may both call on already-restored validator — idempotence matters. 4-test suite: slashed→active + is_slashed flip, never-slashed no-op, repeated restore (first true, subsequent false), re-slash after restore still takes effect (prevents Active-latching bug)."
 
   - id: DSL-134
     section: "ValidatorView + ValidatorEntry"

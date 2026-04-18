@@ -183,7 +183,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 - [x] DSL-131 — ValidatorEntry::slash_absolute saturation
 - [x] DSL-132 — ValidatorEntry::credit_stake
-- [ ] DSL-133 — ValidatorEntry::restore_status
+- [x] DSL-133 — ValidatorEntry::restore_status
 - [ ] DSL-134 — ValidatorEntry::is_active_at_epoch boundary
 - [ ] DSL-135 — ValidatorEntry::schedule_exit
 - [ ] DSL-136 — ValidatorView::get / get_mut
