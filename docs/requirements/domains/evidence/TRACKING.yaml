@@ -226,8 +226,9 @@ items:
   - id: DSL-158
     section: "Serialization"
     summary: "IndexedAttestation serde roundtrip"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-158.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-158"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_158_indexed_attestation_serde_roundtrip_test
+    notes: "No src/ changes — existing `#[derive(Serialize, Deserialize)]` + `#[serde(with = \"serde_bytes\")]` on signature field already satisfy the contract. 5-test suite pins: bincode + json full roundtrip, index order preserved across both codecs (ascending 0..=u32::MAX sequence, guards against BTreeSet drift), signature serde_bytes (bincode grep for distinctive 96-byte 0xAB run + JSON integer-array probe 171 + roundtrip equality), nested AttestationData mutation observable post-roundtrip (source.epoch + target.epoch + deep Bytes32 target.root — guards against silent Checkpoint flattening)."

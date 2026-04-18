@@ -222,7 +222,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 ### Evidence — Serde
 - [x] DSL-157 — SlashingEvidence + payload serde roundtrip
-- [ ] DSL-158 — IndexedAttestation serde roundtrip
+- [x] DSL-158 — IndexedAttestation serde roundtrip
 
 ### Appeal — Hash + Serde
 - [ ] DSL-159 — SlashAppeal::hash determinism + sensitivity
