@@ -28,6 +28,7 @@
 //!
 //! (Further modules land as their DSL-NNN requirements are implemented.)
 
+pub mod appeal;
 pub mod bonds;
 pub mod constants;
 pub mod error;
@@ -38,6 +39,12 @@ pub mod traits;
 
 // ── Public re-exports (alphabetical within category) ────────────────────────
 
+pub use appeal::{
+    AppealRejectReason, AppealSustainReason, AppealVerdict, AttesterAppealGround,
+    AttesterSlashingAppeal, InvalidBlockAppeal, InvalidBlockAppealGround, ProposerAppealGround,
+    ProposerSlashingAppeal, SlashAppeal, SlashAppealPayload,
+    verify_proposer_appeal_headers_identical,
+};
 pub use bonds::{BondError, BondEscrow, BondTag};
 pub use constants::{
     APPELLANT_BOND_MOJOS, ATTESTATION_BASE_BPS, BLS_PUBLIC_KEY_SIZE, BLS_SIGNATURE_SIZE,

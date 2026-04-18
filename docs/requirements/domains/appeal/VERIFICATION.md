@@ -2,7 +2,7 @@
 
 | ID | Status | Summary | Verification Approach |
 |----|--------|---------|----------------------|
-| [DSL-034](NORMATIVE.md#DSL-034) | ❌ | Proposer appeal HeadersIdentical sustained | 4 tests: byte-equal headers sustained, non-equal rejected, witness ignored, determinism. |
+| [DSL-034](NORMATIVE.md#DSL-034) | ✅ | Proposer appeal HeadersIdentical sustained | 4 tests: byte-equal messages → `Sustained{HeadersIdentical}`, distinct messages → `Rejected{GroundDoesNotHold}`, signature mutation alone doesn't change verdict (message-only predicate), determinism. Test file: `tests/dsl_034_proposer_appeal_headers_identical_sustained_test.rs`. |
 | [DSL-035](NORMATIVE.md#DSL-035) | ❌ | Proposer appeal ProposerIndexMismatch sustained | 4 tests: different proposer_index sustained, matching rejected, edge-case off-by-one, determinism. |
 | [DSL-036](NORMATIVE.md#DSL-036) | ❌ | Proposer appeal SignatureAInvalid sustained | 4 tests: corrupted sig_a sustained, good sig rejected, wrong pubkey sustained, network_id domain binding. |
 | [DSL-037](NORMATIVE.md#DSL-037) | ❌ | Proposer appeal SignatureBInvalid sustained | Mirror of DSL-036 on header_b. |

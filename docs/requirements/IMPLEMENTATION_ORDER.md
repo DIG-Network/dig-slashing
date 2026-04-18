@@ -52,7 +52,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 ## Phase 2: Appeal System (DSL-034..073)
 
 ### Proposer Appeal Grounds
-- [ ] DSL-034 — ProposerAppeal HeadersIdentical sustained
+- [x] DSL-034 — ProposerAppeal HeadersIdentical sustained
 - [ ] DSL-035 — ProposerAppeal ProposerIndexMismatch sustained
 - [ ] DSL-036 — ProposerAppeal SignatureAInvalid sustained
 - [ ] DSL-037 — ProposerAppeal SignatureBInvalid sustained
