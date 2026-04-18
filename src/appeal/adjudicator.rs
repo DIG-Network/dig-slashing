@@ -44,6 +44,76 @@ use crate::traits::{
     CollateralSlasher, EffectiveBalanceView, RewardClawback, RewardPayout, ValidatorView,
 };
 
+/// Aggregate result of an appeal adjudication pass.
+///
+/// Traces to [DSL-164](../../../docs/requirements/domains/appeal/specs/DSL-164.md).
+/// Produced by the (future) top-level `adjudicate_appeal`
+/// dispatcher that composes the per-DSL slice functions in this
+/// module. Consumed by:
+///
+///   - Audit logs — full reproduction of what happened on a sustained
+///     or rejected appeal.
+///   - RPC responses — telemetry consumers query via serde_json.
+///   - Test fixtures — the serde contract (DSL-164) lets tests
+///     construct an `AppealAdjudicationResult` directly without
+///     driving the full pipeline.
+///
+/// # Field grouping
+///
+/// - `appeal_hash`, `evidence_hash` — identity fields.
+/// - `outcome` — Won / Lost{reason_hash} / Pending. Uses
+///   `AppealOutcome` (the per-attempt lifecycle enum) rather than
+///   `AppealVerdict` because the result feeds into
+///   `AppealAttempt::outcome` on the pending slash's history.
+/// - Sustained branch: `reverted_stake_mojos`,
+///   `reverted_collateral_mojos`, `clawback_shortfall`,
+///   `reporter_bond_forfeited`, `appellant_award_mojos`,
+///   `reporter_penalty_mojos`. Populated on Won outcomes.
+/// - Rejected branch: `appellant_bond_forfeited`,
+///   `reporter_award_mojos`. Populated on Lost outcomes.
+/// - `burn_amount` — residual burn applicable to BOTH branches
+///   (sustained = shortfall not absorbed, rejected = bond split
+///   residue).
+///
+/// Fields not applicable to a given branch are `0` or empty vec
+/// by construction — the serde contract preserves this shape
+/// (DSL-164 test pins zero + empty preservation).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct AppealAdjudicationResult {
+    /// Hash of the adjudicated appeal (DSL-159).
+    pub appeal_hash: Bytes32,
+    /// Evidence hash the appeal targeted (DSL-002).
+    pub evidence_hash: Bytes32,
+    /// Per-attempt outcome recorded into `appeal_history`.
+    pub outcome: AppealOutcome,
+    /// `(validator_index, stake_mojos_credited)` pairs for a
+    /// sustained appeal (DSL-064). Empty on rejection.
+    pub reverted_stake_mojos: Vec<(u32, u64)>,
+    /// `(validator_index, collateral_mojos_credited)` pairs for a
+    /// sustained appeal (DSL-065). Empty on rejection or when
+    /// the collateral slasher is disabled.
+    pub reverted_collateral_mojos: Vec<(u32, u64)>,
+    /// Residual debt after `adjudicate_sustained_clawback_rewards`
+    /// (DSL-067). Absorbed from `reporter_bond_forfeited` per
+    /// DSL-073.
+    pub clawback_shortfall: u64,
+    /// Reporter bond forfeited on sustained appeal (DSL-068).
+    pub reporter_bond_forfeited: u64,
+    /// Appellant award routed by DSL-068 (50% of forfeited
+    /// reporter bond).
+    pub appellant_award_mojos: u64,
+    /// Reporter penalty scheduled by DSL-069.
+    pub reporter_penalty_mojos: u64,
+    /// Appellant bond forfeited on rejected appeal (DSL-071).
+    pub appellant_bond_forfeited: u64,
+    /// Reporter award routed by DSL-071 (50% of forfeited
+    /// appellant bond).
+    pub reporter_award_mojos: u64,
+    /// Residual burn applicable to both sustained and rejected
+    /// paths (unrecovered bond residue).
+    pub burn_amount: u64,
+}
+
 /// Outcome of a reward clawback pass.
 ///
 /// Traces to [SPEC §12.2](../../../docs/resources/SPEC.md). Returned
