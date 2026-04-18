@@ -166,11 +166,12 @@ items:
   - id: DSL-017
     section: "Verification"
     summary: "verify_attester_slashing rejects AttesterSlashingNotSlashable (neither predicate)"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-017.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_017_verify_attester_not_slashable_test
+    notes: "AttesterSlashingNotSlashable enforced in verify_attester_slashing (landed with DSL-014 commit). 6-test suite: non-overlapping windows rejected, byte-identical surfaces InvalidAttesterSlashing not this variant (ordering: identical-check before predicate), genuine double-vote passes, genuine surround passes, equal-source non-surround non-double-vote rejected, nested-but-not-strict (same source, smaller target) rejected — documents strict inequalities."
 
   - id: DSL-018
     section: "Verification"
