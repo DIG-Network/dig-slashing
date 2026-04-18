@@ -146,8 +146,9 @@ items:
   - id: DSL-145
     section: "Fork-Choice Oracles"
     summary: "InvalidBlockOracle::re_execute determinism"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-145.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-145"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_145_invalid_block_oracle_determinism_test
+    notes: "Closes Phase 9 External-State Traits. Trait already defined in src/traits.rs; tests pin determinism invariants. Underpins DSL-049 BlockActuallyValid + DSL-051 FailureReasonMismatch appeal grounds (verifiers must independently confirm appellant's witness — determinism is load-bearing across oracle instances). 5-test suite: deterministic Valid across repeated calls, deterministic Invalid with same reason, distinct witness permits distinct outcomes (Valid vs Invalid AND distinct Invalid reasons), no hidden state across interleaved re_execute + verify_failure + re_execute chains, default verify_failure returns Ok(()) for bootstrap path."
