@@ -111,6 +111,72 @@ pub fn adjudicate_sustained_revert_base_slash(
     reverted
 }
 
+/// Clear the `Slashed` flag on reverted validators by calling
+/// `ValidatorEntry::restore_status()`.
+///
+/// Implements [DSL-066](../../../docs/requirements/domains/appeal/specs/DSL-066.md).
+/// Traces to SPEC §6.5.
+///
+/// # Verdict branching
+///
+/// Same scope rules as DSL-064/065:
+/// - Rejected → no-op, returns empty vec.
+/// - Sustained{ValidatorNotInIntersection} → only the named
+///   index from the attester ground.
+/// - Any other Sustained → every validator in
+///   `base_slash_per_validator`.
+///
+/// # Returns
+///
+/// Indices whose `restore_status()` call returned `true` — i.e.
+/// the validator was actually in `Slashed` state and transitioned
+/// to active. Indices that were never slashed (or were already
+/// restored) are absent from the result.
+///
+/// # Idempotence
+///
+/// `ValidatorEntry::restore_status` is idempotent (DSL-133); a
+/// repeat call on an already-active validator returns `false`
+/// and does not appear in the result.
+///
+/// # Skip conditions
+///
+/// - Validator absent from `validator_set.get_mut(idx)` → skip
+///   (defensive tolerance, same as DSL-064).
+#[must_use]
+pub fn adjudicate_sustained_restore_status(
+    pending: &PendingSlash,
+    appeal: &SlashAppeal,
+    verdict: &AppealVerdict,
+    validator_set: &mut dyn ValidatorView,
+) -> Vec<u32> {
+    let reason = match verdict {
+        AppealVerdict::Sustained { reason } => *reason,
+        AppealVerdict::Rejected { .. } => return Vec::new(),
+    };
+
+    let named_index = if matches!(reason, AppealSustainReason::ValidatorNotInIntersection) {
+        named_validator_from_ground(appeal)
+    } else {
+        None
+    };
+
+    let mut restored: Vec<u32> = Vec::new();
+    for slash in &pending.base_slash_per_validator {
+        if let Some(named) = named_index
+            && slash.validator_index != named
+        {
+            continue;
+        }
+        if let Some(entry) = validator_set.get_mut(slash.validator_index)
+            && entry.restore_status()
+        {
+            restored.push(slash.validator_index);
+        }
+    }
+    restored
+}
+
 /// Revert collateral debits on a sustained appeal by calling
 /// `CollateralSlasher::credit` per reverted validator.
 ///
