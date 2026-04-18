@@ -41,4 +41,5 @@ pub use constants::{
 pub use error::SlashingError;
 pub use evidence::{
     AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, OffenseType,
+    SignedBlockHeader,
 };

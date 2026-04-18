@@ -13,9 +13,11 @@ pub mod attester_slashing;
 pub mod checkpoint;
 pub mod indexed_attestation;
 pub mod offense;
+pub mod proposer_slashing;
 
 pub use attestation_data::AttestationData;
 pub use attester_slashing::AttesterSlashing;
 pub use checkpoint::Checkpoint;
 pub use indexed_attestation::IndexedAttestation;
 pub use offense::OffenseType;
+pub use proposer_slashing::SignedBlockHeader;

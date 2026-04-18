@@ -83,10 +83,11 @@ items:
   - id: DSL-009
     section: "Types"
     summary: "SignedBlockHeader serde round-trip"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-009.md"
     catalogue_ref: "docs/resources/SPEC.md#22.1"
-    tests: []
+    tests:
+      - dsl_009_signed_block_header_roundtrip_test
     notes: ""
 
   - id: DSL-010
