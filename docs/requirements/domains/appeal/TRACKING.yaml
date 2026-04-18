@@ -196,11 +196,12 @@ items:
   - id: DSL-053
     section: "InvalidBlock Appeal"
     summary: "InvalidBlockAppeal MissingOracle error"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-053.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-053"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_053_invalid_block_appeal_missing_oracle_test
+    notes: "Contract fixture for light-client parity. Test-only (no src/ changes). 4-test suite proves the oracle-dependency split: BlockActuallyValid (DSL-049) + None → Rejected{MissingOracle}, FailureReasonMismatch (DSL-051) + None → Rejected{MissingOracle}, ProposerSignatureInvalid (DSL-050) has no oracle param and runs end-to-end (Rejected on honest sig), EvidenceEpochMismatch (DSL-052) has no oracle param and runs end-to-end (Sustained on mismatch)."
 
   - id: DSL-054
     section: "InvalidBlock Appeal"

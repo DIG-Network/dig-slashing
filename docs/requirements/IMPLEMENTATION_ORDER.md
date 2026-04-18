@@ -75,7 +75,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-050 — InvalidBlockAppeal ProposerSignatureInvalid sustained
 - [x] DSL-051 — InvalidBlockAppeal FailureReasonMismatch sustained
 - [x] DSL-052 — InvalidBlockAppeal EvidenceEpochMismatch sustained
-- [ ] DSL-053 — InvalidBlockAppeal MissingOracle error
+- [x] DSL-053 — InvalidBlockAppeal MissingOracle error
 - [ ] DSL-054 — InvalidBlockAppeal rejected on genuine invalid block
 
 ### Appeal Submission Preconditions
