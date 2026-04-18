@@ -6,11 +6,12 @@ items:
   - id: DSL-121
     section: "BondEscrow Trait"
     summary: "BondEscrow::lock InsufficientBalance"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/bonds/specs/DSL-121.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-121"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_121_bond_lock_insufficient_balance_test
+    notes: "Opens Phase 7 Bonds. Trait surface already defined in src/bonds.rs; DSL-121 pins the contract via a reference MockBondEscrow in the test file — HashMap-backed free balance + (principal,tag)→amount escrow map. 3-test suite: sufficient balance Ok + distinct tag slots independent; InsufficientBalance { have, need } carries exact values + escrow unchanged on failure; DoubleLock { tag } carries offending tag + preserves prior state. Mock prioritises DoubleLock over InsufficientBalance (structural invariant over transient balance state)."
 
   - id: DSL-122
     section: "BondEscrow Trait"
