@@ -115,6 +115,15 @@ pub const SLASH_LOCK_EPOCHS: u64 = 100;
 /// uses 8 epochs to match L2 block cadence.
 pub const SLASH_APPEAL_WINDOW_EPOCHS: u64 = 8;
 
+/// Maximum distinct appeal attempts per pending slash.
+///
+/// Traces to SPEC §2.6, §6.1. Caps adjudication cost at a fixed
+/// upper bound per admitted evidence. Consumed by DSL-059
+/// (`TooManyAttempts`) rejection. Sustained attempts transition
+/// the slash to `Reverted` and the book entry is drained — they
+/// never contribute to this count.
+pub const MAX_APPEAL_ATTEMPTS_PER_SLASH: usize = 4;
+
 /// Maximum number of pending slashes the manager will track.
 ///
 /// Traces to SPEC §2.6. Bounds memory + pruning cost. Admission at
