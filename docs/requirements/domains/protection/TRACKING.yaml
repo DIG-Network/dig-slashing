@@ -16,11 +16,12 @@ items:
   - id: DSL-095
     section: "Monotonicity"
     summary: "check_attestation same-epoch-different-hash fails"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/protection/specs/DSL-095.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-095"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_095_protection_attestation_same_epoch_different_hash_test
+    notes: "Extends SlashingProtection with last_attested_source_epoch: u64, last_attested_target_epoch: u64, last_attested_block_hash: Option<String> (lowercase 0x-hex). check_attestation(source, target, &Bytes32) returns true unless (source,target) equals the stored pair AND the hash differs (or is None). Case-insensitive eq_ignore_ascii_case compare. Ships record_attestation as DSL-097 preview. Inline to_hex_lower helper. 4-test suite: same hash ok, different hash fails, case-insensitive via JSON uppercase roundtrip, None hash fails via JSON Null injection."
 
   - id: DSL-096
     section: "Monotonicity"
