@@ -97,6 +97,15 @@ pub const REPORTER_BOND_MOJOS: u64 = MIN_EFFECTIVE_BALANCE / 64;
 /// reporter and appellant face equal grief-vector costs.
 pub const APPELLANT_BOND_MOJOS: u64 = MIN_EFFECTIVE_BALANCE / 64;
 
+/// Exit-lock duration for a finalised slash — `100` epochs.
+///
+/// Traces to SPEC §2.2, §7.4 step 4. On finalisation (DSL-032) the
+/// manager calls `ValidatorEntry::schedule_exit(current_epoch +
+/// SLASH_LOCK_EPOCHS)` on every slashed validator — preventing
+/// voluntary exit + stake withdrawal before the correlation window
+/// tail-end + any follow-on slashes settle.
+pub const SLASH_LOCK_EPOCHS: u64 = 100;
+
 /// Appeal window length in epochs — `8`.
 ///
 /// Traces to SPEC §2.6. A submitted `PendingSlash` can be appealed

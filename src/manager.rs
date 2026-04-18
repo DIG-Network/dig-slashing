@@ -31,7 +31,7 @@ use crate::bonds::{BondEscrow, BondTag};
 use crate::constants::{
     BPS_DENOMINATOR, MAX_PENDING_SLASHES, MIN_SLASHING_PENALTY_QUOTIENT,
     PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT, REPORTER_BOND_MOJOS,
-    SLASH_APPEAL_WINDOW_EPOCHS, WHISTLEBLOWER_REWARD_QUOTIENT,
+    SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS, WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 use crate::error::SlashingError;
 use crate::evidence::envelope::SlashingEvidence;
@@ -466,6 +466,10 @@ impl SlashingManager {
             // DSL-030: per-validator correlation penalty. Formula:
             //   penalty = eff_bal * min(cohort_sum * 3, total) / total
             // with total_active_balance==0 yielding 0 (defensive).
+            //
+            // DSL-032: schedule the exit lock alongside the penalty.
+            // `exit_lock_until_epoch = current + SLASH_LOCK_EPOCHS`.
+            let exit_lock_until_epoch = self.current_epoch + SLASH_LOCK_EPOCHS;
             let mut correlation = Vec::with_capacity(slashable_indices.len());
             let scaled = cohort_sum.saturating_mul(PROPORTIONAL_SLASHING_MULTIPLIER);
             let capped = scaled.min(total_active_balance);
@@ -484,6 +488,9 @@ impl SlashingManager {
                 };
                 if let Some(entry) = validator_set.get_mut(idx) {
                     entry.slash_absolute(penalty, self.current_epoch);
+                    // DSL-032: exit lock scheduled inside same entry
+                    // access — one &mut borrow per validator.
+                    entry.schedule_exit(exit_lock_until_epoch);
                 }
                 correlation.push((idx, penalty));
             }
@@ -510,7 +517,7 @@ impl SlashingManager {
                 evidence_hash,
                 per_validator_correlation_penalty: correlation,
                 reporter_bond_returned: REPORTER_BOND_MOJOS,
-                ..Default::default()
+                exit_lock_until_epoch,
             });
         }
         results

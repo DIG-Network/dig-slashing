@@ -106,11 +106,12 @@ items:
   - id: DSL-032
     section: "Finalisation"
     summary: "finalise_expired_slashes schedules exit lock until current_epoch + SLASH_LOCK_EPOCHS"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-032.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-032"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_032_finalise_schedules_exit_lock_test
+    notes: "finalise_expired_slashes calls ValidatorEntry::schedule_exit(current_epoch + SLASH_LOCK_EPOCHS) on every validator in base_slash_per_validator inside the same &mut borrow as slash_absolute (correlation penalty). FinalisationResult.exit_lock_until_epoch populated with the same absolute epoch. Missing-from-view tolerated (get_mut returns None → skip). New constant SLASH_LOCK_EPOCHS=100. 7-test suite with TestValidator capturing exit_calls: Proposer single call, AttesterSlashing with 3 indices → 3 calls same lock epoch, arithmetic (current=50 → lock=150), SLASH_LOCK_EPOCHS==100 constant, missing-validator tolerated no-panic, determinism, result field matches call arg."
 
   - id: DSL-033
     section: "Finalisation"
