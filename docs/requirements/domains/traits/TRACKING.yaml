@@ -106,11 +106,12 @@ items:
   - id: DSL-141
     section: "Bonds + Rewards"
     summary: "RewardPayout::pay"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-141.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-141"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_141_reward_payout_pay_test
+    notes: "Pins pay(ph, amount) via reference MockPayout (HashMap-backed per-address accumulator). Consumers: DSL-025 whistleblower+proposer, DSL-068/071 winner-award. 4-test suite: single pay, repeats accumulate (100+50+25=175), zero-amount tolerated + non-zero follow-up, multi-principal isolation across 3 distinct ph balances."
 
   - id: DSL-142
     section: "Bonds + Rewards"
