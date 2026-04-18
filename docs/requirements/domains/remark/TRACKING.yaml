@@ -36,11 +36,12 @@ items:
   - id: DSL-105
     section: "Evidence Admission"
     summary: "Admission rejects mismatched payload"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-105.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-105"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_105_evidence_admission_mismatch_rejected_test
+    notes: "Exercises the DSL-104 enforce_slashing_evidence_remark_admission fail path. SlashingError::AdmissionPuzzleHashMismatch already defined in DSL-104 commit. 3-test suite: wrong coin.puzzle_hash rejects with correct variant; error fields populated with derived puzzle_hash + coin ph; thiserror Display renders both hashes as 64-char lowercase hex via chia-protocol Bytes32 Display (no explicit hex::encode call needed — Display impl uses hex::encode internally); short-circuit proven by 3-spend bundle where error's `got` matches the FIRST mismatch not the second."
 
   - id: DSL-106
     section: "Evidence Mempool Policy"
