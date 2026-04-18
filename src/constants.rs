@@ -115,6 +115,13 @@ pub const SLASH_LOCK_EPOCHS: u64 = 100;
 /// uses 8 epochs to match L2 block cadence.
 pub const SLASH_APPEAL_WINDOW_EPOCHS: u64 = 8;
 
+/// Ethereum Altair base-reward scaling factor.
+///
+/// Traces to SPEC §2.3, §8.3. Consumed by DSL-081
+/// `base_reward`. Larger factor → larger rewards at a given
+/// active-balance level; Ethereum mainnet value is 64.
+pub const BASE_REWARD_FACTOR: u64 = 64;
+
 /// Minimum inclusion delay for an attestation to be
 /// reward-eligible, in slots.
 ///
