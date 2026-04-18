@@ -185,7 +185,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-132 — ValidatorEntry::credit_stake
 - [x] DSL-133 — ValidatorEntry::restore_status
 - [x] DSL-134 — ValidatorEntry::is_active_at_epoch boundary
-- [ ] DSL-135 — ValidatorEntry::schedule_exit
+- [x] DSL-135 — ValidatorEntry::schedule_exit
 - [ ] DSL-136 — ValidatorView::get / get_mut
 - [ ] DSL-137 — EffectiveBalanceView::get / total_active
 - [ ] DSL-138 — PublicKeyLookup::pubkey_of

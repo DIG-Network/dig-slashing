@@ -46,11 +46,12 @@ items:
   - id: DSL-135
     section: "ValidatorView + ValidatorEntry"
     summary: "ValidatorEntry::schedule_exit"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-135.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-135"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_135_validator_entry_schedule_exit_test
+    notes: "Pins schedule_exit unconditional-overwrite semantics via reference MockValidator. Last call wins including backwards moves (DSL-064/066 sustained-appeal revert rewinds lock to u64::MAX). Downstream is_active_at_epoch observes the new exit epoch right away. 4-test suite: persists epoch, last-wins across multiple calls, is_active_at_epoch propagates, backward + u64::MAX rewinds."
 
   - id: DSL-136
     section: "ValidatorView + ValidatorEntry"
