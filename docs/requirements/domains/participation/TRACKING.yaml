@@ -116,11 +116,12 @@ items:
   - id: DSL-085
     section: "Proposer Reward"
     summary: "proposer_inclusion_reward = base * 8 / 56"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-085.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-085"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_085_proposer_inclusion_reward_formula_test
+    notes: "proposer_inclusion_reward(base: u64) -> u64 = base.saturating_mul(PROPOSER_WEIGHT).saturating_div(WEIGHT_DENOMINATOR - PROPOSER_WEIGHT) = base * 8 / 56. Adds PROPOSER_WEIGHT=8 constant. Saturating arithmetic on extreme inputs. 4-test suite: base=56 → 8, base=0 → 0, base=100 → 14 (floor), base=u64::MAX → u64::MAX/56 (no panic)."
 
   - id: DSL-086
     section: "Weight Denominator"

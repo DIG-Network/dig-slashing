@@ -146,6 +146,15 @@ pub const TIMELY_TARGET_WEIGHT: u64 = 26;
 /// Traces to SPEC §2.3, §8.3. 14 / 64 ≈ 21.9% — matches SOURCE.
 pub const TIMELY_HEAD_WEIGHT: u64 = 14;
 
+/// Proposer-inclusion reward weight (Ethereum Altair parity).
+///
+/// Traces to SPEC §2.3, §8.4. Consumed by DSL-085
+/// `proposer_inclusion_reward`. Proposer earns
+/// `attester_base * PROPOSER_WEIGHT / (WEIGHT_DENOMINATOR -
+/// PROPOSER_WEIGHT)` = `base * 8 / 56` per attestation they are
+/// first to include.
+pub const PROPOSER_WEIGHT: u64 = 8;
+
 /// Minimum inclusion delay for an attestation to be
 /// reward-eligible, in slots.
 ///

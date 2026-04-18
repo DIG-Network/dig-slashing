@@ -18,8 +18,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::constants::{
-    BASE_REWARD_FACTOR, TIMELY_HEAD_WEIGHT, TIMELY_SOURCE_WEIGHT, TIMELY_TARGET_WEIGHT,
-    WEIGHT_DENOMINATOR,
+    BASE_REWARD_FACTOR, PROPOSER_WEIGHT, TIMELY_HEAD_WEIGHT, TIMELY_SOURCE_WEIGHT,
+    TIMELY_TARGET_WEIGHT, WEIGHT_DENOMINATOR,
 };
 use crate::participation::tracker::ParticipationTracker;
 use crate::traits::EffectiveBalanceView;
@@ -176,4 +176,41 @@ pub fn compute_flag_deltas(
         });
     }
     out
+}
+
+/// Proposer inclusion bonus for a single included attestation.
+///
+/// Implements [DSL-085](../../../docs/requirements/domains/participation/specs/DSL-085.md).
+/// Traces to SPEC §8.4.
+///
+/// # Formula
+///
+/// ```text
+/// proposer_reward = attester_base_reward
+///                 * PROPOSER_WEIGHT
+///                 / (WEIGHT_DENOMINATOR - PROPOSER_WEIGHT)
+///                = attester_base * 8 / 56
+/// ```
+///
+/// Paid to the block proposer for each attestation they are
+/// first to include. Small fraction of the attester's base
+/// reward — the validator who signed earns the lion's share
+/// via `compute_flag_deltas` (DSL-082).
+///
+/// # Saturating arithmetic
+///
+/// Multiplication uses `saturating_mul` so extreme inputs
+/// (validator with astronomical effective balance × max factor)
+/// do not panic. Division is exact integer truncation.
+///
+/// # Denominator
+///
+/// `WEIGHT_DENOMINATOR - PROPOSER_WEIGHT = 64 - 8 = 56` is the
+/// fixed reference denominator. Non-zero by construction (since
+/// `PROPOSER_WEIGHT = 8 < WEIGHT_DENOMINATOR = 64`).
+#[must_use]
+pub fn proposer_inclusion_reward(attester_base_reward: u64) -> u64 {
+    attester_base_reward
+        .saturating_mul(PROPOSER_WEIGHT)
+        .saturating_div(WEIGHT_DENOMINATOR - PROPOSER_WEIGHT)
 }

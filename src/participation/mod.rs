@@ -28,6 +28,6 @@ pub mod tracker;
 
 pub use error::ParticipationError;
 pub use flags::ParticipationFlags;
-pub use rewards::{FlagDelta, base_reward, compute_flag_deltas};
+pub use rewards::{FlagDelta, base_reward, compute_flag_deltas, proposer_inclusion_reward};
 pub use timeliness::classify_timeliness;
 pub use tracker::ParticipationTracker;
