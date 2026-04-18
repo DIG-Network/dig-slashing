@@ -165,13 +165,13 @@ fn test_dsl_012_reporter_self_accuse_rejected() {
 }
 
 /// DSL-012 row 2: reporter distinct from any accused index → passes
-/// the reporter-self-accuse check. Uses an Attester payload because
-/// its downstream verifier is still a placeholder accept (DSL-014/015
-/// land later) — Proposer would now drive the full DSL-013 path, which
-/// needs a real ValidatorView.
+/// the reporter-self-accuse check. InvalidBlock payload is used because
+/// its downstream verifier is still placeholder-accept (DSL-018..020
+/// land later); Proposer / Attester would drive their real verifiers
+/// (DSL-013 / DSL-014), which is out of scope for DSL-012.
 #[test]
 fn test_dsl_012_reporter_not_accused_passes() {
-    let ev = attester_envelope(100, vec![1, 2, 3], vec![4, 5, 6]); // reporter 100 not in either side
+    let ev = invalid_block_envelope(100, 9); // reporter 100, accused 9
     let vv = EmptyValidators;
     let result = verify_evidence(&ev, &vv, &network_id(), 50);
     assert!(result.is_ok(), "disjoint reporter must pass: {result:?}");
@@ -192,19 +192,28 @@ fn test_dsl_012_attester_slashing_with_reporter_in_intersection() {
 }
 
 /// DSL-012 row 3b: AttesterSlashing where reporter is in ONE attestation
-/// but not the intersection → passes (not a slashable validator).
+/// but not the intersection → passes the reporter-self-accuse check.
 ///
 /// Example: reporter = 1 is in attestation_a but not attestation_b, so
-/// not in the intersection.
+/// not in the intersection. The verifier later rejects the payload for
+/// an unrelated reason (identical attestation data → not slashable
+/// under either predicate) — we only assert that ReporterIsAccused is
+/// NOT the error, which proves DSL-012 passed.
 #[test]
 fn test_dsl_012_attester_reporter_only_in_one_attestation_passes() {
     let ev = attester_envelope(1, vec![1, 3, 5, 7], vec![3, 5, 7, 9]);
     let vv = EmptyValidators;
     let result = verify_evidence(&ev, &vv, &network_id(), 50);
-    assert!(
-        result.is_ok(),
-        "reporter in only-one-attestation side must pass: {result:?}",
-    );
+    // DSL-012 passed iff the error is NOT ReporterIsAccused. The payload
+    // still fails downstream predicate/BLS checks; that is out of scope
+    // for this suite.
+    match result {
+        Ok(_) => {}
+        Err(SlashingError::ReporterIsAccused(_)) => {
+            panic!("DSL-012 must not reject: reporter not in intersection");
+        }
+        Err(_) => {}
+    }
 }
 
 /// DSL-012 row 4: InvalidBlock self-accuse rejected.

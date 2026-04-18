@@ -34,11 +34,12 @@
 //!   5. `test_dsl_011_uses_dig_epoch_constant`     — re-export parity
 //!   6. `test_dsl_011_same_epoch_accepted`         — epoch == current
 
+use dig_block::L2BlockHeader;
 use dig_protocol::Bytes32;
 use dig_slashing::{
-    AttestationData, AttesterSlashing, BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation,
-    OffenseType, SLASH_LOOKBACK_EPOCHS, SlashingError, SlashingEvidence, SlashingEvidencePayload,
-    ValidatorEntry, ValidatorView, verify_evidence,
+    BLS_SIGNATURE_SIZE, InvalidBlockProof, InvalidBlockReason, OffenseType, SLASH_LOOKBACK_EPOCHS,
+    SignedBlockHeader, SlashingError, SlashingEvidence, SlashingEvidencePayload, ValidatorEntry,
+    ValidatorView, verify_evidence,
 };
 
 /// Empty validator set. DSL-011 short-circuits before any
@@ -62,44 +63,50 @@ fn network_id() -> Bytes32 {
     Bytes32::new([0xAAu8; 32])
 }
 
-fn sample_attestation_data() -> AttestationData {
-    AttestationData {
-        slot: 100,
-        index: 0,
-        beacon_block_root: Bytes32::new([0x11u8; 32]),
-        source: Checkpoint {
-            epoch: 2,
-            root: Bytes32::new([0x22u8; 32]),
-        },
-        target: Checkpoint {
-            epoch: 3,
-            root: Bytes32::new([0x33u8; 32]),
-        },
-    }
+fn sample_header() -> L2BlockHeader {
+    L2BlockHeader::new(
+        100,
+        3,
+        Bytes32::new([0x01u8; 32]),
+        Bytes32::new([0x02u8; 32]),
+        Bytes32::new([0x03u8; 32]),
+        Bytes32::new([0x04u8; 32]),
+        Bytes32::new([0x05u8; 32]),
+        Bytes32::new([0x06u8; 32]),
+        42,
+        Bytes32::new([0x07u8; 32]),
+        9,
+        1,
+        1_000,
+        10,
+        5,
+        3,
+        512,
+        Bytes32::new([0x08u8; 32]),
+    )
 }
 
-/// Build a minimal attester envelope. DSL-011 is a dispatcher-precondition
-/// test — payload content is irrelevant as long as it reaches the OffenseTooOld
-/// branch. Attester is chosen because its downstream verifier is still a
-/// placeholder accept (DSL-014/015 land later), so the "accepted" paths
-/// in this suite don't require a full BLS / validator-view setup.
+/// Build a minimal InvalidBlock envelope. DSL-011 is a
+/// dispatcher-precondition test — payload content is irrelevant as long
+/// as it reaches the OffenseTooOld branch. InvalidBlock is chosen
+/// because its downstream verifier is still a placeholder accept
+/// (DSL-018..020 land later), so the "accepted" paths in this suite
+/// don't require a full BLS / validator-view setup. Proposer and
+/// Attester variants would now drive their real verifiers (DSL-013,
+/// DSL-014), which is out of scope here.
 fn sample_evidence(offense_epoch: u64) -> SlashingEvidence {
     SlashingEvidence {
-        offense_type: OffenseType::AttesterDoubleVote,
+        offense_type: OffenseType::InvalidBlock,
         reporter_validator_index: 17,
         reporter_puzzle_hash: Bytes32::new([0xCCu8; 32]),
         epoch: offense_epoch,
-        payload: SlashingEvidencePayload::Attester(AttesterSlashing {
-            attestation_a: IndexedAttestation {
-                attesting_indices: vec![1, 2, 3],
-                data: sample_attestation_data(),
-                signature: vec![0u8; BLS_SIGNATURE_SIZE],
+        payload: SlashingEvidencePayload::InvalidBlock(InvalidBlockProof {
+            signed_header: SignedBlockHeader {
+                message: sample_header(),
+                signature: vec![0xABu8; BLS_SIGNATURE_SIZE],
             },
-            attestation_b: IndexedAttestation {
-                attesting_indices: vec![4, 5, 6],
-                data: sample_attestation_data(),
-                signature: vec![0u8; BLS_SIGNATURE_SIZE],
-            },
+            failure_witness: vec![1, 2, 3],
+            failure_reason: InvalidBlockReason::BadStateRoot,
         }),
     }
 }

@@ -136,11 +136,12 @@ items:
   - id: DSL-014
     section: "Verification"
     summary: "verify_attester_slashing accepts double-vote (same target, different data)"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-014.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_014_verify_attester_double_vote_predicate_test
+    notes: "verify_attester_slashing() in src/evidence/verify.rs implements full attester pipeline (structure check via DSL-005, byte-identical rejection, double-vote OR surround-vote predicate, empty-intersection rejection, BLS aggregate verify via DSL-006). Predicate: a.target.epoch == b.target.epoch AND a.data != b.data. ValidatorViewPubkeys adapter bridges ValidatorView to PublicKeyLookup without duplicating DSL-006 BLS code. New SlashingError variants: InvalidAttesterSlashing(String), AttesterSlashingNotSlashable, EmptySlashableIntersection. 6-test suite (DSL-014 only): valid double-vote accepted, different targets + no surround → AttesterSlashingNotSlashable, byte-identical rejected, direct chia_bls aggregate_verify parity, slashable_validator_indices == DSL-007 intersection, direct verify_attester_slashing call parity with dispatch. DSL-015/016/017 tests land as separate commits. DSL-011 + DSL-012 fixtures switched to InvalidBlock payload (still placeholder-accept) for their dispatcher-precondition tests."
 
   - id: DSL-015
     section: "Verification"
