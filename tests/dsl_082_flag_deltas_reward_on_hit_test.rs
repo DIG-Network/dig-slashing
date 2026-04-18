@@ -94,9 +94,10 @@ fn test_dsl_082_source_only_reward() {
     let base = expected_base();
     let expected = base * TIMELY_SOURCE_WEIGHT / WEIGHT_DENOMINATOR;
     assert_eq!(deltas[0].reward, expected);
-    assert_eq!(deltas[0].penalty, 0, "penalty stays 0 until DSL-083");
 
-    // Other validators with no flags → zero reward.
+    // Other validators with no flags → zero reward. Penalty
+    // field may be non-zero once DSL-083 lands (SOURCE+TARGET
+    // miss); DSL-082 tests assert reward only.
     for d in &deltas[1..] {
         assert_eq!(d.reward, 0);
     }

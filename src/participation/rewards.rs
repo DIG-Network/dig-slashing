@@ -150,11 +150,22 @@ pub fn compute_flag_deltas(
         if flags.is_head_timely() {
             reward = reward.saturating_add(base * TIMELY_HEAD_WEIGHT / WEIGHT_DENOMINATOR);
         }
+        // DSL-083: penalty on miss. SOURCE + TARGET only —
+        // HEAD miss is exempt (timing is too network-dependent
+        // to punish fairly, per Ethereum Altair parity).
+        let mut penalty: u64 = 0;
+        if !flags.is_source_timely() {
+            penalty = penalty.saturating_add(base * TIMELY_SOURCE_WEIGHT / WEIGHT_DENOMINATOR);
+        }
+        if !flags.is_target_timely() {
+            penalty = penalty.saturating_add(base * TIMELY_TARGET_WEIGHT / WEIGHT_DENOMINATOR);
+        }
+        // HEAD-miss deliberately omitted.
+
         out.push(FlagDelta {
             validator_index: idx,
             reward,
-            // DSL-083 populates this field.
-            penalty: 0,
+            penalty,
         });
     }
     out
