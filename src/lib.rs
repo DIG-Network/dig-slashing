@@ -120,8 +120,8 @@ pub use remark::{
 };
 pub use system::{GenesisParameters, SlashingSystem};
 pub use traits::{
-    CollateralSlasher, EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, ProposerView,
-    PublicKeyLookup, RewardClawback, RewardPayout, ValidatorEntry, ValidatorView,
+    CollateralError, CollateralSlasher, EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle,
+    ProposerView, PublicKeyLookup, RewardClawback, RewardPayout, ValidatorEntry, ValidatorView,
 };
 
 // Re-export the slash-lookback window from `dig-epoch` so downstream

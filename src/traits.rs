@@ -132,6 +132,52 @@ pub trait CollateralSlasher {
     /// Consensus-layer impl restores whatever collateral-position
     /// bookkeeping it chose to debit at admission.
     fn credit(&mut self, validator_index: u32, amount_mojos: u64);
+
+    /// Debit `amount_mojos` of collateral from `validator_index`
+    /// at `epoch`. Implements the slash leg of DSL-139; companion
+    /// to [`credit`](Self::credit).
+    ///
+    /// Default impl returns `Err(CollateralError::NoCollateral)`:
+    /// current production wiring only uses `credit` (via
+    /// DSL-129 reorg rewind + DSL-065 sustained-appeal revert);
+    /// collateral debits land later under a consensus-layer
+    /// slasher. Providing a default keeps every existing
+    /// `impl CollateralSlasher` (test spies + future production
+    /// impls) working without a breaking signature change.
+    ///
+    /// # Returns
+    ///
+    /// - `Ok((slashed, remaining))` — actual debit and post-
+    ///   debit collateral balance.
+    /// - `Err(CollateralError::NoCollateral)` — validator has
+    ///   no collateral position. Soft failure; DSL-022
+    ///   submit_evidence ignores this and still slashes stake.
+    fn slash(
+        &mut self,
+        _validator_index: u32,
+        _amount_mojos: u64,
+        _epoch: u64,
+    ) -> Result<(u64, u64), CollateralError> {
+        Err(CollateralError::NoCollateral)
+    }
+}
+
+/// Failure modes for [`CollateralSlasher::slash`].
+///
+/// Traces to SPEC §15.2. Soft-failure contract: a
+/// `NoCollateral` result must NOT abort slashing — stake-side
+/// debit proceeds regardless (DSL-022).
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+pub enum CollateralError {
+    /// Validator has no collateral position to debit. Soft
+    /// failure; callers treat as no-op and continue.
+    #[error("validator has no collateral to slash")]
+    NoCollateral,
+    /// Collateral slashing is disabled at the consensus layer
+    /// (network has not enabled collateral positions). Also a
+    /// soft failure at DSL-022; hard failure nowhere currently.
+    #[error("collateral slashing disabled")]
+    Disabled,
 }
 
 /// Block-proposer lookup surface.
