@@ -176,11 +176,12 @@ items:
   - id: DSL-151
     section: "Correlation Penalty"
     summary: "Correlation penalty saturation clamp at total_active_balance"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-151.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-151"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_151_correlation_penalty_saturation_clamp_test
+    notes: "Existing finalise_expired_slashes formula in src/manager.rs already implements `min(cohort_sum × 3, total_active)` clamp + u128 intermediate + total=0 guard. 5-test suite pins: small cohort (eff×3/100 < eff), mass cohort (clamps to eff), exact ceiling (cohort×3==total boundary → eff), total=0 → 0 no panic, cohort=u64::MAX/2 overflow → saturating_mul → clamp → eff. Tests seed extra slashed_in_window rows via mark_slashed_in_window to drive arbitrary cohort_sums without standing up 50 distinct BLS-signed evidences."
 
   - id: DSL-152
     section: "submit_evidence Short-Circuits"
