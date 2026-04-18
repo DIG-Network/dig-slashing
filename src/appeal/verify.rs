@@ -392,13 +392,32 @@ pub fn verify_attester_appeal_signature_a_invalid(
     )
 }
 
+/// Verify `AttesterAppealGround::AttesterSignatureBInvalid`.
+///
+/// Implements [DSL-045](../../../docs/requirements/domains/appeal/specs/DSL-045.md).
+/// Mirror of DSL-044 on `attestation_b` — same shared helper,
+/// different sustain reason. Traces to SPEC §6.3, §15.2.
+#[must_use]
+pub fn verify_attester_appeal_signature_b_invalid(
+    evidence: &AttesterSlashing,
+    pks: &dyn PublicKeyLookup,
+    network_id: &Bytes32,
+) -> AppealVerdict {
+    verify_attester_appeal_signature_side(
+        &evidence.attestation_b,
+        pks,
+        network_id,
+        AppealSustainReason::AttesterSignatureBInvalid,
+    )
+}
+
 /// Shared helper: re-check one `IndexedAttestation`'s aggregate
 /// signature. Returns `Sustained { sustain_reason }` on any
 /// verify failure (DSL-006 returns a single coarse `Err`
 /// variant), `Rejected { GroundDoesNotHold }` on success.
 ///
-/// Will be reused by DSL-045 (`AttesterSignatureBInvalid`) — same
-/// shape, different side.
+/// Reused by DSL-045 (`AttesterSignatureBInvalid`) — same shape,
+/// different side.
 fn verify_attester_appeal_signature_side(
     attestation: &IndexedAttestation,
     pks: &dyn PublicKeyLookup,
