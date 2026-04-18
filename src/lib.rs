@@ -46,7 +46,7 @@ pub use evidence::{
     AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, InvalidBlockProof,
     InvalidBlockReason, OffenseType, ProposerSlashing, SignedBlockHeader, SlashingEvidence,
     SlashingEvidencePayload, VerifiedEvidence, block_signing_message, verify_attester_slashing,
-    verify_evidence, verify_invalid_block, verify_proposer_slashing,
+    verify_evidence, verify_evidence_for_inclusion, verify_invalid_block, verify_proposer_slashing,
 };
 pub use traits::{
     ExecutionOutcome, InvalidBlockOracle, PublicKeyLookup, ValidatorEntry, ValidatorView,
