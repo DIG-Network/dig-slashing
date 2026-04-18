@@ -66,8 +66,9 @@ items:
   - id: DSL-166
     section: "BondTag"
     summary: "BondTag::Reporter vs Appellant distinguishable"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/bonds/specs/DSL-166.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-166"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_166_bond_tag_variants_distinguishable_test
+    notes: "Closes Phase 11 Gap Fills 2. No src/ changes — existing `#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]` on src/bonds.rs:BondTag already satisfies the distinguishability contract. 5-test suite pins every observable surface: PartialEq inequality across variants + equality within variant, Hash output differs via fresh BuildHasher under shared RandomState, HashMap-backed MockBondEscrow proves slot separation end-to-end (lock Reporter → escrowed(Appellant)=0 + DoubleLock is per-slot), serde discriminator differs in both bincode + serde_json (JSON contains literal variant names), Copy allows pass-by-value without moving originals."
