@@ -132,6 +132,15 @@ pub const MIN_ATTESTATION_INCLUSION_DELAY: u64 = 1;
 /// the justification window.
 pub const TIMELY_SOURCE_MAX_DELAY_SLOTS: u64 = 5;
 
+/// Maximum inclusion delay for an attestation to count as
+/// `TIMELY_TARGET`, in slots.
+///
+/// Traces to SPEC §2.5, §8.1. Equals `SLOTS_PER_EPOCH`: an
+/// attestation included within one epoch of its own slot can
+/// still contribute the target vote. Beyond that it is too
+/// stale.
+pub const TIMELY_TARGET_MAX_DELAY_SLOTS: u64 = 32;
+
 /// Bit index of the `TIMELY_SOURCE` flag in `ParticipationFlags`.
 ///
 /// Traces to SPEC §2.9, §3.10. Ethereum Altair parity: source
