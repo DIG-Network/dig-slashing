@@ -86,11 +86,12 @@ items:
   - id: DSL-082
     section: "Flag Deltas"
     summary: "compute_flag_deltas awards on hit"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-082.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-082"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_082_flag_deltas_reward_on_hit_test
+    notes: "Adds FlagDelta{validator_index: u32, reward: u64, penalty: u64} (serde-derived) + compute_flag_deltas(tracker, effective_balances, total_active_balance) -> Vec<FlagDelta>. Iterates 0..tracker.validator_count() in index order; reads previous_flags (empty/default if out-of-range). Reward = sum of per-flag slices base * weight / WEIGHT_DENOMINATOR. Penalty=0 until DSL-083. Adds constants WEIGHT_DENOMINATOR=64, TIMELY_SOURCE_WEIGHT=14, TIMELY_TARGET_WEIGHT=26, TIMELY_HEAD_WEIGHT=14. 4-test suite: each flag alone, all three (sum 54/64)."
 
   - id: DSL-083
     section: "Flag Deltas"

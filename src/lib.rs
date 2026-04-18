@@ -73,8 +73,9 @@ pub use constants::{
     MAX_VALIDATORS_PER_COMMITTEE, MIN_ATTESTATION_INCLUSION_DELAY, MIN_EFFECTIVE_BALANCE,
     MIN_SLASHING_PENALTY_QUOTIENT, PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT,
     REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS, TIMELY_HEAD_FLAG_INDEX,
-    TIMELY_SOURCE_FLAG_INDEX, TIMELY_SOURCE_MAX_DELAY_SLOTS, TIMELY_TARGET_FLAG_INDEX,
-    TIMELY_TARGET_MAX_DELAY_SLOTS, WHISTLEBLOWER_REWARD_QUOTIENT,
+    TIMELY_HEAD_WEIGHT, TIMELY_SOURCE_FLAG_INDEX, TIMELY_SOURCE_MAX_DELAY_SLOTS,
+    TIMELY_SOURCE_WEIGHT, TIMELY_TARGET_FLAG_INDEX, TIMELY_TARGET_MAX_DELAY_SLOTS,
+    TIMELY_TARGET_WEIGHT, WEIGHT_DENOMINATOR, WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 pub use error::SlashingError;
 pub use evidence::{
@@ -85,7 +86,8 @@ pub use evidence::{
 };
 pub use manager::{FinalisationResult, PerValidatorSlash, SlashingManager, SlashingResult};
 pub use participation::{
-    ParticipationError, ParticipationFlags, ParticipationTracker, base_reward, classify_timeliness,
+    FlagDelta, ParticipationError, ParticipationFlags, ParticipationTracker, base_reward,
+    classify_timeliness, compute_flag_deltas,
 };
 pub use pending::{
     AppealAttempt, AppealOutcome, PendingSlash, PendingSlashBook, PendingSlashStatus,
