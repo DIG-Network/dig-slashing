@@ -30,7 +30,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-016 — verify_attester_slashing EmptySlashableIntersection
 - [x] DSL-017 — verify_attester_slashing NotSlashableByPredicate
 - [x] DSL-018 — verify_invalid_block signature over block_signing_message
-- [ ] DSL-019 — verify_invalid_block epoch mismatch rejection
+- [x] DSL-019 — verify_invalid_block epoch mismatch rejection
 - [ ] DSL-020 — verify_invalid_block calls InvalidBlockOracle
 - [ ] DSL-021 — verify_evidence_for_inclusion parity
 

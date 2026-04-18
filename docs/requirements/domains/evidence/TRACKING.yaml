@@ -186,11 +186,12 @@ items:
   - id: DSL-019
     section: "Verification"
     summary: "verify_invalid_block rejects when header.epoch != evidence.epoch"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-019.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_019_verify_invalid_block_epoch_mismatch_test
+    notes: "Epoch-mismatch check enforced in verify_invalid_block (landed with DSL-018 commit). Runs FIRST — cheapest filter before witness size, sig decode, or BLS pairing. 5-test suite: matching epochs pass, mismatch rejected as InvalidSlashingEvidence('epoch mismatch: header=... envelope=...'), error carries both epoch values, ordering invariant vs BLS (mismatch + corrupt sig → epoch error wins), symmetric predicate (header>envelope AND header<envelope both reject)."
 
   - id: DSL-020
     section: "Verification"
