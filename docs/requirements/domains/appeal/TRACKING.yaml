@@ -416,11 +416,12 @@ items:
   - id: DSL-160
     section: "SlashAppeal Hash + Serde"
     summary: "SlashAppeal + SlashAppealPayload serde roundtrip"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-160.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-160"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_160_slash_appeal_serde_roundtrip_test
+    notes: "No src/ changes — existing `#[derive(Serialize, Deserialize)]` on SlashAppeal, SlashAppealPayload, and all three ground enums already satisfy the contract. 5-test suite enumerates every ground-enum discriminant (6 Proposer + 7 Attester + 4 InvalidBlock = 17 total) × bincode + serde_json. Generic roundtrip helpers also assert appeal.hash() stability (DSL-159 canonical form) to guard against DSL-058 dedup drift. Struct-variant ValidatorNotInIntersection probed across [0, 1, 42, u32::MAX-1, u32::MAX]. Witness serde_bytes verified via bincode 64-byte 0xEF run grep + JSON 239 probe + cross-codec bincode→json→struct preservation."
 
   - id: DSL-161
     section: "SlashAppeal Hash + Serde"
