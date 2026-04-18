@@ -436,8 +436,9 @@ items:
   - id: DSL-164
     section: "SlashAppeal Hash + Serde"
     summary: "AppealAdjudicationResult serde roundtrip"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-164.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-164"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_164_appeal_adjudication_result_serde_test
+    notes: "Adds new AppealAdjudicationResult struct in src/appeal/adjudicator.rs (appeal_hash + evidence_hash + AppealOutcome + sustained-branch fields + rejected-branch fields + burn_amount). Exported from appeal/mod.rs + lib.rs. 5-test suite: sustained bincode (Won + populated vecs + non-zero awards + rejected fields stay zero), rejected bincode (empty vecs + Lost {reason_hash} payload preservation), both under serde_json, all 3 AppealOutcome variants nested, vec ordering preserved under both codecs (non-sorted insertion order guards against BTreeMap refactor). Produced by the future top-level adjudicate_appeal dispatcher; consumed by audit logs + RPC + test fixtures."
