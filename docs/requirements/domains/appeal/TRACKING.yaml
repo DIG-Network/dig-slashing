@@ -276,11 +276,12 @@ items:
   - id: DSL-061
     section: "Submission Preconditions"
     summary: "submit_appeal SlashAlreadyFinalised"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-061.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-061"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_061_submit_appeal_already_finalised_test
+    notes: "Second half of the terminal-state guard from DSL-060 (error variant SlashAlreadyFinalised + match arm already in place). Test-only (no src/ changes). 2-test suite: PendingSlash with status=Finalised{finalised_at_epoch:20} → SlashAlreadyFinalised + zero lock_calls, Accepted → Ok."
 
   - id: DSL-062
     section: "Submission Preconditions"
