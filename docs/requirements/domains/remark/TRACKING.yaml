@@ -146,11 +146,12 @@ items:
   - id: DSL-116
     section: "Appeal Mempool Policy"
     summary: "AppealForFinalisedSlash"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-116.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-116"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_116_appeal_mempool_finalised_slash_test
+    notes: "Adds pub fn enforce_slash_appeal_terminal_status_policy(appeals, status_by_hash: &HashMap<Bytes32, PendingSlashStatus>) in policy.rs. Matches target status: Finalised → SlashAlreadyFinalised (DSL-061 variant), Reverted → SlashAlreadyReverted (DSL-060 variant). Accepted + ChallengeOpen admit. Unknown hash skips — DSL-114 owns that rejection. Keeps error surface narrow: two variants instead of a combined AppealForFinalisedSlash(hex) — callers distinguish Finalised vs Reverted without string matching. 5-test suite: Finalised rejects, Reverted rejects, Accepted admits, ChallengeOpen admits, unknown-hash skipped."
 
   - id: DSL-117
     section: "Appeal Mempool Policy"
