@@ -154,6 +154,14 @@ pub const TIMELY_HEAD_WEIGHT: u64 = 14;
 /// reward / penalty math runs unchanged.
 pub const MIN_EPOCHS_TO_INACTIVITY_PENALTY: u64 = 4;
 
+/// Per-epoch inactivity-score increment for a missed target
+/// vote during a finality stall.
+///
+/// Traces to SPEC §2.4, §9.2. Consumed by DSL-089. Ethereum
+/// mainnet value = 4. Outside a stall, misses do NOT add to
+/// the score (DSL-090 global recovery applies instead).
+pub const INACTIVITY_SCORE_BIAS: u64 = 4;
+
 /// Proposer-inclusion reward weight (Ethereum Altair parity).
 ///
 /// Traces to SPEC §2.3, §8.4. Consumed by DSL-085

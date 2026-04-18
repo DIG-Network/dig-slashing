@@ -121,7 +121,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 - [x] DSL-087 — in_finality_stall threshold (> 4 epochs)
 - [x] DSL-088 — InactivityScoreTracker::update hit decrement
-- [ ] DSL-089 — InactivityScoreTracker::update miss+stall increment (+4)
+- [x] DSL-089 — InactivityScoreTracker::update miss+stall increment (+4)
 - [ ] DSL-090 — InactivityScoreTracker::update out-of-stall recovery (-16)
 - [ ] DSL-091 — InactivityScoreTracker::epoch_penalties no-stall empty
 - [ ] DSL-092 — InactivityScoreTracker::epoch_penalties formula

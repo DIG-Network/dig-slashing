@@ -18,6 +18,7 @@
 //! Score drives DSL-091 `inactivity_penalty(eff_bal, score)`
 //! on finalisation.
 
+use crate::constants::INACTIVITY_SCORE_BIAS;
 use crate::participation::ParticipationTracker;
 
 /// Per-validator inactivity-score store.
@@ -99,7 +100,7 @@ impl InactivityScoreTracker {
     pub fn update_for_epoch(
         &mut self,
         participation: &ParticipationTracker,
-        _in_finality_stall: bool,
+        in_finality_stall: bool,
     ) {
         let n = self.scores.len().min(participation.validator_count());
         for i in 0..n {
@@ -108,8 +109,14 @@ impl InactivityScoreTracker {
             if flags.is_target_timely() {
                 // DSL-088: TIMELY_TARGET hit → -1 saturating.
                 self.scores[i] = self.scores[i].saturating_sub(1);
+            } else if in_finality_stall {
+                // DSL-089: TIMELY_TARGET miss during finality
+                // stall → += INACTIVITY_SCORE_BIAS (4),
+                // saturating at u64::MAX. Outside a stall,
+                // misses are absorbed by DSL-090 global
+                // recovery instead of accumulating here.
+                self.scores[i] = self.scores[i].saturating_add(INACTIVITY_SCORE_BIAS);
             }
-            // DSL-089: miss + stall → +4 (later commit).
             // DSL-090: out-of-stall global -16 recovery
             // (later commit).
         }
