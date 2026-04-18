@@ -74,10 +74,11 @@ items:
   - id: DSL-008
     section: "Types"
     summary: "InvalidBlockProof + InvalidBlockReason construction + serde round-trip"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-008.md"
     catalogue_ref: "docs/resources/SPEC.md#22.1"
-    tests: []
+    tests:
+      - dsl_008_invalid_block_proof_roundtrip_test
     notes: ""
 
   - id: DSL-009
