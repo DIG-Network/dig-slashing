@@ -12,6 +12,7 @@
 //! New variants land as their DSL-NNN requirements are implemented. Each
 //! variant's docstring points at the requirement that introduced it.
 
+use dig_protocol::Bytes32;
 use thiserror::Error;
 
 /// Every failure mode `dig-slashing`'s verifiers, manager, and adjudicator
@@ -268,6 +269,27 @@ pub enum SlashingError {
     /// logging (the raw bytes remain available at the call site).
     #[error("unknown evidence: {0}")]
     UnknownEvidence(String),
+
+    /// REMARK admission found an evidence whose derived
+    /// `slashing_evidence_remark_puzzle_hash_v1` does NOT match
+    /// the spent coin's `puzzle_hash`.
+    ///
+    /// Raised by DSL-104/105 enforcement. The payload on-chain
+    /// (the REMARK bytes) binds to a puzzle hash at coin creation
+    /// time; if the admitted spend references a coin whose
+    /// `puzzle_hash` does not equal the recomputed hash, an
+    /// attacker is attempting to launder a payload through a coin
+    /// that never committed to it. Carries both hashes for
+    /// diagnostic logging; the check runs BEFORE any state
+    /// mutation.
+    #[error("REMARK admission puzzle_hash mismatch: expected=0x{expected}, got=0x{got}")]
+    AdmissionPuzzleHashMismatch {
+        /// Puzzle hash derived from the parsed evidence via
+        /// `slashing_evidence_remark_puzzle_hash_v1`.
+        expected: Bytes32,
+        /// `coin.puzzle_hash` on the admitted spend.
+        got: Bytes32,
+    },
 
     /// Offense epoch is older than `SLASH_LOOKBACK_EPOCHS` relative to
     /// the current epoch.
