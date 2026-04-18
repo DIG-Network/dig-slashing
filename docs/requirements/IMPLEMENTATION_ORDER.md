@@ -166,7 +166,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 ## Phase 7: Bonds & Rewards Routing (DSL-121..126)
 
 - [x] DSL-121 — BondEscrow::lock InsufficientBalance
-- [ ] DSL-122 — BondEscrow::forfeit returns mojos
+- [x] DSL-122 — BondEscrow::forfeit returns mojos
 - [ ] DSL-123 — BondEscrow::release full on finalise
 - [ ] DSL-124 — REPORTER_BOND_MOJOS = MIN_EFFECTIVE_BALANCE/64
 - [ ] DSL-125 — APPELLANT_BOND_MOJOS = MIN_EFFECTIVE_BALANCE/64
