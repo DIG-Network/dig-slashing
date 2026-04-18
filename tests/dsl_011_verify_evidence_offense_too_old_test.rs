@@ -36,9 +36,9 @@
 
 use dig_protocol::Bytes32;
 use dig_slashing::{
-    BLS_SIGNATURE_SIZE, OffenseType, ProposerSlashing, SLASH_LOOKBACK_EPOCHS, SignedBlockHeader,
-    SlashingError, SlashingEvidence, SlashingEvidencePayload, ValidatorEntry, ValidatorView,
-    verify_evidence,
+    AttestationData, AttesterSlashing, BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation,
+    OffenseType, SLASH_LOOKBACK_EPOCHS, SlashingError, SlashingEvidence, SlashingEvidencePayload,
+    ValidatorEntry, ValidatorView, verify_evidence,
 };
 
 /// Empty validator set. DSL-011 short-circuits before any
@@ -62,42 +62,44 @@ fn network_id() -> Bytes32 {
     Bytes32::new([0xAAu8; 32])
 }
 
-fn sample_signed_header(proposer_index: u32) -> SignedBlockHeader {
-    use dig_block::L2BlockHeader;
-    SignedBlockHeader {
-        message: L2BlockHeader::new(
-            100,
-            3,
-            Bytes32::new([0x01u8; 32]),
-            Bytes32::new([0x02u8; 32]),
-            Bytes32::new([0x03u8; 32]),
-            Bytes32::new([0x04u8; 32]),
-            Bytes32::new([0x05u8; 32]),
-            Bytes32::new([0x06u8; 32]),
-            42,
-            Bytes32::new([0x07u8; 32]),
-            proposer_index,
-            1,
-            1_000,
-            10,
-            5,
-            3,
-            512,
-            Bytes32::new([0x08u8; 32]),
-        ),
-        signature: vec![0xABu8; BLS_SIGNATURE_SIZE],
+fn sample_attestation_data() -> AttestationData {
+    AttestationData {
+        slot: 100,
+        index: 0,
+        beacon_block_root: Bytes32::new([0x11u8; 32]),
+        source: Checkpoint {
+            epoch: 2,
+            root: Bytes32::new([0x22u8; 32]),
+        },
+        target: Checkpoint {
+            epoch: 3,
+            root: Bytes32::new([0x33u8; 32]),
+        },
     }
 }
 
+/// Build a minimal attester envelope. DSL-011 is a dispatcher-precondition
+/// test — payload content is irrelevant as long as it reaches the OffenseTooOld
+/// branch. Attester is chosen because its downstream verifier is still a
+/// placeholder accept (DSL-014/015 land later), so the "accepted" paths
+/// in this suite don't require a full BLS / validator-view setup.
 fn sample_evidence(offense_epoch: u64) -> SlashingEvidence {
     SlashingEvidence {
-        offense_type: OffenseType::ProposerEquivocation,
+        offense_type: OffenseType::AttesterDoubleVote,
         reporter_validator_index: 17,
         reporter_puzzle_hash: Bytes32::new([0xCCu8; 32]),
         epoch: offense_epoch,
-        payload: SlashingEvidencePayload::Proposer(ProposerSlashing {
-            signed_header_a: sample_signed_header(9),
-            signed_header_b: sample_signed_header(9),
+        payload: SlashingEvidencePayload::Attester(AttesterSlashing {
+            attestation_a: IndexedAttestation {
+                attesting_indices: vec![1, 2, 3],
+                data: sample_attestation_data(),
+                signature: vec![0u8; BLS_SIGNATURE_SIZE],
+            },
+            attestation_b: IndexedAttestation {
+                attesting_indices: vec![4, 5, 6],
+                data: sample_attestation_data(),
+                signature: vec![0u8; BLS_SIGNATURE_SIZE],
+            },
         }),
     }
 }
