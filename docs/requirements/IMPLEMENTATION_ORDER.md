@@ -187,7 +187,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-134 — ValidatorEntry::is_active_at_epoch boundary
 - [x] DSL-135 — ValidatorEntry::schedule_exit
 - [x] DSL-136 — ValidatorView::get / get_mut
-- [ ] DSL-137 — EffectiveBalanceView::get / total_active
+- [x] DSL-137 — EffectiveBalanceView::get / total_active
 - [ ] DSL-138 — PublicKeyLookup::pubkey_of
 - [ ] DSL-139 — CollateralSlasher slash+credit symmetry
 - [ ] DSL-140 — BondEscrow::escrowed

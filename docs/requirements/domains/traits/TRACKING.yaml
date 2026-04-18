@@ -66,11 +66,12 @@ items:
   - id: DSL-137
     section: "EffectiveBalanceView + PublicKeyLookup"
     summary: "EffectiveBalanceView::get / total_active"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-137.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-137"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_137_effective_balance_view_test
+    notes: "Pins EffectiveBalanceView via reference MockBalances. get(idx) returns balance or 0 (defensive default lets consumers avoid branch-on-missing), total_active() == sum of gets. Consumers: DSL-081 base_reward, DSL-030 correlation, DSL-092 inactivity. 4-test suite: distinct per-validator get, unknown + empty-set → 0 + u32::MAX stress, total_active == manual sum, read-only invariance across repeated calls."
 
   - id: DSL-138
     section: "EffectiveBalanceView + PublicKeyLookup"
