@@ -156,11 +156,12 @@ items:
   - id: DSL-149
     section: "SlashingManager Query"
     summary: "SlashingManager::is_slashed delegates to ValidatorView"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-149.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-149"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_149_slashing_manager_is_slashed_test
+    notes: "Adds pub fn is_slashed(idx, &dyn ValidatorView) -> bool in src/manager.rs. Thin delegation to vs.get(idx)?.is_slashed().unwrap_or(false). 4-test suite: slashed true, active false, unknown (len boundary + u32::MAX) false, read-only invariance across 5 repeated calls (manager state + validator flag unchanged)."
 
   - id: DSL-150
     section: "SlashingManager Query"

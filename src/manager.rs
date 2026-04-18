@@ -731,6 +731,20 @@ impl SlashingManager {
         self.slashed_in_window.contains_key(&(epoch, idx))
     }
 
+    /// Delegate to `ValidatorView::get(idx)?.is_slashed()`.
+    ///
+    /// Implements [DSL-149](../docs/requirements/domains/lifecycle/specs/DSL-149.md).
+    /// Returns `false` for unknown indices (no panic) — matches
+    /// DSL-136 `ValidatorView::get` out-of-range semantics.
+    /// Read-only: does not mutate `self` or the validator set.
+    #[must_use]
+    pub fn is_slashed(&self, idx: u32, validator_set: &dyn ValidatorView) -> bool {
+        validator_set
+            .get(idx)
+            .map(|entry| entry.is_slashed())
+            .unwrap_or(false)
+    }
+
     /// Rewind every pending slash whose `submitted_at_epoch` is
     /// STRICTLY greater than `new_tip_epoch` — the canonical
     /// fork-choice reorg response.
