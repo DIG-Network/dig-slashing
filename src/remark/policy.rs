@@ -33,6 +33,8 @@ use std::collections::HashMap;
 use chia_protocol::SpendBundle;
 use dig_protocol::Bytes32;
 
+use dig_epoch::SLASH_LOOKBACK_EPOCHS;
+
 use crate::error::SlashingError;
 use crate::remark::evidence_wire::{
     parse_slashing_evidence_from_conditions, slashing_evidence_remark_puzzle_hash_v1,
@@ -86,6 +88,58 @@ pub fn enforce_slashing_evidence_remark_admission(
                 return Err(SlashingError::AdmissionPuzzleHashMismatch {
                     expected,
                     got: spend.coin.puzzle_hash,
+                });
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Enforce the DSL-106 mempool policy over every evidence parsed
+/// from a spend bundle's REMARK conditions. Currently one rule:
+///
+///   - `evidence.epoch + SLASH_LOOKBACK_EPOCHS < current_epoch`
+///     → reject with `SlashingError::OffenseTooOld`.
+///
+/// Mempool policy runs BEFORE DSL-104 admission as a cheap filter:
+/// stale evidence can never be slashed regardless of verifier
+/// outcome, so there is no point paying BLS-verification cost on
+/// a payload that the downstream verifier (DSL-011) would reject
+/// anyway.
+///
+/// # Underflow guard
+///
+/// The predicate uses addition on the LHS so it cannot underflow
+/// when `current_epoch < SLASH_LOOKBACK_EPOCHS` (early network
+/// boot / genesis). At genesis every epoch-0 evidence is
+/// admissible.
+///
+/// # Boundary
+///
+/// `ev.epoch == current_epoch - SLASH_LOOKBACK_EPOCHS` (when the
+/// subtraction is well-defined) is admissible — the comparison is
+/// strict `<`, not `<=`.
+///
+/// # Errors
+///
+/// - [`SlashingError::OffenseTooOld`] — first expired evidence
+///   in iteration order. Iteration halts at the first failure so
+///   one stale payload does not amplify verifier work.
+pub fn enforce_slashing_evidence_mempool_policy(
+    bundle: &SpendBundle,
+    conditions: &HashMap<Bytes32, Vec<Vec<u8>>>,
+    current_epoch: u64,
+) -> Result<(), SlashingError> {
+    for spend in bundle.coin_spends.iter() {
+        let coin_id = spend.coin.coin_id();
+        let empty = Vec::new();
+        let payloads = conditions.get(&coin_id).unwrap_or(&empty);
+
+        for ev in parse_slashing_evidence_from_conditions(payloads) {
+            if ev.epoch + SLASH_LOOKBACK_EPOCHS < current_epoch {
+                return Err(SlashingError::OffenseTooOld {
+                    offense_epoch: ev.epoch,
+                    current_epoch,
                 });
             }
         }

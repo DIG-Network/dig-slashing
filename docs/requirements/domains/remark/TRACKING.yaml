@@ -46,11 +46,12 @@ items:
   - id: DSL-106
     section: "Evidence Mempool Policy"
     summary: "Expired rejected"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-106.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-106"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_106_evidence_mempool_expired_rejected_test
+    notes: "Adds pub fn enforce_slashing_evidence_mempool_policy(&SpendBundle, &HashMap<Bytes32, Vec<Vec<u8>>>, current_epoch: u64) -> Result<(), SlashingError> in src/remark/policy.rs. Predicate `ev.epoch + SLASH_LOOKBACK_EPOCHS < current_epoch` with addition on LHS prevents underflow at genesis/boot. Reuses SlashingError::OffenseTooOld (DSL-011 variant) rather than a separate OutsideLookback — same predicate, unified error surface. 5-test suite: expired rejected with both epochs, boundary (== current-LOOKBACK) strict-< admits, within-window admits, current<=LOOKBACK admits all, multi-spend short-circuits on FIRST expired."
 
   - id: DSL-107
     section: "Evidence Mempool Policy"
