@@ -183,13 +183,6 @@ pub fn run_epoch_boundary(
     let finalized_epoch = justification.latest_finalized_epoch();
     let stall = in_finality_stall(current_epoch_ending, finalized_epoch);
 
-    // `reward_payout` is threaded through the signature for
-    // future steps that route direct payouts (currently
-    // finalise drives its own payout path via validator_set).
-    // Touch the reference to silence the unused-parameter lint
-    // without changing behaviour.
-    let _ = &reward_payout;
-
     // ── Step 1: flag deltas over previous-epoch flags ─────
     let flag_deltas = compute_flag_deltas(
         participation,
@@ -198,11 +191,40 @@ pub fn run_epoch_boundary(
         stall,
     );
 
+    // ── Step 1b (DSL-169): route flag-delta rewards through
+    // RewardPayout. For every delta with reward > 0, call
+    // `reward_payout.pay(puzzle_hash, reward)`. Zero-reward
+    // deltas are filtered so no-op payments do not spam the
+    // embedder's accumulator. Validators missing from the view
+    // are silently skipped (defensive tolerance — the view may
+    // drift between DSL-082 computation and here if a parallel
+    // mutation is in flight, though under the chain lock this
+    // should not happen).
+    for fd in &flag_deltas {
+        if fd.reward == 0 {
+            continue;
+        }
+        if let Some(entry) = validator_set.get(fd.validator_index) {
+            reward_payout.pay(entry.puzzle_hash(), fd.reward);
+        }
+    }
+
     // ── Step 2: inactivity-score update (reads same flags) ─
     inactivity.update_for_epoch(participation, stall);
 
     // ── Step 3: inactivity-leak penalties for ending epoch ─
     let inactivity_penalties = inactivity.epoch_penalties(effective_balances, stall);
+
+    // ── Step 3b (DSL-169): apply inactivity-leak penalties to
+    // validator stakes via `ValidatorEntry::slash_absolute`.
+    // DSL-091/092 computes the per-validator penalty_mojos; the
+    // wiring here actually debits the stake. Missing validators
+    // skipped (same rationale as step 1b).
+    for &(idx, penalty_mojos) in &inactivity_penalties {
+        if let Some(entry) = validator_set.get_mut(idx) {
+            entry.slash_absolute(penalty_mojos, current_epoch_ending);
+        }
+    }
 
     // ── Step 4: finalise expired slashes ─────────────────
     let finalisations = manager.finalise_expired_slashes(
