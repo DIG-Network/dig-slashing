@@ -115,6 +115,25 @@ pub const SLASH_LOCK_EPOCHS: u64 = 100;
 /// uses 8 epochs to match L2 block cadence.
 pub const SLASH_APPEAL_WINDOW_EPOCHS: u64 = 8;
 
+/// Bit index of the `TIMELY_SOURCE` flag in `ParticipationFlags`.
+///
+/// Traces to SPEC §2.9, §3.10. Ethereum Altair parity: source
+/// vote timely iff the attestation arrives within one epoch of
+/// the source-checkpoint boundary.
+pub const TIMELY_SOURCE_FLAG_INDEX: u8 = 0;
+
+/// Bit index of the `TIMELY_TARGET` flag in `ParticipationFlags`.
+///
+/// Traces to SPEC §2.9, §3.10.
+pub const TIMELY_TARGET_FLAG_INDEX: u8 = 1;
+
+/// Bit index of the `TIMELY_HEAD` flag in `ParticipationFlags`.
+///
+/// Traces to SPEC §2.9, §3.10. Head vote timely iff `inclusion_delay
+/// == 1` — only reachable when the attestation is included in the
+/// very next block.
+pub const TIMELY_HEAD_FLAG_INDEX: u8 = 2;
+
 /// 50/50 winner-award / burn split in basis points applied to a
 /// forfeited bond.
 ///

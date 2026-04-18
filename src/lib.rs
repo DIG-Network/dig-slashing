@@ -34,6 +34,7 @@ pub mod constants;
 pub mod error;
 pub mod evidence;
 pub mod manager;
+pub mod participation;
 pub mod pending;
 pub mod traits;
 
@@ -70,8 +71,8 @@ pub use constants::{
     MAX_APPEAL_ATTEMPTS_PER_SLASH, MAX_APPEAL_PAYLOAD_BYTES, MAX_PENALTY_BPS, MAX_PENDING_SLASHES,
     MAX_SLASH_PROPOSAL_PAYLOAD_BYTES, MAX_VALIDATORS_PER_COMMITTEE, MIN_EFFECTIVE_BALANCE,
     MIN_SLASHING_PENALTY_QUOTIENT, PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT,
-    REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS,
-    WHISTLEBLOWER_REWARD_QUOTIENT,
+    REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS, TIMELY_HEAD_FLAG_INDEX,
+    TIMELY_SOURCE_FLAG_INDEX, TIMELY_TARGET_FLAG_INDEX, WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 pub use error::SlashingError;
 pub use evidence::{
@@ -81,6 +82,7 @@ pub use evidence::{
     verify_evidence, verify_evidence_for_inclusion, verify_invalid_block, verify_proposer_slashing,
 };
 pub use manager::{FinalisationResult, PerValidatorSlash, SlashingManager, SlashingResult};
+pub use participation::ParticipationFlags;
 pub use pending::{
     AppealAttempt, AppealOutcome, PendingSlash, PendingSlashBook, PendingSlashStatus,
 };

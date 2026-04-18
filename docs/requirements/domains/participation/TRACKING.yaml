@@ -6,11 +6,12 @@ items:
   - id: DSL-074
     section: "ParticipationFlags"
     summary: "ParticipationFlags::set / has per bit"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-074.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-074"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_074_participation_flags_bits_test
+    notes: "Opens Phase 3 Participation. New module src/participation/ with flags.rs. ParticipationFlags(pub u8) + set(flag_index)/has(flag_index) + is_source_timely/is_target_timely/is_head_timely named accessors. Adds constants TIMELY_SOURCE_FLAG_INDEX=0, TIMELY_TARGET_FLAG_INDEX=1, TIMELY_HEAD_FLAG_INDEX=2. 5-test suite: default=0, set(0)→bit 0, other bits untouched (0b0000_0101 after set(0);set(2)), idempotent, accessors match has(index) for all 3 flags."
 
   - id: DSL-075
     section: "Timeliness Classification"

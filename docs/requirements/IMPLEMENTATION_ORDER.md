@@ -103,7 +103,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 ## Phase 3: Participation & Rewards (DSL-074..086)
 
-- [ ] DSL-074 — ParticipationFlags bits set/has
+- [x] DSL-074 — ParticipationFlags bits set/has
 - [ ] DSL-075 — classify_timeliness TIMELY_SOURCE
 - [ ] DSL-076 — classify_timeliness TIMELY_TARGET
 - [ ] DSL-077 — classify_timeliness TIMELY_HEAD
