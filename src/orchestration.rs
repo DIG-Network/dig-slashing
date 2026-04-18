@@ -69,8 +69,54 @@ use crate::traits::{CollateralSlasher, EffectiveBalanceView, RewardPayout, Valid
 /// first caller.
 pub trait JustificationView {
     /// Epoch of the most recent finalized checkpoint. `0` at
-    /// genesis before any checkpoint has finalized.
+    /// genesis before any checkpoint has finalized. DSL-127
+    /// derives `in_finality_stall` from this.
     fn latest_finalized_epoch(&self) -> u64;
+
+    /// Most recently justified checkpoint in the current epoch.
+    /// DSL-075 source-justified appeal check consumer. Default:
+    /// zero checkpoint so DSL-127 fixtures that only care about
+    /// the stall flag don't have to implement the full surface.
+    fn current_justified_checkpoint(&self) -> crate::evidence::Checkpoint {
+        crate::evidence::Checkpoint {
+            epoch: 0,
+            root: dig_protocol::Bytes32::new([0u8; 32]),
+        }
+    }
+
+    /// Checkpoint justified in the previous epoch. DSL-075
+    /// consumer. Default: zero checkpoint.
+    fn previous_justified_checkpoint(&self) -> crate::evidence::Checkpoint {
+        crate::evidence::Checkpoint {
+            epoch: 0,
+            root: dig_protocol::Bytes32::new([0u8; 32]),
+        }
+    }
+
+    /// Most recently finalized checkpoint. Default: zero-root
+    /// at [`latest_finalized_epoch`] so the epoch leg matches
+    /// DSL-127's minimum contract even when the root is
+    /// uninitialised. DSL-076 consumer.
+    fn finalized_checkpoint(&self) -> crate::evidence::Checkpoint {
+        crate::evidence::Checkpoint {
+            epoch: self.latest_finalized_epoch(),
+            root: dig_protocol::Bytes32::new([0u8; 32]),
+        }
+    }
+
+    /// Canonical block root at `slot`, or `None` for
+    /// uncommitted / future slots. DSL-076/077 head check
+    /// consumer. Default: always `None`.
+    fn canonical_block_root_at_slot(&self, _slot: u64) -> Option<dig_protocol::Bytes32> {
+        None
+    }
+
+    /// Canonical target root for `epoch` (start-of-epoch
+    /// block root), or `None` past chain tip. DSL-076 target-root
+    /// consumer. Default: `None`.
+    fn canonical_target_root_for_epoch(&self, _epoch: u64) -> Option<dig_protocol::Bytes32> {
+        None
+    }
 }
 
 /// Summary produced by [`run_epoch_boundary`]. Carries every

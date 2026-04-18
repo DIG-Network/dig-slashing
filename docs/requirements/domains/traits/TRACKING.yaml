@@ -126,11 +126,12 @@ items:
   - id: DSL-143
     section: "Fork-Choice Oracles"
     summary: "JustificationView contract"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-143.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-143"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_143_justification_view_contract_test
+    notes: "Extends existing minimal JustificationView (DSL-127 shipped latest_finalized_epoch only) with four new methods: current_justified_checkpoint, previous_justified_checkpoint, finalized_checkpoint, canonical_block_root_at_slot, canonical_target_root_for_epoch. All four have default impls (zero checkpoints, None roots) so DSL-127 fixtures that override only latest_finalized_epoch continue to compile without signature break. 6-test suite via FullJustification + Minimal impls: checkpoints return structured data + consistency (finalized.epoch == latest_finalized_epoch), committed slot Some / future None, target-root past-tip None, read-only invariance across 10 repeated calls, defaults verified through Minimal impl override."
 
   - id: DSL-144
     section: "Fork-Choice Oracles"
