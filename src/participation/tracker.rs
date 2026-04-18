@@ -163,6 +163,16 @@ impl ParticipationTracker {
     /// when the tip is already current or ahead).
     pub fn rewind_on_reorg(&mut self, new_tip_epoch: u64, validator_count: usize) -> u64 {
         let dropped = self.current_epoch_number.saturating_sub(new_tip_epoch);
+        // DSL-153 acceptance: `depth == 0` is a genuine no-op — the
+        // orchestrator occasionally fires rewind_all_on_reorg with
+        // `new_tip_epoch == current_epoch_number` for safety after a
+        // recovery restart, and those callers must observe no flag /
+        // epoch-number mutation. Skipping the rotate_epoch call also
+        // avoids an unnecessary Vec resize when the validator count
+        // is unchanged.
+        if dropped == 0 {
+            return 0;
+        }
         // rotate_epoch zeroes the current slot; the swap in
         // rotate_epoch would otherwise preserve ghost `previous`
         // data from the reorged chain, so clear previous too.
