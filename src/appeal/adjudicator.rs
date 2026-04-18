@@ -473,6 +473,75 @@ pub fn adjudicate_sustained_reporter_penalty(
     })
 }
 
+/// Forfeit the appellant's bond on a rejected appeal and split
+/// the proceeds 50/50 between the reporter and the burn bucket.
+///
+/// Implements [DSL-071](../../../docs/requirements/domains/appeal/specs/DSL-071.md).
+/// Traces to SPEC §6.5. Mirror of DSL-068 with the losing party
+/// (appellant) and winning party (reporter) swapped.
+///
+/// # Pipeline
+///
+/// 1. `bond_escrow.forfeit(appellant_idx, APPELLANT_BOND_MOJOS,
+///    Appellant(appeal.hash()))` — returns the authoritative
+///    forfeit amount.
+/// 2. `winner_award = forfeited * BOND_AWARD_TO_WINNER_BPS /
+///    BPS_DENOMINATOR` (integer division; floor toward reporter,
+///    remainder to burn — identical rounding table to DSL-068).
+/// 3. `burn = forfeited - winner_award` (conservation by
+///    construction).
+/// 4. `reward_payout.pay(reporter_puzzle_hash, winner_award)` —
+///    unconditional.
+///
+/// # Sustained branch
+///
+/// No-op, returns zero-filled `BondSplitResult`. Sustained
+/// appeals forfeit the REPORTER's bond via DSL-068, not the
+/// appellant's.
+///
+/// # Result interpretation
+///
+/// Reuses [`BondSplitResult`]. The `winner_award` field is the
+/// reporter's share on this rejected-path call (vs. the
+/// appellant's share on a sustained-path DSL-068 call). The
+/// struct shape is identical so downstream serialisation
+/// (DSL-164 `AppealAdjudicationResult`) can carry either
+/// outcome without branching on the variant.
+pub fn adjudicate_rejected_forfeit_appellant_bond(
+    pending: &PendingSlash,
+    appeal: &SlashAppeal,
+    verdict: &AppealVerdict,
+    bond_escrow: &mut dyn BondEscrow,
+    reward_payout: &mut dyn RewardPayout,
+) -> Result<BondSplitResult, BondError> {
+    if matches!(verdict, AppealVerdict::Sustained { .. }) {
+        return Ok(BondSplitResult {
+            forfeited: 0,
+            winner_award: 0,
+            burn: 0,
+        });
+    }
+
+    let forfeited = bond_escrow.forfeit(
+        appeal.appellant_index,
+        APPELLANT_BOND_MOJOS,
+        BondTag::Appellant(appeal.hash()),
+    )?;
+    let winner_award = forfeited * BOND_AWARD_TO_WINNER_BPS / BPS_DENOMINATOR;
+    let burn = forfeited - winner_award;
+
+    // Mirror DSL-068's unconditional pay — emits even on zero
+    // award so the two-call shape is audit-deterministic
+    // regardless of split outcome.
+    reward_payout.pay(pending.evidence.reporter_puzzle_hash, winner_award);
+
+    Ok(BondSplitResult {
+        forfeited,
+        winner_award,
+        burn,
+    })
+}
+
 /// Claw back the whistleblower + proposer rewards paid at
 /// optimistic admission (DSL-025).
 ///

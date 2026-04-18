@@ -376,11 +376,12 @@ items:
   - id: DSL-071
     section: "Adjudicator"
     summary: "Adjudicate Rejected appellant-bond 50/50 split"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-071.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-071"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_071_adjudicate_rejected_bond_split_test
+    notes: "adjudicate_rejected_forfeit_appellant_bond(pending, appeal, verdict, bond_escrow, reward_payout) -> Result<BondSplitResult, BondError>. Mirror of DSL-068 with losing/winning parties swapped: forfeits APPELLANT_BOND_MOJOS via Appellant(appeal.hash()) tag, splits 50/50 (floor toward reporter, remainder to burn), pays reporter_puzzle_hash. Sustained → zero-filled result. Reuses BondSplitResult struct. 3-test suite: appellant forfeit call shape, 1000 → (500,500), pay call shape."
 
   - id: DSL-072
     section: "Adjudicator"
