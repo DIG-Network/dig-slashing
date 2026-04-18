@@ -51,11 +51,11 @@ items:
   - id: DSL-092
     section: "Per-Epoch Penalty"
     summary: "Per-epoch penalty formula eff_bal * score / INACTIVITY_PENALTY_QUOTIENT (16_777_216)"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/inactivity/specs/DSL-092.md"
     tests:
       - dsl_092_inactivity_penalty_formula_test
-    notes: "Integer division; only non-zero penalty tuples returned; zero-score or truncated-to-zero entries omitted."
+    notes: "Replaces the DSL-091 stub in-stall branch with penalty = u128(eff_bal) * u128(score) / u128(INACTIVITY_PENALTY_QUOTIENT). Zero-score slots skipped; zero-penalty results (score too small to overcome the 2^24 quotient) also filtered out. Adds INACTIVITY_PENALTY_QUOTIENT=16_777_216 constant. 4-test suite: exact formula, zero omission, u64::MAX no-overflow, stall_only emits."
 
   - id: DSL-093
     section: "Resize"

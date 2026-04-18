@@ -124,7 +124,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-089 — InactivityScoreTracker::update miss+stall increment (+4)
 - [x] DSL-090 — InactivityScoreTracker::update out-of-stall recovery (-16)
 - [x] DSL-091 — InactivityScoreTracker::epoch_penalties no-stall empty
-- [ ] DSL-092 — InactivityScoreTracker::epoch_penalties formula
+- [x] DSL-092 — InactivityScoreTracker::epoch_penalties formula
 - [ ] DSL-093 — InactivityScoreTracker::resize_for
 
 ## Phase 5: Slashing Protection (DSL-094..101)

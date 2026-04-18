@@ -18,7 +18,9 @@
 //! Score drives DSL-091 `inactivity_penalty(eff_bal, score)`
 //! on finalisation.
 
-use crate::constants::{INACTIVITY_SCORE_BIAS, INACTIVITY_SCORE_RECOVERY_RATE};
+use crate::constants::{
+    INACTIVITY_PENALTY_QUOTIENT, INACTIVITY_SCORE_BIAS, INACTIVITY_SCORE_RECOVERY_RATE,
+};
 use crate::participation::ParticipationTracker;
 use crate::traits::EffectiveBalanceView;
 
@@ -158,13 +160,33 @@ impl InactivityScoreTracker {
     #[must_use]
     pub fn epoch_penalties(
         &self,
-        _effective_balances: &dyn EffectiveBalanceView,
+        effective_balances: &dyn EffectiveBalanceView,
         in_finality_stall: bool,
     ) -> Vec<(u32, u64)> {
         if !in_finality_stall {
             return Vec::new();
         }
-        // DSL-092 replaces this with the in-stall formula.
-        Vec::new()
+        // DSL-092: in-stall penalty formula.
+        //   penalty = effective_balance * score / INACTIVITY_PENALTY_QUOTIENT
+        // u128 intermediate prevents overflow when eff_bal and
+        // score are both near u64::MAX. Zero-score validators
+        // are filtered out of the output; zero-penalty results
+        // (score so small that the quotient truncates it to 0)
+        // are also dropped so consumers iterate only value-
+        // bearing debits.
+        let mut out: Vec<(u32, u64)> = Vec::new();
+        for (i, &score) in self.scores.iter().enumerate() {
+            if score == 0 {
+                continue;
+            }
+            let idx = i as u32;
+            let eff_bal = effective_balances.get(idx);
+            let penalty = (u128::from(eff_bal) * u128::from(score)
+                / u128::from(INACTIVITY_PENALTY_QUOTIENT)) as u64;
+            if penalty > 0 {
+                out.push((idx, penalty));
+            }
+        }
+        out
     }
 }
