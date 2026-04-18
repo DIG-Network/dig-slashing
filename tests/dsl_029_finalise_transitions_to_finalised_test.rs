@@ -254,7 +254,14 @@ fn test_dsl_029_accepted_transitions_to_finalised() {
     // Advance past the window and finalise.
     let finalise_epoch = SLASH_APPEAL_WINDOW_EPOCHS + 1; // window expires at 8 → finalise at 9
     mgr.set_epoch(finalise_epoch);
-    let results = mgr.finalise_expired_slashes();
+    let results = mgr.finalise_expired_slashes(
+        &mut view,
+        &MapBalances(HashMap::from([
+            (9u32, MIN_EFFECTIVE_BALANCE),
+            (0u32, MIN_EFFECTIVE_BALANCE),
+        ])),
+        MIN_EFFECTIVE_BALANCE * 1000,
+    );
 
     assert_eq!(results.len(), 1);
     let rec = mgr.book().get(&hash).expect("still in book");
@@ -297,7 +304,14 @@ fn test_dsl_029_challenge_open_transitions_to_finalised() {
     // in finalise_expired_slashes catches BOTH Accepted and
     // ChallengeOpen. This is the most we can assert until DSL-072.
     mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS + 1);
-    let results = mgr.finalise_expired_slashes();
+    let results = mgr.finalise_expired_slashes(
+        &mut view,
+        &MapBalances(HashMap::from([
+            (9u32, MIN_EFFECTIVE_BALANCE),
+            (0u32, MIN_EFFECTIVE_BALANCE),
+        ])),
+        MIN_EFFECTIVE_BALANCE * 1000,
+    );
     assert_eq!(results.len(), 1);
     let rec = mgr.book().get(&hash).unwrap();
     assert!(matches!(rec.status, PendingSlashStatus::Finalised { .. }));
@@ -315,7 +329,14 @@ fn test_dsl_029_finalisation_result_emitted() {
     let hash = admit(&mut mgr, &mut view, 0, 0x00);
 
     mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS + 1);
-    let results = mgr.finalise_expired_slashes();
+    let results = mgr.finalise_expired_slashes(
+        &mut view,
+        &MapBalances(HashMap::from([
+            (9u32, MIN_EFFECTIVE_BALANCE),
+            (0u32, MIN_EFFECTIVE_BALANCE),
+        ])),
+        MIN_EFFECTIVE_BALANCE * 1000,
+    );
 
     assert_eq!(results.len(), 1);
     assert_eq!(results[0].evidence_hash, hash);
@@ -330,10 +351,24 @@ fn test_dsl_029_idempotent_second_call_no_op() {
     admit(&mut mgr, &mut view, 0, 0x00);
 
     mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS + 1);
-    let first = mgr.finalise_expired_slashes();
+    let first = mgr.finalise_expired_slashes(
+        &mut view,
+        &MapBalances(HashMap::from([
+            (9u32, MIN_EFFECTIVE_BALANCE),
+            (0u32, MIN_EFFECTIVE_BALANCE),
+        ])),
+        MIN_EFFECTIVE_BALANCE * 1000,
+    );
     assert_eq!(first.len(), 1);
 
-    let second = mgr.finalise_expired_slashes();
+    let second = mgr.finalise_expired_slashes(
+        &mut view,
+        &MapBalances(HashMap::from([
+            (9u32, MIN_EFFECTIVE_BALANCE),
+            (0u32, MIN_EFFECTIVE_BALANCE),
+        ])),
+        MIN_EFFECTIVE_BALANCE * 1000,
+    );
     assert!(second.is_empty(), "second call must be a no-op");
 }
 
@@ -341,7 +376,12 @@ fn test_dsl_029_idempotent_second_call_no_op() {
 #[test]
 fn test_dsl_029_empty_book_returns_empty_vec() {
     let mut mgr = SlashingManager::new(100);
-    assert!(mgr.finalise_expired_slashes().is_empty());
+    let mut view = MapView(HashMap::new());
+    let balances = MapBalances(HashMap::new());
+    assert!(
+        mgr.finalise_expired_slashes(&mut view, &balances, MIN_EFFECTIVE_BALANCE * 1000)
+            .is_empty(),
+    );
 }
 
 /// DSL-029 row 6: multiple admitted + expired pendings → deterministic
@@ -356,7 +396,14 @@ fn test_dsl_029_multiple_expired_deterministic_order() {
 
     // Advance past all windows.
     mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS + 3); // 11
-    let results = mgr.finalise_expired_slashes();
+    let results = mgr.finalise_expired_slashes(
+        &mut view,
+        &MapBalances(HashMap::from([
+            (9u32, MIN_EFFECTIVE_BALANCE),
+            (0u32, MIN_EFFECTIVE_BALANCE),
+        ])),
+        MIN_EFFECTIVE_BALANCE * 1000,
+    );
     assert_eq!(results.len(), 3);
 
     // Order ascending by admission epoch = ascending by window.
@@ -375,7 +422,14 @@ fn test_dsl_029_not_yet_expired_untouched() {
 
     // Advance to middle of window.
     mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS - 3); // 5
-    let results = mgr.finalise_expired_slashes();
+    let results = mgr.finalise_expired_slashes(
+        &mut view,
+        &MapBalances(HashMap::from([
+            (9u32, MIN_EFFECTIVE_BALANCE),
+            (0u32, MIN_EFFECTIVE_BALANCE),
+        ])),
+        MIN_EFFECTIVE_BALANCE * 1000,
+    );
     assert!(results.is_empty(), "not-yet-expired must NOT finalise");
     let rec = mgr.book().get(&hash).unwrap();
     assert_eq!(rec.status, PendingSlashStatus::Accepted);

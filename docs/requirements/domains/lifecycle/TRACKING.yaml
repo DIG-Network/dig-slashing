@@ -86,11 +86,12 @@ items:
   - id: DSL-030
     section: "Finalisation"
     summary: "finalise_expired_slashes applies correlation penalty eff_bal * min(cohort*3, total) / total"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-030.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-030"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_030_finalise_applies_correlation_penalty_test
+    notes: "Correlation penalty formula in finalise_expired_slashes. SlashingManager gains slashed_in_window BTreeMap<(slash_epoch, validator_index), eff_bal_at_slash>; submit_evidence inserts one entry per per-validator debit (DSL-022 extension). Finalise computes cohort_sum over [current - CORRELATION_WINDOW_EPOCHS, current] range, then per validator: penalty = u128(eff_bal) * u128(min(cohort*3, total_active)) / u128(total_active). u128 intermediate prevents overflow (eff_bal * capped can exceed u64::MAX at MIN_EFFECTIVE_BALANCE magnitudes). total_active==0 → 0 (defensive). Penalty applied via slash_absolute(penalty, current_epoch); recorded in FinalisationResult.per_validator_correlation_penalty. finalise_expired_slashes signature extended: (validator_set, effective_balances, total_active_balance). New constant PROPORTIONAL_SLASHING_MULTIPLIER=3. 8-test suite: isolated slash small penalty (eff²*3/total), saturation at eff_bal when cohort*3>=total, window bounds exclude pre-window admissions, multiplier=3 (cohort=total/6 → penalty=eff/2), recorded in result + slash_absolute called at finalise epoch, zero cohort → zero penalty, zero total_active → zero, determinism across managers. DSL-029 test updated for new signature."
 
   - id: DSL-031
     section: "Finalisation"
