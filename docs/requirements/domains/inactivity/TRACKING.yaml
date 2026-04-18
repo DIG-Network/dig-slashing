@@ -24,11 +24,11 @@ items:
   - id: DSL-089
     section: "Score Update"
     summary: "InactivityScoreTracker::update_for_epoch increments by INACTIVITY_SCORE_BIAS (4) on target miss during stall"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/inactivity/specs/DSL-089.md"
     tests:
       - dsl_089_inactivity_score_miss_in_stall_increment_test
-    notes: "Saturating_add; no bias applied outside of stall."
+    notes: "Extends update_for_epoch with miss branch: TIMELY_TARGET unset + in_finality_stall=true → saturating_add(INACTIVITY_SCORE_BIAS). Miss + no-stall → unchanged here (DSL-090 global recovery covers). Adds INACTIVITY_SCORE_BIAS=4 constant. 4-test suite: miss+stall → +4 (hit on same epoch still decrements via DSL-088), miss+no-stall → no change, u64::MAX saturates, 10× miss+stall → +40 linear growth."
 
   - id: DSL-090
     section: "Score Update"
