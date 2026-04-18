@@ -66,10 +66,13 @@ pub struct VerifiedEvidence {
 /// 1. **OffenseTooOld** (DSL-011): `evidence.epoch + SLASH_LOOKBACK_EPOCHS
 ///    >= current_epoch`. Addition on the LHS avoids underflow at network
 ///    boot (`current_epoch < SLASH_LOOKBACK_EPOCHS`).
+/// 2. **ReporterIsAccused** (DSL-012):
+///    `evidence.reporter_validator_index ∉ evidence.slashable_validators()`.
+///    Blocks a validator from self-slashing to collect the whistleblower
+///    reward.
 ///
 /// # Not yet enforced (placeholder accept)
 ///
-/// - DSL-012: `reporter_validator_index ∉ slashable_validators()`.
 /// - DSL-013: proposer-slashing preconditions.
 /// - DSL-014/015: attester double-vote / surround-vote predicates.
 /// - DSL-016/017: attester intersection / predicate failure.
@@ -110,10 +113,22 @@ pub fn verify_evidence(
         });
     }
 
+    // DSL-012: ReporterIsAccused. Compute slashable validators once and
+    // reuse for both this check and the `VerifiedEvidence` return.
+    // Intentional binding: a validator cannot whistleblow on itself and
+    // collect the reward — that would turn slashing into a profitable
+    // self-report.
+    let slashable = evidence.slashable_validators();
+    if slashable.contains(&evidence.reporter_validator_index) {
+        return Err(SlashingError::ReporterIsAccused(
+            evidence.reporter_validator_index,
+        ));
+    }
+
     // Placeholder success — see module docs. Every future DSL extends
     // this function rather than replacing this return.
     Ok(VerifiedEvidence {
         offense_type: evidence.offense_type,
-        slashable_validator_indices: evidence.slashable_validators(),
+        slashable_validator_indices: slashable,
     })
 }

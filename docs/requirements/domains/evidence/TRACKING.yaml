@@ -116,11 +116,12 @@ items:
   - id: DSL-012
     section: "Verification"
     summary: "verify_evidence rejects ReporterIsAccused when reporter_index in slashable_validators"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-012.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_012_verify_evidence_reporter_is_accused_test
+    notes: "Extends verify_evidence in src/evidence/verify.rs: after OffenseTooOld (DSL-011), rejects when reporter_validator_index appears in slashable_validators() (DSL-010). Payload-agnostic via envelope helper — covers Proposer, Attester (intersection), and InvalidBlock. SlashingError::ReporterIsAccused(u32) added. 7-test suite: Proposer self-accuse, Attester in-intersection rejection, Attester one-side-only passes, InvalidBlock self-accuse, error carries index, ordering invariant (OffenseTooOld surfaces before ReporterIsAccused)."
 
   - id: DSL-013
     section: "Verification"

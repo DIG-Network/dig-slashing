@@ -42,6 +42,18 @@ pub enum SlashingError {
     #[error("BLS signature verification failed")]
     BlsVerifyFailed,
 
+    /// The evidence reporter named themselves among the slashable
+    /// validators (self-accuse).
+    ///
+    /// Raised by `verify_evidence` (DSL-012) when
+    /// `evidence.reporter_validator_index ∈ evidence.slashable_validators()`.
+    /// Blocks a validator from self-slashing to collect the
+    /// whistleblower reward (DSL-025 reward routing). Payload is the
+    /// offending validator index so the adjudicator can log without
+    /// re-deriving it.
+    #[error("reporter cannot accuse self (index {0})")]
+    ReporterIsAccused(u32),
+
     /// Offense epoch is older than `SLASH_LOOKBACK_EPOCHS` relative to
     /// the current epoch.
     ///
