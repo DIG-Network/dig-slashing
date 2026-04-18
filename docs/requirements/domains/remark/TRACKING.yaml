@@ -56,11 +56,12 @@ items:
   - id: DSL-107
     section: "Evidence Mempool Policy"
     summary: "Duplicate rejected"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-107.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-107"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_107_evidence_mempool_duplicate_rejected_test
+    notes: "Adds pub fn enforce_slashing_evidence_mempool_dedup_policy(pending: &[SlashingEvidence], incoming: &[SlashingEvidence]) -> Result<(), SlashingError> + new SlashingError::DuplicateEvidence variant. Fingerprint = serde_json::to_vec(&ev) bytes (reuses DSL-102 wire bytes — no extra hash). HashSet pre-seeded from pending, walk incoming: first collision short-circuits. Upstream of DSL-026 manager AlreadySlashed (which operates on evidence.hash() at manager layer). 4-test suite: pending/incoming collision, in-batch incoming dup, distinct admits, empty inputs admit vacuously."
 
   - id: DSL-108
     section: "Evidence Mempool Policy"
