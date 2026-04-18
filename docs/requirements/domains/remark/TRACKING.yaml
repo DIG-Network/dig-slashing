@@ -26,11 +26,12 @@ items:
   - id: DSL-104
     section: "Evidence Admission"
     summary: "Admission accepts matching coin"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-104.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-104"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_104_evidence_admission_matching_coin_test
+    notes: "Adds pub fn enforce_slashing_evidence_remark_admission(&SpendBundle, &HashMap<Bytes32, Vec<Vec<u8>>>) -> Result<(), SlashingError> in new src/remark/policy.rs. For each coin_spend: coin_id → lookup REMARK payloads (unwrap_or empty), parse via DSL-102, for each parsed evidence derive DSL-103 puzzle hash, compare with coin.puzzle_hash. Mismatch raises new SlashingError::AdmissionPuzzleHashMismatch { expected: Bytes32, got: Bytes32 } variant (DSL-105 exercises the fail path). Foreign/malformed payloads silently skip via DSL-102 parser. 4-test suite: single match, two-spend all-match, empty bundle (vacuous Ok), spend absent from conditions map (unwrap_or_default path)."
 
   - id: DSL-105
     section: "Evidence Admission"
