@@ -76,11 +76,12 @@ items:
   - id: DSL-041
     section: "Attester Appeal"
     summary: "AttesterAppeal AttestationsIdentical sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-041.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-041"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_041_attester_appeal_attestations_identical_test
+    notes: "verify_attester_appeal_attestations_identical. Byte-wise IndexedAttestation equality (indices + data + signature). 3-test suite: byte-equal → Sustained, distinct data → Rejected, sig-only difference still distinct → Rejected."
 
   - id: DSL-042
     section: "Attester Appeal"

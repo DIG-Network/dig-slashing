@@ -29,7 +29,8 @@ pub use ground::{
 };
 pub use verdict::{AppealRejectReason, AppealSustainReason, AppealVerdict};
 pub use verify::{
-    verify_proposer_appeal_headers_identical, verify_proposer_appeal_proposer_index_mismatch,
-    verify_proposer_appeal_signature_a_invalid, verify_proposer_appeal_signature_b_invalid,
-    verify_proposer_appeal_slot_mismatch, verify_proposer_appeal_validator_not_active_at_epoch,
+    verify_attester_appeal_attestations_identical, verify_proposer_appeal_headers_identical,
+    verify_proposer_appeal_proposer_index_mismatch, verify_proposer_appeal_signature_a_invalid,
+    verify_proposer_appeal_signature_b_invalid, verify_proposer_appeal_slot_mismatch,
+    verify_proposer_appeal_validator_not_active_at_epoch,
 };
