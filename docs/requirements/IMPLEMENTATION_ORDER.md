@@ -130,7 +130,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 ## Phase 5: Slashing Protection (DSL-094..101)
 
 - [x] DSL-094 — check_proposal_slot monotonic
-- [ ] DSL-095 — check_attestation same (src,tgt) different hash fails
+- [x] DSL-095 — check_attestation same (src,tgt) different hash fails
 - [ ] DSL-096 — would_surround self-check
 - [ ] DSL-097 — record_proposal + record_attestation persist
 - [ ] DSL-098 — rewind_attestation_to_epoch clears hash
