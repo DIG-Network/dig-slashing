@@ -96,11 +96,12 @@ items:
   - id: DSL-111
     section: "Appeal Wire"
     summary: "Appeal puzzle_reveal emits one REMARK"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-111.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-111"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_111_appeal_puzzle_reveal_emits_one_remark_test
+    notes: "Adds pub fn slash_appeal_remark_puzzle_reveal_v1 + slash_appeal_remark_puzzle_hash_v1 in src/remark/appeal_wire.rs. Appeal-side analogue of DSL-103 with identical quoted-constant CLVM shape `(q . ((1 payload)))` but SlashAppeal wire as payload. Hash via clvm_utils::tree_hash_from_bytes(reveal). SlashingError::InvalidSlashingEvidence used as unified error channel (appeal/evidence distinction is diagnostic-only). 4-test suite: exactly one Condition::Remark, payload round-trips through DSL-110 parser, hash deterministic + binds appellant_index mutations, hash equals tree_hash_from_bytes(reveal)."
 
   - id: DSL-112
     section: "Appeal Admission"
