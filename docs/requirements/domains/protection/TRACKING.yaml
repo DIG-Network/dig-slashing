@@ -26,11 +26,12 @@ items:
   - id: DSL-096
     section: "Monotonicity"
     summary: "would_surround self-check"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/protection/specs/DSL-096.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-096"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_096_protection_surround_vote_self_check_test
+    notes: "Extends check_attestation with pre-branch would_surround guard (private fn) that returns true iff candidate_source < last_attested_source_epoch AND candidate_target > last_attested_target_epoch (both strict). Runs BEFORE DSL-095 same-coord branch so slashable surround short-circuits regardless of stored hash. Mirrors DSL-015 verify-side predicate. 4-test suite: (2,6) vs (3,5) surround rejected, exact match falls through to DSL-095 (same hash ok, different hash rejected), flank (5,7)/(4,10) allowed, same-source-higher-target + lower-source-same-target (non-strict legs) allowed."
 
   - id: DSL-097
     section: "Recording"
