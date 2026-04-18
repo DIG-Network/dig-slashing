@@ -155,6 +155,19 @@ pub enum SlashingError {
     #[error("reporter cannot accuse self (index {0})")]
     ReporterIsAccused(u32),
 
+    /// Appellant-bond lock failed — principal lacks collateral or
+    /// the escrow rejected the tag.
+    ///
+    /// Raised by DSL-062 in `SlashingManager::submit_appeal` when
+    /// `BondEscrow::lock(appellant_idx, APPELLANT_BOND_MOJOS,
+    /// Appellant(appeal_hash))` returns `Err(_)`. Runs as the
+    /// LAST step of the admission pipeline so all structural
+    /// rejections (DSL-055..061, DSL-063) short-circuit first.
+    /// The carried string is the underlying `BondError` rendered
+    /// via `Display`.
+    #[error("appellant bond lock failed: {0}")]
+    AppellantBondLockFailed(String),
+
     /// Pending slash is already in the `Reverted` terminal state —
     /// no further appeals are accepted.
     ///

@@ -86,7 +86,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-059 — submit_appeal TooManyAttempts
 - [x] DSL-060 — submit_appeal SlashAlreadyReverted
 - [x] DSL-061 — submit_appeal SlashAlreadyFinalised
-- [ ] DSL-062 — submit_appeal escrows appellant bond
+- [x] DSL-062 — submit_appeal escrows appellant bond
 - [ ] DSL-063 — submit_appeal PayloadTooLarge
 
 ### Adjudicator

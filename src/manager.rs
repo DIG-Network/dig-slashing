@@ -29,7 +29,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::bonds::{BondEscrow, BondTag};
 use crate::constants::{
-    BPS_DENOMINATOR, MAX_APPEAL_ATTEMPTS_PER_SLASH, MAX_PENDING_SLASHES,
+    APPELLANT_BOND_MOJOS, BPS_DENOMINATOR, MAX_APPEAL_ATTEMPTS_PER_SLASH, MAX_PENDING_SLASHES,
     MIN_SLASHING_PENALTY_QUOTIENT, PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT,
     REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS,
     WHISTLEBLOWER_REWARD_QUOTIENT,
@@ -567,7 +567,7 @@ impl SlashingManager {
     pub fn submit_appeal(
         &mut self,
         appeal: &crate::appeal::SlashAppeal,
-        _bond_escrow: &mut dyn BondEscrow,
+        bond_escrow: &mut dyn BondEscrow,
     ) -> Result<(), SlashingError> {
         // DSL-055: UnknownEvidence — must run BEFORE any bond
         // operation or further state inspection.
@@ -652,7 +652,20 @@ impl SlashingManager {
             });
         }
 
-        // Subsequent DSLs add: bond lock, dispatch, adjudicate.
+        // DSL-062: appellant-bond lock. LAST admission step so
+        // every structural rejection (DSL-055..061, DSL-063)
+        // short-circuits before any collateral is touched. Tag
+        // MUST be `BondTag::Appellant(appeal.hash())` so DSL-068
+        // + DSL-071 can release / forfeit the correct slot.
+        bond_escrow
+            .lock(
+                appeal.appellant_index,
+                APPELLANT_BOND_MOJOS,
+                BondTag::Appellant(appeal_hash),
+            )
+            .map_err(|e| SlashingError::AppellantBondLockFailed(e.to_string()))?;
+
+        // Subsequent DSLs add: dispatch + adjudicate (DSL-064+).
         Ok(())
     }
 
