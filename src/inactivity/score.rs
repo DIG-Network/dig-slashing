@@ -189,4 +189,25 @@ impl InactivityScoreTracker {
         }
         out
     }
+
+    /// Grow or shrink the score vector to `validator_count`
+    /// slots.
+    ///
+    /// Implements [DSL-093](../../../docs/requirements/domains/inactivity/specs/DSL-093.md).
+    /// Traces to SPEC §9.2, §10.
+    ///
+    /// # Semantics
+    ///
+    /// - Growing: new trailing slots initialise to 0. Matches
+    ///   the activation semantics — freshly-activated
+    ///   validators start with a clean inactivity record.
+    /// - Shrinking: trailing entries are dropped. Rarely used
+    ///   (exits don't reuse indices); provided for symmetry
+    ///   with `ParticipationTracker::rotate_epoch`.
+    /// - Same size: no-op.
+    ///
+    /// Existing scores in the preserved range are unchanged.
+    pub fn resize_for(&mut self, validator_count: usize) {
+        self.scores.resize(validator_count, 0);
+    }
 }
