@@ -96,20 +96,22 @@ items:
   - id: DSL-043
     section: "Attester Appeal"
     summary: "AttesterAppeal EmptyIntersection sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-043.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-043"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_043_attester_appeal_empty_intersection_test
+    notes: "verify_attester_appeal_empty_intersection delegates to AttesterSlashing::slashable_indices().is_empty() (DSL-007 two-pointer intersection). Evidence-only; witness ignored. 3-test suite: disjoint [1,2]∩[3,4]=∅ → Sustained, overlap [1,2]∩[2,3]={2} → Rejected, identical sets → Rejected."
 
   - id: DSL-044
     section: "Attester Appeal"
     summary: "AttesterAppeal SignatureAInvalid sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-044.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-044"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_044_attester_appeal_signature_a_invalid_test
+    notes: "verify_attester_appeal_signature_a_invalid re-runs IndexedAttestation::verify_signature (DSL-006) over attestation_a; any failure (bad sig bytes, bad G2 point, unknown attester, crypto reject) → Sustained{AttesterSignatureAInvalid}. Shared helper verify_attester_appeal_signature_side reused for DSL-045. 3-test suite: corrupted sig → Sustained, honest aggregate → Rejected, substituted pubkey → Sustained."
 
   - id: DSL-045
     section: "Attester Appeal"
