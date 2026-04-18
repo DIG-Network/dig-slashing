@@ -246,7 +246,7 @@ Public-API coherence gaps identified in audit of shipped catalogue. Each closes 
 
 ### Appeal — Top-Level Dispatcher
 - [ ] DSL-167 — adjudicate_appeal top-level dispatcher
-- [ ] DSL-171 — AppealVerdict::to_appeal_outcome conversion
+- [x] DSL-171 — AppealVerdict::to_appeal_outcome conversion
 
 ### REMARK — Block-Level Admission
 - [ ] DSL-168 — process_block_admissions block-level entry point
