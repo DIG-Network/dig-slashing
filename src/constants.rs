@@ -146,6 +146,14 @@ pub const TIMELY_TARGET_WEIGHT: u64 = 26;
 /// Traces to SPEC §2.3, §8.3. 14 / 64 ≈ 21.9% — matches SOURCE.
 pub const TIMELY_HEAD_WEIGHT: u64 = 14;
 
+/// Epoch gap beyond which the network is in a finality stall.
+///
+/// Traces to SPEC §2.4, §9.1. `current_epoch - finalized_epoch >
+/// MIN_EPOCHS_TO_INACTIVITY_PENALTY` → inactivity-leak regime.
+/// Ethereum mainnet value = 4 epochs; below that the normal
+/// reward / penalty math runs unchanged.
+pub const MIN_EPOCHS_TO_INACTIVITY_PENALTY: u64 = 4;
+
 /// Proposer-inclusion reward weight (Ethereum Altair parity).
 ///
 /// Traces to SPEC §2.3, §8.4. Consumed by DSL-085

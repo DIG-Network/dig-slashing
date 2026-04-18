@@ -33,6 +33,7 @@ pub mod bonds;
 pub mod constants;
 pub mod error;
 pub mod evidence;
+pub mod inactivity;
 pub mod manager;
 pub mod participation;
 pub mod pending;
@@ -71,12 +72,12 @@ pub use constants::{
     INVALID_BLOCK_BASE_BPS, MAX_APPEAL_ATTEMPTS_PER_SLASH, MAX_APPEAL_PAYLOAD_BYTES,
     MAX_PENALTY_BPS, MAX_PENDING_SLASHES, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES,
     MAX_VALIDATORS_PER_COMMITTEE, MIN_ATTESTATION_INCLUSION_DELAY, MIN_EFFECTIVE_BALANCE,
-    MIN_SLASHING_PENALTY_QUOTIENT, PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT,
-    PROPOSER_WEIGHT, REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS,
-    TIMELY_HEAD_FLAG_INDEX, TIMELY_HEAD_WEIGHT, TIMELY_SOURCE_FLAG_INDEX,
-    TIMELY_SOURCE_MAX_DELAY_SLOTS, TIMELY_SOURCE_WEIGHT, TIMELY_TARGET_FLAG_INDEX,
-    TIMELY_TARGET_MAX_DELAY_SLOTS, TIMELY_TARGET_WEIGHT, WEIGHT_DENOMINATOR,
-    WHISTLEBLOWER_REWARD_QUOTIENT,
+    MIN_EPOCHS_TO_INACTIVITY_PENALTY, MIN_SLASHING_PENALTY_QUOTIENT,
+    PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT, PROPOSER_WEIGHT,
+    REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS, TIMELY_HEAD_FLAG_INDEX,
+    TIMELY_HEAD_WEIGHT, TIMELY_SOURCE_FLAG_INDEX, TIMELY_SOURCE_MAX_DELAY_SLOTS,
+    TIMELY_SOURCE_WEIGHT, TIMELY_TARGET_FLAG_INDEX, TIMELY_TARGET_MAX_DELAY_SLOTS,
+    TIMELY_TARGET_WEIGHT, WEIGHT_DENOMINATOR, WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 pub use error::SlashingError;
 pub use evidence::{
@@ -85,6 +86,7 @@ pub use evidence::{
     SlashingEvidencePayload, VerifiedEvidence, block_signing_message, verify_attester_slashing,
     verify_evidence, verify_evidence_for_inclusion, verify_invalid_block, verify_proposer_slashing,
 };
+pub use inactivity::in_finality_stall;
 pub use manager::{FinalisationResult, PerValidatorSlash, SlashingManager, SlashingResult};
 pub use participation::{
     FlagDelta, ParticipationError, ParticipationFlags, ParticipationTracker, base_reward,
