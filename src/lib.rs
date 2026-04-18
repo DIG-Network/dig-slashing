@@ -40,6 +40,6 @@ pub use constants::{
 };
 pub use error::SlashingError;
 pub use evidence::{
-    AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, OffenseType,
-    SignedBlockHeader,
+    AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, InvalidBlockProof,
+    InvalidBlockReason, OffenseType, SignedBlockHeader,
 };
