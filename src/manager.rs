@@ -29,9 +29,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::bonds::{BondEscrow, BondTag};
 use crate::constants::{
-    APPELLANT_BOND_MOJOS, BPS_DENOMINATOR, MAX_APPEAL_ATTEMPTS_PER_SLASH, MAX_PENDING_SLASHES,
-    MIN_SLASHING_PENALTY_QUOTIENT, PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT,
-    REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS,
+    APPELLANT_BOND_MOJOS, BPS_DENOMINATOR, MAX_APPEAL_ATTEMPTS_PER_SLASH, MAX_APPEAL_PAYLOAD_BYTES,
+    MAX_PENDING_SLASHES, MIN_SLASHING_PENALTY_QUOTIENT, PROPORTIONAL_SLASHING_MULTIPLIER,
+    PROPOSER_REWARD_QUOTIENT, REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS,
     WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 use crate::error::SlashingError;
@@ -649,6 +649,18 @@ impl SlashingManager {
             return Err(SlashingError::TooManyAttempts {
                 count: pending.appeal_history.len(),
                 limit: MAX_APPEAL_ATTEMPTS_PER_SLASH,
+            });
+        }
+
+        // DSL-063: PayloadTooLarge — cap bincode-serialized
+        // envelope size. Runs BEFORE the bond lock so oversized
+        // appeals never touch collateral. bincode chosen for
+        // parity with `SlashAppeal::hash` (same canonical form).
+        let encoded = bincode::serialize(appeal).expect("SlashAppeal bincode must not fail");
+        if encoded.len() > MAX_APPEAL_PAYLOAD_BYTES {
+            return Err(SlashingError::AppealPayloadTooLarge {
+                actual: encoded.len(),
+                limit: MAX_APPEAL_PAYLOAD_BYTES,
             });
         }
 

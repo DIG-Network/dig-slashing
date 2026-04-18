@@ -296,11 +296,12 @@ items:
   - id: DSL-063
     section: "Submission Preconditions"
     summary: "submit_appeal PayloadTooLarge"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-063.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-063"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_063_submit_appeal_payload_too_large_test
+    notes: "Caps bincode-serialised SlashAppeal at MAX_APPEAL_PAYLOAD_BYTES = 131_072 (128 KiB). Adds constant + SlashingError::AppealPayloadTooLarge{actual,limit}. Measured with bincode (same canonical form as SlashAppeal::hash) rather than serde_json per SPEC §2.6. Runs AFTER TooManyAttempts, BEFORE DSL-062 bond lock. 3-test suite with witness-length solver: exactly cap → Ok (closed boundary), cap+1 → AppealPayloadTooLarge + zero lock_calls, 1 KiB → Ok."
 
   - id: DSL-064
     section: "Adjudicator"
