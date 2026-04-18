@@ -6,11 +6,12 @@ items:
   - id: DSL-094
     section: "Monotonicity"
     summary: "check_proposal_slot monotonic"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/protection/specs/DSL-094.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-094"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_094_protection_proposal_monotonic_test
+    notes: "Opens Phase 5 Protection. New src/protection.rs with SlashingProtection{last_proposed_slot: u64}. Methods: new(), last_proposed_slot(), check_proposal_slot(slot) returns slot > last_proposed_slot (strict >), record_proposal(slot) sets last_proposed_slot. Derives Default+Serialize+Deserialize for DSL-101 persistence. 4-test suite: default+check(10)→true, record+same→false, record+lower→false, record+higher→true with chained record/check."
 
   - id: DSL-095
     section: "Monotonicity"
