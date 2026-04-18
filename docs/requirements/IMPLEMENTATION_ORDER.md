@@ -200,7 +200,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 ## Phase 10: Gap Fills (DSL-146..156)
 
 ### Lifecycle — Book + Queries + Short-Circuits
-- [ ] DSL-146 — PendingSlashBook basic ops (new/insert/get/remove/len)
+- [x] DSL-146 — PendingSlashBook basic ops (new/insert/get/remove/len)
 - [ ] DSL-147 — PendingSlashBook::expired_by
 - [ ] DSL-148 — SlashingManager::new + set_epoch
 - [ ] DSL-149 — SlashingManager::is_slashed

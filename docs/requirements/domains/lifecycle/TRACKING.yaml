@@ -126,11 +126,12 @@ items:
   - id: DSL-146
     section: "PendingSlashBook"
     summary: "PendingSlashBook basic ops (new/insert/get/remove/len)"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-146.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-146"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_146_pending_slash_book_basic_ops_test
+    notes: "Opens Phase 10 Gap Fills. PendingSlashBook shipped earlier as DSL-024 dep; this test pins the CRUD surface + capacity interlock. 5-test suite: new(10) empty + is_empty, insert increments + get returns Some, unknown hash None (even with other entries), remove returns owned record + decrements + post-remove None + double-remove None, insert at capacity returns PendingBookFull with state unchanged (DSL-027 interlock)."
 
   - id: DSL-147
     section: "PendingSlashBook"
