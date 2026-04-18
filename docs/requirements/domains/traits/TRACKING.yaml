@@ -86,11 +86,12 @@ items:
   - id: DSL-139
     section: "CollateralSlasher"
     summary: "CollateralSlasher slash+credit symmetry"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-139.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-139"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_139_collateral_slasher_symmetry_test
+    notes: "Extends CollateralSlasher trait with `fn slash(idx, amount, epoch) -> Result<(u64, u64), CollateralError>` (signature per SPEC §15.2). DEFAULT impl returns Err(NoCollateral) so existing impl CollateralSlasher fixtures in DSL-065/129/130 tests compile without signature-break. Adds new CollateralError enum (NoCollateral + Disabled variants). Soft-failure contract: NoCollateral at DSL-022 submit_evidence ignored; stake-side slash proceeds. 4-test suite: slash/credit roundtrip via FullCollateral impl, NoCollateral soft-err state-unchanged, double-credit accumulates, default-impl returns NoCollateral verified via CreditOnlyCollateral."
 
   - id: DSL-140
     section: "Bonds + Rewards"
