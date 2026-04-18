@@ -2,7 +2,7 @@
 
 | ID | Status | Summary | Verification Approach |
 |----|--------|---------|----------------------|
-| [DSL-022](NORMATIVE.md#DSL-022) | ❌ | submit_evidence base_slash = max(bps, quotient) | Unit test of the per-validator formula with BPS-dominant, quotient-dominant, and tie cases; confirms `slash_absolute` called with expected amount. |
+| [DSL-022](NORMATIVE.md#DSL-022) | ✅ | submit_evidence base_slash = max(bps, quotient) | 10 tests: bps dominates proposer (eff/20 wins at 500 bps), floor dominates attester double + surround (eff/32 beats eff/100), invalid-block floor wins integer-rounding tiebreak, per-validator vec cardinality equals intersection, already-slashed skipped, absent validator → verify-error, `eff_bal=0` yields zero slash, determinism, `slash_absolute` called with `current_epoch`. Test file: `tests/dsl_022_submit_evidence_base_slash_formula_test.rs`. |
 | [DSL-023](NORMATIVE.md#DSL-023) | ❌ | submit_evidence escrows REPORTER_BOND_MOJOS via BondEscrow::lock | MockBondEscrow records `lock(reporter_idx, REPORTER_BOND_MOJOS, BondTag::Reporter(hash))`; `SlashingResult::reporter_bond_escrowed` verified. |
 | [DSL-024](NORMATIVE.md#DSL-024) | ❌ | submit_evidence inserts PendingSlash { Accepted, window_expires } | Post-submit inspection of `PendingSlashBook::get(hash)`: status == Accepted, epochs match, per-validator vec populated. |
 | [DSL-025](NORMATIVE.md#DSL-025) | ❌ | submit_evidence routes wb_reward + prop_reward | MockRewardPayout captures payments; reporter ph receives `eff_bal/512`, proposer ph receives `wb/8`; `burn_amount = total_base - wb - prop`. |
