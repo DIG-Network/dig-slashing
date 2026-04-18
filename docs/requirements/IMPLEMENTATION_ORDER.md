@@ -79,7 +79,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-054 — InvalidBlockAppeal rejected on genuine invalid block
 
 ### Appeal Submission Preconditions
-- [ ] DSL-055 — submit_appeal UnknownEvidence
+- [x] DSL-055 — submit_appeal UnknownEvidence
 - [ ] DSL-056 — submit_appeal WindowExpired
 - [ ] DSL-057 — submit_appeal VariantMismatch
 - [ ] DSL-058 — submit_appeal DuplicateAppeal

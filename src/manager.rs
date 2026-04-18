@@ -534,6 +534,51 @@ impl SlashingManager {
         results
     }
 
+    /// Submit an appeal against an existing pending slash.
+    ///
+    /// Implements [DSL-055](../../docs/requirements/domains/appeal/specs/DSL-055.md).
+    /// Traces to SPEC §6.1, §7.2.
+    ///
+    /// # Scope (incremental)
+    ///
+    /// First-cut pipeline stops at the UnknownEvidence precondition:
+    /// if `appeal.evidence_hash` is not present in the pending-slash
+    /// book the method returns `SlashingError::UnknownEvidence(hex)`
+    /// WITHOUT touching the bond escrow. Later DSLs extend the
+    /// pipeline:
+    ///   - DSL-056: `WindowExpired`
+    ///   - DSL-057: `VariantMismatch`
+    ///   - DSL-058: `DuplicateAppeal`
+    ///   - DSL-059: `TooManyAttempts`
+    ///   - DSL-060/061: `SlashAlreadyReverted` / `SlashAlreadyFinalised`
+    ///   - DSL-062: appellant-bond lock (FIRST bond-touching step)
+    ///   - DSL-063: `PayloadTooLarge`
+    ///   - DSL-064+: dispatch to per-ground verifiers + adjudicate
+    ///
+    /// # Error ordering invariant
+    ///
+    /// `UnknownEvidence` MUST be checked BEFORE any bond operation
+    /// so a caller with a stale / misrouted appeal does not pay
+    /// gas to lock collateral that would immediately need to be
+    /// returned. Preserved by running the book lookup as the first
+    /// statement — see the DSL-055 test suite's
+    /// `test_dsl_055_bond_not_locked` guard.
+    pub fn submit_appeal(
+        &mut self,
+        appeal: &crate::appeal::SlashAppeal,
+        _bond_escrow: &mut dyn BondEscrow,
+    ) -> Result<(), SlashingError> {
+        if self.book.get(&appeal.evidence_hash).is_none() {
+            return Err(SlashingError::UnknownEvidence(hex_encode(
+                appeal.evidence_hash.as_ref(),
+            )));
+        }
+        // Subsequent DSLs add: WindowExpired, VariantMismatch,
+        // DuplicateAppeal, TooManyAttempts, bond lock, dispatch,
+        // adjudicate.
+        Ok(())
+    }
+
     /// Advance the manager's epoch. Consumers at the consensus layer
     /// call this at every epoch boundary AFTER running
     /// `finalise_expired_slashes` — keeps the current epoch in lock
@@ -541,4 +586,20 @@ impl SlashingManager {
     pub fn set_epoch(&mut self, epoch: u64) {
         self.current_epoch = epoch;
     }
+}
+
+/// Fixed-size lowercase hex encoder for diagnostic log strings.
+///
+/// Stays inline to avoid pulling a `hex` crate just for error
+/// messages. DSL-055 uses this to stamp `UnknownEvidence(hex)`
+/// with the 64-char hex representation of the missing evidence
+/// hash.
+fn hex_encode(bytes: &[u8]) -> String {
+    const HEX_CHARS: &[u8; 16] = b"0123456789abcdef";
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for &b in bytes {
+        out.push(HEX_CHARS[(b >> 4) as usize] as char);
+        out.push(HEX_CHARS[(b & 0x0F) as usize] as char);
+    }
+    out
 }

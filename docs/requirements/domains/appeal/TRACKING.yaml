@@ -216,11 +216,12 @@ items:
   - id: DSL-055
     section: "Submission Preconditions"
     summary: "submit_appeal UnknownEvidence"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-055.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-055"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_055_submit_appeal_unknown_evidence_test
+    notes: "Opens submit_appeal pipeline. Adds SlashingManager::submit_appeal(&SlashAppeal, &mut dyn BondEscrow) -> Result<(), SlashingError> + SlashingError::UnknownEvidence(String) variant. First precondition: book.get(&appeal.evidence_hash).ok_or(UnknownEvidence(hex(hash)))? runs BEFORE any bond operation. hex_encode helper inline in manager.rs (no new dep). 3-test suite: fresh hash → UnknownEvidence, bond.lock_calls == 0 on reject path, hex payload is 64-char lowercase matching raw bytes 0x00..0x1f."
 
   - id: DSL-056
     section: "Submission Preconditions"
