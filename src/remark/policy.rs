@@ -37,6 +37,9 @@ use dig_epoch::SLASH_LOOKBACK_EPOCHS;
 
 use crate::error::SlashingError;
 use crate::evidence::SlashingEvidence;
+use crate::remark::appeal_wire::{
+    parse_slash_appeals_from_conditions, slash_appeal_remark_puzzle_hash_v1,
+};
 use crate::remark::evidence_wire::{
     parse_slashing_evidence_from_conditions, slashing_evidence_remark_puzzle_hash_v1,
 };
@@ -270,6 +273,46 @@ pub fn enforce_slashing_evidence_payload_cap(
                 actual: len,
                 limit: MAX_SLASH_PROPOSAL_PAYLOAD_BYTES,
             });
+        }
+    }
+    Ok(())
+}
+
+/// Enforce the DSL-112 admission predicate over every appeal
+/// parsed from a spend bundle's REMARK conditions.
+///
+/// Appeal-side analogue of
+/// [`enforce_slashing_evidence_remark_admission`]: for each
+/// `CoinSpend` look up its REMARK payloads, parse via DSL-110,
+/// derive DSL-111 puzzle hash, compare with `coin.puzzle_hash`.
+/// Mismatch → `AdmissionPuzzleHashMismatch` (shared variant;
+/// DSL-113 exercises the fail path).
+///
+/// Bundle with zero appeals admits vacuously.
+///
+/// # Errors
+///
+/// - [`SlashingError::AdmissionPuzzleHashMismatch`] — first
+///   mismatch. Iteration halts.
+/// - [`SlashingError::InvalidSlashingEvidence`] — DSL-111 hash
+///   derivation failure (extremely rare).
+pub fn enforce_slash_appeal_remark_admission(
+    bundle: &SpendBundle,
+    conditions: &HashMap<Bytes32, Vec<Vec<u8>>>,
+) -> Result<(), SlashingError> {
+    for spend in bundle.coin_spends.iter() {
+        let coin_id = spend.coin.coin_id();
+        let empty = Vec::new();
+        let payloads = conditions.get(&coin_id).unwrap_or(&empty);
+
+        for ap in parse_slash_appeals_from_conditions(payloads) {
+            let expected = slash_appeal_remark_puzzle_hash_v1(&ap)?;
+            if spend.coin.puzzle_hash != expected {
+                return Err(SlashingError::AdmissionPuzzleHashMismatch {
+                    expected,
+                    got: spend.coin.puzzle_hash,
+                });
+            }
         }
     }
     Ok(())

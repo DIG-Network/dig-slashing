@@ -106,11 +106,12 @@ items:
   - id: DSL-112
     section: "Appeal Admission"
     summary: "Appeal admission matching coin"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-112.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-112"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_112_appeal_admission_matching_coin_test
+    notes: "Adds pub fn enforce_slash_appeal_remark_admission(&SpendBundle, &HashMap<Bytes32, Vec<Vec<u8>>>) -> Result<(), SlashingError>. Appeal-side analogue of DSL-104: parse via DSL-110, derive DSL-111 puzzle hash, compare with coin.puzzle_hash. Shared SlashingError::AdmissionPuzzleHashMismatch variant (DSL-113 fail path). 4-test suite: single match, two-spend all-match, empty bundle vacuous, spend-without-REMARK map-lookup miss."
 
   - id: DSL-113
     section: "Appeal Admission"
