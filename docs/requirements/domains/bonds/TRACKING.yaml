@@ -46,11 +46,12 @@ items:
   - id: DSL-125
     section: "Bond Sizes"
     summary: "APPELLANT_BOND_MOJOS = MIN_EFFECTIVE_BALANCE / 64"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/bonds/specs/DSL-125.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-125"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_125_bond_appellant_size_test
+    notes: "Dedicated constant-pin test. DSL-062 exercises submit_appeal lock; this test focuses on standalone constant invariants. 4-test suite: exact value + numeric pin, no-truncation invariant, symmetry with REPORTER_BOND_MOJOS (neutral grief-cost between reporter + appellant), compile-time const assertion. Symmetry is the economically-load-bearing invariant — any drift would create a dominant strategy on one side."
 
   - id: DSL-126
     section: "Bond Award Split"
