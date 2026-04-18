@@ -136,11 +136,12 @@ items:
   - id: DSL-144
     section: "Fork-Choice Oracles"
     summary: "ProposerView::proposer_at_slot"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-144.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-144"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_144_proposer_view_test
+    notes: "Pins ProposerView::proposer_at_slot + current_slot via reference MockProposer (HashMap<slot, proposer> + Cell<u64> clock). Consumer: DSL-025 proposer-reward routing. Trait already defined in src/traits.rs; test ensures contract invariants. 5-test suite: committed-past Some, future None (strict `>` cutoff), missed-slot None (past but no assignment), current_slot monotonic across advance sequence, boundary slot==current_slot returns Some (load-bearing for DSL-025 which queries just-committed slot)."
 
   - id: DSL-145
     section: "Fork-Choice Oracles"
