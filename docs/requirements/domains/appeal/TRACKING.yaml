@@ -396,11 +396,12 @@ items:
   - id: DSL-073
     section: "Adjudicator"
     summary: "Adjudicate clawback shortfall absorbed from bond"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-073.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-073"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_073_adjudicate_clawback_shortfall_test
+    notes: "Closes the adjudicator. Adds ShortfallAbsorption{clawback_shortfall, original_burn, final_burn, residue} + adjudicate_absorb_clawback_shortfall(clawback: &ClawbackResult, bond_split: &BondSplitResult) -> ShortfallAbsorption. final_burn = original_burn + shortfall; residue = saturating_sub(final_burn, forfeited). Residue surfaced via struct field (no tracing dep). 4-test suite: zero shortfall pass-through, partial absorbed, struct propagation, residue when shortfall > bond."
 
   - id: DSL-159
     section: "SlashAppeal Hash + Serde"
