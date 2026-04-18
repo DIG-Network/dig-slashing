@@ -478,6 +478,47 @@ pub fn enforce_slash_appeal_variant_policy(
     Ok(())
 }
 
+/// Enforce the DSL-118 appeal mempool-level dedup policy
+/// across `pending_appeals` (already in mempool) and
+/// `incoming_appeals` (new REMARKs admitted this pass).
+///
+/// Appeal-side analogue of DSL-107. Fingerprint =
+/// `serde_json::to_vec(&appeal)` bytes — byte-identical payloads
+/// collide without re-deriving any hash. First collision
+/// (pending↔incoming or within incoming) → reject. Separate from
+/// DSL-058 manager-level `DuplicateAppeal` check (which operates
+/// on the bincode appeal hash inside `PendingSlash::appeal_history`);
+/// this runs strictly upstream.
+///
+/// # Errors
+///
+/// - [`SlashingError::DuplicateAppeal`] — first collision.
+///   Short-circuits.
+/// - [`SlashingError::InvalidSlashingEvidence`] wrapping the
+///   `serde_json` error on serialisation failure (infallible in
+///   practice).
+pub fn enforce_slash_appeal_mempool_dedup_policy(
+    pending_appeals: &[SlashAppeal],
+    incoming_appeals: &[SlashAppeal],
+) -> Result<(), SlashingError> {
+    let mut seen: HashSet<Vec<u8>> =
+        HashSet::with_capacity(pending_appeals.len() + incoming_appeals.len());
+
+    for ap in pending_appeals {
+        let fp = serde_json::to_vec(ap)
+            .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("appeal dedup fp: {e}")))?;
+        seen.insert(fp);
+    }
+    for ap in incoming_appeals {
+        let fp = serde_json::to_vec(ap)
+            .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("appeal dedup fp: {e}")))?;
+        if !seen.insert(fp) {
+            return Err(SlashingError::DuplicateAppeal);
+        }
+    }
+    Ok(())
+}
+
 /// Lowercase-hex encode without the `0x` prefix. Used by DSL-114
 /// and future DSL-116..118 appeal-mempool errors that carry hex
 /// diagnostic strings. Mirrors the DSL-055 manager-side format
