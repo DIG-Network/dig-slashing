@@ -154,7 +154,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-110 — Appeal REMARK wire roundtrip
 - [x] DSL-111 — Appeal puzzle_reveal emits one REMARK
 - [x] DSL-112 — Appeal admission matching coin
-- [ ] DSL-113 — Appeal admission mismatch rejected
+- [x] DSL-113 — Appeal admission mismatch rejected
 - [ ] DSL-114 — Appeal mempool AppealForUnknownSlash
 - [ ] DSL-115 — Appeal mempool AppealWindowExpired
 - [ ] DSL-116 — Appeal mempool AppealForFinalisedSlash
