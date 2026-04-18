@@ -116,11 +116,12 @@ items:
   - id: DSL-033
     section: "Finalisation"
     summary: "finalise_expired_slashes skips already-Reverted pending slashes"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-033.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-033"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_033_finalise_skips_reverted_test
+    notes: "Skip enforced in finalise_expired_slashes (landed with DSL-029). Reverted + Finalised statuses short-circuit the loop — no correlation penalty, no bond release, no exit lock, no FinalisationResult emission. New book_mut() accessor exposed on SlashingManager for appeal code (DSL-068) + test helpers. 8-test suite: Reverted → no result, no slash_absolute, no bond.release, no schedule_exit, idempotent (Finalised skipped on second call), mixed batch (Accepted+Reverted → only Accepted finalised), skipped pending retained in book with Reverted status, determinism. Closes Phase 1 (lifecycle DSL-022..033)."
 
   - id: DSL-146
     section: "PendingSlashBook"

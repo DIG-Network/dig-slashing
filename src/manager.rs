@@ -178,6 +178,17 @@ impl SlashingManager {
         &self.book
     }
 
+    /// Mutable access to the pending-slash book.
+    ///
+    /// Exposed for adjudication code (DSL-064..070) that needs to
+    /// transition pending statuses to `Reverted`/`ChallengeOpen`
+    /// outside the manager's own `submit_evidence` +
+    /// `finalise_expired_slashes` flow. Test suites also use this to
+    /// inject pre-`Reverted` state for DSL-033 skip-path coverage.
+    pub fn book_mut(&mut self) -> &mut PendingSlashBook {
+        &mut self.book
+    }
+
     /// `true` iff the evidence hash has been admitted. Used by
     /// DSL-026 (`AlreadySlashed` short-circuit) + tests.
     #[must_use]
