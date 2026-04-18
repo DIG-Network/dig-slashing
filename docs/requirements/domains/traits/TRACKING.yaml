@@ -36,11 +36,12 @@ items:
   - id: DSL-134
     section: "ValidatorView + ValidatorEntry"
     summary: "ValidatorEntry::is_active_at_epoch boundary"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-134.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-134"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_134_validator_entry_is_active_boundary_test
+    notes: "Pins `activation_epoch <= e < exit_epoch` boundary via reference MockValidator. Left-inclusive, right-exclusive matches Ethereum lifecycle. Consumers: DSL-013/018 verifier active-check + DSL-039 ValidatorNotActiveAtEpoch ground. 6-test suite covers both boundaries + interior + exit=u64::MAX edge."
 
   - id: DSL-135
     section: "ValidatorView + ValidatorEntry"
