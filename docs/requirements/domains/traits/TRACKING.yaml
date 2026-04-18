@@ -16,11 +16,12 @@ items:
   - id: DSL-132
     section: "ValidatorView + ValidatorEntry"
     summary: "ValidatorEntry::credit_stake"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-132.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-132"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_132_validator_entry_credit_stake_test
+    notes: "Pins credit_stake via reference MockValidator. Saturating add with TRUE-delta return (on overflow returns actual delta, not requested amount) so callers reconciling pre/post balance see consistent math. Consumers: DSL-064 sustained-appeal revert + DSL-129 reorg rewind. 4-test suite: zero-stake credit, slash/credit roundtrip inverse, saturation at u64::MAX with follow-up no-op, zero-amount no-op."
 
   - id: DSL-133
     section: "ValidatorView + ValidatorEntry"

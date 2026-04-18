@@ -182,7 +182,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 ## Phase 9: External-State Traits (DSL-131..145)
 
 - [x] DSL-131 — ValidatorEntry::slash_absolute saturation
-- [ ] DSL-132 — ValidatorEntry::credit_stake
+- [x] DSL-132 — ValidatorEntry::credit_stake
 - [ ] DSL-133 — ValidatorEntry::restore_status
 - [ ] DSL-134 — ValidatorEntry::is_active_at_epoch boundary
 - [ ] DSL-135 — ValidatorEntry::schedule_exit
