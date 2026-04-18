@@ -31,15 +31,16 @@
 pub mod constants;
 pub mod error;
 pub mod evidence;
+pub mod manager;
 pub mod traits;
 
 // ── Public re-exports (alphabetical within category) ────────────────────────
 
 pub use constants::{
-    ATTESTATION_BASE_BPS, BLS_PUBLIC_KEY_SIZE, BLS_SIGNATURE_SIZE, DOMAIN_BEACON_ATTESTER,
-    DOMAIN_BEACON_PROPOSER, DOMAIN_SLASHING_EVIDENCE, EQUIVOCATION_BASE_BPS,
-    INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES,
-    MAX_VALIDATORS_PER_COMMITTEE,
+    ATTESTATION_BASE_BPS, BLS_PUBLIC_KEY_SIZE, BLS_SIGNATURE_SIZE, BPS_DENOMINATOR,
+    DOMAIN_BEACON_ATTESTER, DOMAIN_BEACON_PROPOSER, DOMAIN_SLASHING_EVIDENCE,
+    EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS,
+    MAX_SLASH_PROPOSAL_PAYLOAD_BYTES, MAX_VALIDATORS_PER_COMMITTEE, MIN_SLASHING_PENALTY_QUOTIENT,
 };
 pub use error::SlashingError;
 pub use evidence::{
@@ -48,8 +49,10 @@ pub use evidence::{
     SlashingEvidencePayload, VerifiedEvidence, block_signing_message, verify_attester_slashing,
     verify_evidence, verify_evidence_for_inclusion, verify_invalid_block, verify_proposer_slashing,
 };
+pub use manager::{PerValidatorSlash, SlashingManager, SlashingResult};
 pub use traits::{
-    ExecutionOutcome, InvalidBlockOracle, PublicKeyLookup, ValidatorEntry, ValidatorView,
+    EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, PublicKeyLookup, ValidatorEntry,
+    ValidatorView,
 };
 
 // Re-export the slash-lookback window from `dig-epoch` so downstream

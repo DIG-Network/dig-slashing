@@ -6,11 +6,12 @@ items:
   - id: DSL-022
     section: "Optimistic Admission"
     summary: "submit_evidence applies base_slash = max(eff_bal*bps/10_000, eff_bal/32)"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-022.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-022"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_022_submit_evidence_base_slash_formula_test
+    notes: "SlashingManager in src/manager.rs with submit_evidence method. Opens Phase 1. Pipeline: verify_evidence → iterate slashable indices → compute max(eff_bal*bps/10_000, eff_bal/32) → slash_absolute(amount, current_epoch). Skip already-slashed + absent-from-view. New traits: EffectiveBalanceView (SPEC §15.2). New constants: BPS_DENOMINATOR=10_000, MIN_SLASHING_PENALTY_QUOTIENT=32. New types: PerValidatorSlash, SlashingResult (SPEC §3.9). SlashingResult fields reward_*/burn/bond/hash are 0/empty placeholders pending DSL-023/024/025. Signature grows incrementally — bond/reward/proposer traits land with their DSLs. 10-test suite: bps dominates proposer (eff/20 wins), floor dominates attester double + surround (eff/32 beats eff/100), invalid-block floor wins one-mojo tiebreak (eff/32 > eff/33), per-validator vec cardinality equals intersection size, already-slashed skipped no slash_absolute call, absent-from-view surfaces as verify error, eff_bal=0 produces zero slash with slash_absolute(0) still called, determinism across two managers, slash_absolute receives current_epoch not offense epoch."
 
   - id: DSL-023
     section: "Optimistic Admission"

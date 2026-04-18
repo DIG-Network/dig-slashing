@@ -48,6 +48,32 @@ pub trait PublicKeyLookup {
     fn pubkey_of(&self, index: u32) -> Option<&PublicKey>;
 }
 
+/// Per-validator effective-balance read surface.
+///
+/// Traces to [SPEC §15.2](../../docs/resources/SPEC.md), catalogue row
+/// [DSL-137](../../docs/requirements/domains/).
+///
+/// # Consumers
+///
+/// - `SlashingManager::submit_evidence` (DSL-022) reads `get(idx)` per
+///   slashable validator to compute `base_slash = max(eff_bal * bps /
+///   10_000, eff_bal / 32)`.
+/// - Reward math (DSL-081..085) reads `get` + `total_active` to derive
+///   per-epoch base rewards.
+///
+/// Separate from `ValidatorView` because some impls (light clients)
+/// maintain effective balances in a dedicated index without the full
+/// per-validator entry state.
+pub trait EffectiveBalanceView {
+    /// Effective balance of the validator at `index`, in mojos. Returns
+    /// `0` when the index is unknown — consistent with the DSL-022
+    /// edge case `eff_bal = 0 → base_slash = 0`.
+    fn get(&self, index: u32) -> u64;
+    /// Sum of effective balances of all active validators, in mojos.
+    /// Used by reward-per-validator derivations.
+    fn total_active(&self) -> u64;
+}
+
 /// Validator-set read+write surface consumed by the verifiers and
 /// slashing manager.
 ///
