@@ -11,6 +11,7 @@ description = "Validator slashing, attestation participation, inactivity account
 # `serde` so Bytes32 derives Deserialize/Serialize.
 chia-protocol = { version = "0.26", features = ["serde"] }
 chia-sha2 = "0.26"
+dig-block = "0.1"
 dig-protocol = "0.1"
 serde = { version = "1", features = ["derive"] }
 serde_bytes = "0.11"
