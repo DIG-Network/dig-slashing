@@ -366,11 +366,12 @@ items:
   - id: DSL-070
     section: "Adjudicator"
     summary: "Adjudicate Sustained status Reverted"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-070.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-070"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_070_adjudicate_sustained_status_reverted_test
+    notes: "adjudicate_sustained_status_reverted(pending: &mut, appeal, verdict, current_epoch) mutates pending: pushes AppealAttempt{outcome: Won, bond_mojos: APPELLANT_BOND_MOJOS, ..} then flips status to Reverted{winning_appeal_hash: appeal.hash(), reverted_at_epoch}. Push-before-flip ordering so observers see consistent state (history + status together). Rejected → no-op (DSL-072 handles the rejected-path bookkeeping). 4-test suite: status shape, hash+epoch, history entry populated, end-to-end manager SlashAlreadyReverted on subsequent submit_appeal."
 
   - id: DSL-071
     section: "Adjudicator"
