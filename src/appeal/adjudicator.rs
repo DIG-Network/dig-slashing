@@ -473,6 +473,86 @@ pub fn adjudicate_sustained_reporter_penalty(
     })
 }
 
+/// Outcome of the clawback-shortfall-into-burn absorption step.
+///
+/// Traces to [SPEC §6.5](../../../docs/resources/SPEC.md). Produced
+/// by [`adjudicate_absorb_clawback_shortfall`] — combines DSL-067
+/// `ClawbackResult::shortfall` with DSL-068 `BondSplitResult::burn`
+/// to produce the authoritative burn leg plus a residue flag.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct ShortfallAbsorption {
+    /// Unrecovered reward debt rolled over from the DSL-067
+    /// clawback — `(wb+prop) - (wb_clawed+prop_clawed)`. Added to
+    /// the DSL-068 burn leg.
+    pub clawback_shortfall: u64,
+    /// Original burn from the DSL-068 50/50 split (`forfeited -
+    /// winner_award`). Kept separately so auditors can derive
+    /// the absorption path without recomputing.
+    pub original_burn: u64,
+    /// `original_burn + clawback_shortfall`. May exceed the
+    /// forfeited bond if the shortfall is very large — the
+    /// excess surfaces as `residue`.
+    pub final_burn: u64,
+    /// `final_burn.saturating_sub(forfeited)` — mojos the
+    /// protocol cannot burn from the bond because the bond ran
+    /// out. Adjudication proceeds; consumers SHOULD log the
+    /// residue (`tracing::warn!` or similar) for offline audit.
+    ///
+    /// Zero when the bond is sufficient (the common case).
+    pub residue: u64,
+}
+
+/// Absorb DSL-067 clawback shortfall into the DSL-068 burn leg.
+///
+/// Implements [DSL-073](../../../docs/requirements/domains/appeal/specs/DSL-073.md).
+/// Traces to SPEC §6.5.
+///
+/// # Math
+///
+/// ```text
+/// shortfall      = clawback.shortfall
+/// original_burn  = bond_split.burn
+/// final_burn     = original_burn + shortfall
+/// residue        = saturating_sub(final_burn, bond_split.forfeited)
+/// ```
+///
+/// When `residue == 0`, the forfeited bond fully covers the
+/// reward-debt shortfall + the normal burn share. When `residue >
+/// 0`, the bond is insufficient — adjudication still succeeds
+/// (per SPEC acceptance "adjudication proceeds") and the residue
+/// surfaces for consumers to emit a warn-level log.
+///
+/// # Zero-shortfall path
+///
+/// Returns `final_burn == original_burn`, `residue == 0`. No
+/// change from the DSL-068 math — consumers can treat the return
+/// as "use `final_burn` for the burn bucket; `residue` is purely
+/// telemetry".
+///
+/// # Why not `tracing::warn!` here
+///
+/// SPEC suggests logging via `tracing::warn!`, but adding a
+/// `tracing` dep just for one call inflates the crate footprint.
+/// Residue is surfaced as a struct field instead; downstream
+/// callers that already pull tracing can emit the warn
+/// themselves.
+#[must_use]
+pub fn adjudicate_absorb_clawback_shortfall(
+    clawback: &ClawbackResult,
+    bond_split: &BondSplitResult,
+) -> ShortfallAbsorption {
+    let clawback_shortfall = clawback.shortfall;
+    let original_burn = bond_split.burn;
+    let final_burn = original_burn.saturating_add(clawback_shortfall);
+    let residue = final_burn.saturating_sub(bond_split.forfeited);
+    ShortfallAbsorption {
+        clawback_shortfall,
+        original_burn,
+        final_burn,
+        residue,
+    }
+}
+
 /// Transition a rejected appeal's `PendingSlash` to / through
 /// `ChallengeOpen` and record the losing attempt in
 /// `appeal_history`.
