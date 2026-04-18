@@ -32,7 +32,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-018 — verify_invalid_block signature over block_signing_message
 - [x] DSL-019 — verify_invalid_block epoch mismatch rejection
 - [x] DSL-020 — verify_invalid_block calls InvalidBlockOracle
-- [ ] DSL-021 — verify_evidence_for_inclusion parity
+- [x] DSL-021 — verify_evidence_for_inclusion parity
 
 ## Phase 1: Optimistic Slashing Lifecycle (DSL-022..033)
 

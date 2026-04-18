@@ -206,11 +206,12 @@ items:
   - id: DSL-021
     section: "Verification"
     summary: "verify_evidence_for_inclusion parity with verify_evidence minus state mutation"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-021.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_021_verify_evidence_for_inclusion_parity_test
+    notes: "verify_evidence_for_inclusion() in src/evidence/verify.rs. Today delegates directly to verify_evidence — current verifier chain performs NO state mutation (walks &dyn ValidatorView only). Separation is API-contract: mempool (dig-mempool, DSL-106) holds &dyn ValidatorView by type so future processed-map dedup / state-mutating additions in verify_evidence cannot leak into the mempool path. 7-test suite: happy-path parity, OffenseTooOld parity, ReporterIsAccused parity, BLS-fail parity, Attester parity, InvalidBlock parity, shared-borrow compile-time check (two consecutive calls through same &dyn view)."
 
   - id: DSL-157
     section: "Serialization"

@@ -158,6 +158,39 @@ pub fn verify_evidence(
     }
 }
 
+/// Mempool-admission wrapper around [`verify_evidence`].
+///
+/// Implements [DSL-021](../../docs/requirements/domains/evidence/specs/DSL-021.md).
+/// Traces to SPEC §5.5.
+///
+/// # Role
+///
+/// `dig-mempool` (REMARK admission, DSL-106) calls this to screen
+/// evidence envelopes BEFORE a block containing them is accepted. It
+/// runs the full per-offense verifier chain and produces a byte-equal
+/// verdict to [`verify_evidence`] on the same inputs.
+///
+/// # Parity with `verify_evidence`
+///
+/// Today the two functions are identical — `verify_evidence` itself
+/// performs no state mutation (it walks `&dyn ValidatorView`, never
+/// `&mut`). Keeping the separation is about API contract: the mempool
+/// reads through `&dyn ValidatorView` by type, and future additions
+/// to `verify_evidence` (processed-map dedup, state-mutating side
+/// effects at the manager layer) MUST NOT leak into the mempool path.
+///
+/// The DSL-021 test suite enforces byte-equal verdicts on every
+/// branch: accept, OffenseTooOld, ReporterIsAccused, per-payload
+/// reject. Any future divergence requires an explicit SPEC update.
+pub fn verify_evidence_for_inclusion(
+    evidence: &SlashingEvidence,
+    validator_view: &dyn ValidatorView,
+    network_id: &Bytes32,
+    current_epoch: u64,
+) -> Result<VerifiedEvidence, SlashingError> {
+    verify_evidence(evidence, validator_view, network_id, current_epoch)
+}
+
 /// Proposer-equivocation verifier.
 ///
 /// Implements [DSL-013](../../docs/requirements/domains/evidence/specs/DSL-013.md).
