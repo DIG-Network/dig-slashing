@@ -196,11 +196,12 @@ items:
   - id: DSL-020
     section: "Verification"
     summary: "verify_invalid_block calls InvalidBlockOracle::verify_failure when oracle supplied"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-020.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_020_verify_invalid_block_oracle_called_test
+    notes: "Oracle hook enforced in verify_invalid_block (landed with DSL-018 commit). Signature: oracle: Option<&dyn InvalidBlockOracle> — None (dispatcher default) = bootstrap mode. 6-test suite: RecordingOracle records args + verify_failure called exactly once on accept path, oracle Err propagates, None skipped (direct + dispatcher), DefaultOnlyOracle (no verify_failure override) accepts via trait default, oracle receives exact header/witness/reason from payload, ordering invariant vs BLS (bad sig → oracle never called)."
 
   - id: DSL-021
     section: "Verification"
