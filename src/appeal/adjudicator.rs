@@ -473,6 +473,77 @@ pub fn adjudicate_sustained_reporter_penalty(
     })
 }
 
+/// Transition a rejected appeal's `PendingSlash` to / through
+/// `ChallengeOpen` and record the losing attempt in
+/// `appeal_history`.
+///
+/// Implements [DSL-072](../../../docs/requirements/domains/appeal/specs/DSL-072.md).
+/// Traces to SPEC §6.5.
+///
+/// # Status transition
+///
+/// - `Accepted` → `ChallengeOpen { first_appeal_filed_epoch:
+///   appeal.filed_epoch, appeal_count: 1 }`.
+/// - `ChallengeOpen { first, count }` →
+///   `ChallengeOpen { first, count + 1 }` (first preserved).
+/// - `Reverted` / `Finalised` → unreachable (DSL-060/061 reject
+///   terminal-state appeals); defensive no-op here.
+///
+/// # History append
+///
+/// Pushes `AppealAttempt { outcome: Lost { reason_hash }, .. }`.
+/// `reason_hash` is a caller-supplied digest of the adjudicator's
+/// reason bytes — used downstream for audit / analytics; the
+/// crate does not prescribe a specific hasher.
+///
+/// # Sustained branch
+///
+/// No-op — sustained appeals transition to `Reverted` via DSL-070
+/// instead.
+///
+/// # Preserves first-filed epoch
+///
+/// The `first_appeal_filed_epoch` on `ChallengeOpen` is the
+/// epoch of the FIRST appeal ever filed against this slash; it
+/// is never rewritten by subsequent rejections. Downstream
+/// analytics use it to reconstruct the challenge timeline.
+pub fn adjudicate_rejected_challenge_open(
+    pending: &mut PendingSlash,
+    appeal: &SlashAppeal,
+    verdict: &AppealVerdict,
+    reason_hash: Bytes32,
+) {
+    if matches!(verdict, AppealVerdict::Sustained { .. }) {
+        return;
+    }
+    let new_status = match pending.status {
+        PendingSlashStatus::Accepted => PendingSlashStatus::ChallengeOpen {
+            first_appeal_filed_epoch: appeal.filed_epoch,
+            appeal_count: 1,
+        },
+        PendingSlashStatus::ChallengeOpen {
+            first_appeal_filed_epoch,
+            appeal_count,
+        } => PendingSlashStatus::ChallengeOpen {
+            first_appeal_filed_epoch,
+            appeal_count: appeal_count.saturating_add(1),
+        },
+        // Terminal states — DSL-060/061 already rejected; keep
+        // status unchanged as a defensive no-op.
+        PendingSlashStatus::Reverted { .. } | PendingSlashStatus::Finalised { .. } => {
+            pending.status
+        }
+    };
+    pending.status = new_status;
+    pending.appeal_history.push(AppealAttempt {
+        appeal_hash: appeal.hash(),
+        appellant_index: appeal.appellant_index,
+        filed_epoch: appeal.filed_epoch,
+        outcome: AppealOutcome::Lost { reason_hash },
+        bond_mojos: APPELLANT_BOND_MOJOS,
+    });
+}
+
 /// Forfeit the appellant's bond on a rejected appeal and split
 /// the proceeds 50/50 between the reporter and the burn bucket.
 ///
