@@ -225,7 +225,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-158 — IndexedAttestation serde roundtrip
 
 ### Appeal — Hash + Serde
-- [ ] DSL-159 — SlashAppeal::hash determinism + sensitivity
+- [x] DSL-159 — SlashAppeal::hash determinism + sensitivity
 - [ ] DSL-160 — SlashAppeal + SlashAppealPayload serde roundtrip
 - [ ] DSL-161 — PendingSlash + AppealAttempt + PendingSlashStatus serde
 - [ ] DSL-164 — AppealAdjudicationResult serde roundtrip

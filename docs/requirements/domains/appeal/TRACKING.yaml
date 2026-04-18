@@ -406,11 +406,12 @@ items:
   - id: DSL-159
     section: "SlashAppeal Hash + Serde"
     summary: "SlashAppeal::hash determinism + sensitivity"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-159.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-159"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_159_slash_appeal_hash_determinism_test
+    notes: "No src/ changes — SlashAppeal::hash already implemented in src/appeal/envelope.rs as SHA-256(DOMAIN_SLASH_APPEAL || bincode(self)). 7-test suite pins determinism + per-field mutation sensitivity + domain-prefix load-bearing. Mutations: evidence_hash byte flip, appellant_index (42→43→u32::MAX triangle), puzzle_hash byte flip, filed_epoch, payload.witness byte flip + payload.ground enum variant flip. Domain-prefix test manually reconstructs SHA-256(DOMAIN || bincode) matching appeal.hash() AND asserts undomained SHA-256(bincode) DIFFERS — proves the domain tag is actually fed into the hasher (otherwise evidence and appeal envelopes with identical bytes would collide across pending-book / appeal-history lookups)."
 
   - id: DSL-160
     section: "SlashAppeal Hash + Serde"
