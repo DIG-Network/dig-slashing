@@ -46,8 +46,8 @@ use crate::remark::evidence_wire::{
     parse_slashing_evidence_from_conditions, slashing_evidence_remark_puzzle_hash_v1,
 };
 use crate::{
-    MAX_APPEALS_PER_BLOCK, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES, MAX_SLASH_PROPOSALS_PER_BLOCK,
-    SLASH_APPEAL_WINDOW_EPOCHS,
+    MAX_APPEAL_PAYLOAD_BYTES, MAX_APPEALS_PER_BLOCK, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES,
+    MAX_SLASH_PROPOSALS_PER_BLOCK, SLASH_APPEAL_WINDOW_EPOCHS,
 };
 
 /// Enforce the DSL-104 admission predicate over every evidence
@@ -536,6 +536,39 @@ pub fn enforce_block_level_appeal_caps(appeals: &[SlashAppeal]) -> Result<(), Sl
             actual: appeals.len(),
             limit: MAX_APPEALS_PER_BLOCK,
         });
+    }
+    Ok(())
+}
+
+/// Enforce the DSL-120 per-payload size cap on appeals.
+///
+/// Rejects any appeal whose `serde_json::to_vec` length exceeds
+/// `MAX_APPEAL_PAYLOAD_BYTES` (131_072 — 2x the evidence cap
+/// because appeal witnesses carry full block bodies for
+/// invalid-block oracle re-execution).
+///
+/// Appeal-side analogue of DSL-109, reusing the existing
+/// `SlashingError::AppealPayloadTooLarge` variant (DSL-063) for
+/// a unified mempool + manager-layer error surface.
+///
+/// # Errors
+///
+/// - [`SlashingError::AppealPayloadTooLarge`] — first oversize
+///   appeal in iteration order. Short-circuits.
+/// - [`SlashingError::InvalidSlashingEvidence`] wrapping the
+///   serde_json error on serialisation failure (infallible in
+///   practice).
+pub fn enforce_slash_appeal_payload_cap(appeals: &[SlashAppeal]) -> Result<(), SlashingError> {
+    for ap in appeals {
+        let len = serde_json::to_vec(ap)
+            .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("appeal len: {e}")))?
+            .len();
+        if len > MAX_APPEAL_PAYLOAD_BYTES {
+            return Err(SlashingError::AppealPayloadTooLarge {
+                actual: len,
+                limit: MAX_APPEAL_PAYLOAD_BYTES,
+            });
+        }
     }
     Ok(())
 }
