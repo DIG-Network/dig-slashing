@@ -701,6 +701,37 @@ impl SlashingManager {
     pub fn set_epoch(&mut self, epoch: u64) {
         self.current_epoch = epoch;
     }
+
+    /// Prune processed-evidence map entries whose recorded epoch is
+    /// strictly less than `cutoff_epoch`. Called by the DSL-127
+    /// `run_epoch_boundary` step 8 (last step) to bound memory of
+    /// the AlreadySlashed dedup window.
+    ///
+    /// Returns the number of entries removed. Also drops any
+    /// `slashed_in_window` rows whose epoch is older than the
+    /// cutoff — the cohort-sum window (DSL-030) is
+    /// `CORRELATION_WINDOW_EPOCHS` wide so entries older than
+    /// `current_epoch - CORRELATION_WINDOW_EPOCHS` can never
+    /// contribute to a future finalisation.
+    pub fn prune_processed_older_than(&mut self, cutoff_epoch: u64) -> usize {
+        let before = self.processed.len();
+        self.processed.retain(|_, epoch| *epoch >= cutoff_epoch);
+        let removed_processed = before - self.processed.len();
+
+        // Range-remove over the BTreeMap keyed by (epoch, idx).
+        // Collect the keys first to avoid borrow issues while
+        // mutating.
+        let stale_keys: Vec<(u64, u32)> = self
+            .slashed_in_window
+            .range(..(cutoff_epoch, 0))
+            .map(|(k, _)| *k)
+            .collect();
+        for k in stale_keys {
+            self.slashed_in_window.remove(&k);
+        }
+
+        removed_processed
+    }
 }
 
 /// Fixed-size lowercase hex encoder for diagnostic log strings.
