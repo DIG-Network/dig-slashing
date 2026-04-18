@@ -71,6 +71,32 @@ pub const BPS_DENOMINATOR: u64 = 10_000;
 /// attester votes → `eff_bal / 32` > `eff_bal / 100`).
 pub const MIN_SLASHING_PENALTY_QUOTIENT: u64 = 32;
 
+/// Minimum per-validator effective balance, in mojos — `32e9` (32 DIG).
+///
+/// Traces to SPEC §2.6. Anchors the bond-size constants
+/// (`REPORTER_BOND_MOJOS`, `APPELLANT_BOND_MOJOS`) and reward/penalty
+/// denominators. SPEC designates this as a re-export from
+/// `dig-consensus::MIN_VALIDATOR_COLLATERAL`; defined locally here
+/// while that crate is not yet on crates.io. Value must stay
+/// byte-identical to the upstream constant when the re-export lands.
+pub const MIN_EFFECTIVE_BALANCE: u64 = 32_000_000_000;
+
+/// Reporter bond required to submit slashing evidence — `MIN_EFFECTIVE_BALANCE / 64`.
+///
+/// Traces to SPEC §2.6, §12.3. Held in `BondEscrow` under
+/// `BondTag::Reporter(evidence_hash)` for the 8-epoch appeal window
+/// (DSL-023). Returned in full on finalisation (DSL-031) or forfeited
+/// on sustained appeal (DSL-068). Locked AFTER `verify_evidence` and
+/// BEFORE any `slash_absolute` call in `submit_evidence`.
+pub const REPORTER_BOND_MOJOS: u64 = MIN_EFFECTIVE_BALANCE / 64;
+
+/// Appellant bond required to file an appeal — same size as the
+/// reporter bond.
+///
+/// Traces to SPEC §2.6. Symmetric with `REPORTER_BOND_MOJOS` so the
+/// reporter and appellant face equal grief-vector costs.
+pub const APPELLANT_BOND_MOJOS: u64 = MIN_EFFECTIVE_BALANCE / 64;
+
 // ── Domain separation tags (SPEC §2.10) ─────────────────────────────────────
 //
 // Byte-string tags prefixed into every SHA-256 digest so a hash produced for

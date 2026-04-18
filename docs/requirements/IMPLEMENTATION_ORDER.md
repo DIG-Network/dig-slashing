@@ -37,7 +37,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 ## Phase 1: Optimistic Slashing Lifecycle (DSL-022..033)
 
 - [x] DSL-022 — submit_evidence base_slash = max(bps, quotient)
-- [ ] DSL-023 — submit_evidence escrows reporter bond
+- [x] DSL-023 — submit_evidence escrows reporter bond
 - [ ] DSL-024 — submit_evidence creates PendingSlash Accepted
 - [ ] DSL-025 — submit_evidence reward routing (wb + proposer)
 - [ ] DSL-026 — submit_evidence AlreadySlashed on duplicate

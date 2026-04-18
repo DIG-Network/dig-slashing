@@ -16,11 +16,12 @@ items:
   - id: DSL-023
     section: "Optimistic Admission"
     summary: "submit_evidence escrows REPORTER_BOND_MOJOS via BondEscrow::lock"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-023.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-023"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_023_submit_evidence_escrows_reporter_bond_test
+    notes: "submit_evidence now calls bond_escrow.lock(reporter_idx, REPORTER_BOND_MOJOS, BondTag::Reporter(evidence.hash())) AFTER verify_evidence but BEFORE any slash_absolute. Lock failure collapses to SlashingError::BondLockFailed with validator state untouched. New src/bonds.rs with BondEscrow trait + BondTag enum + BondError. New constants: MIN_EFFECTIVE_BALANCE=32e9 (stub for dig-consensus::MIN_VALIDATOR_COLLATERAL), REPORTER_BOND_MOJOS=MIN_EFFECTIVE_BALANCE/64=500_000_000, APPELLANT_BOND_MOJOS same. New SlashingError variant: BondLockFailed. SlashingResult.reporter_bond_escrowed populated. 8-test suite with RecordingBondEscrow mock: lock args exact, lock precedes slash_absolute via shared clock, reporter_bond_escrowed field equals constant, tag carries evidence.hash(), InsufficientBalance → BondLockFailed + no slash, REPORTER_BOND_MOJOS==MIN_EFFECTIVE_BALANCE/64 constant check, determinism across managers, no lock on OffenseTooOld (verify rejects first)."
 
   - id: DSL-024
     section: "Optimistic Admission"

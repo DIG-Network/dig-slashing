@@ -25,7 +25,8 @@
 use dig_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
-use crate::constants::{BPS_DENOMINATOR, MIN_SLASHING_PENALTY_QUOTIENT};
+use crate::bonds::{BondEscrow, BondTag};
+use crate::constants::{BPS_DENOMINATOR, MIN_SLASHING_PENALTY_QUOTIENT, REPORTER_BOND_MOJOS};
 use crate::error::SlashingError;
 use crate::evidence::envelope::SlashingEvidence;
 use crate::evidence::verify::verify_evidence;
@@ -110,11 +111,16 @@ impl SlashingManager {
     /// [DSL-022](../../docs/requirements/domains/lifecycle/specs/DSL-022.md).
     /// Traces to SPEC §7.3 step 5, §4.
     ///
-    /// # Pipeline (DSL-022 scope only)
+    /// # Pipeline (DSL-022 + DSL-023 scope)
     ///
     /// 1. `verify_evidence(...)` → `VerifiedEvidence` (DSL-011..020).
     ///    Failure propagates as `SlashingError`.
-    /// 2. For each slashable index:
+    /// 2. `bond_escrow.lock(reporter_idx, REPORTER_BOND_MOJOS,
+    ///    BondTag::Reporter(evidence.hash()))` (DSL-023). Lock
+    ///    failure collapses to `SlashingError::BondLockFailed` with
+    ///    no validator-side mutation — hence the ordering (bond
+    ///    BEFORE any `slash_absolute`).
+    /// 3. For each slashable index:
     ///    - `eff_bal = effective_balances.get(idx)`
     ///    - `bps_term = eff_bal * base_bps / BPS_DENOMINATOR`
     ///    - `floor_term = eff_bal / MIN_SLASHING_PENALTY_QUOTIENT`
@@ -124,25 +130,39 @@ impl SlashingManager {
     ///    - Otherwise `validator_set.get_mut(idx).slash_absolute(
     ///      base_slash, self.current_epoch)`.
     ///    - Record a `PerValidatorSlash`.
-    /// 3. Return `SlashingResult { per_validator, .. }` — bond /
-    ///    reward / pending-slash fields are `0` / empty until their
-    ///    own DSLs land.
+    /// 4. Return `SlashingResult { per_validator,
+    ///    reporter_bond_escrowed: REPORTER_BOND_MOJOS, .. }` — reward
+    ///    / pending-slash fields stay `0` / empty until DSL-024/025.
     ///
     /// # Deviations from SPEC signature
     ///
     /// SPEC §7.3 lists additional parameters (`CollateralSlasher`,
-    /// `BondEscrow`, `RewardPayout`, `ProposerView`) that are
-    /// consumed by DSL-023..025. Signature grows incrementally — each
-    /// future DSL adds the trait it needs.
+    /// `RewardPayout`, `ProposerView`) that are consumed by
+    /// DSL-025. Signature grows incrementally — each future DSL adds
+    /// the trait it needs.
     pub fn submit_evidence(
         &mut self,
         evidence: SlashingEvidence,
         validator_set: &mut dyn ValidatorView,
         effective_balances: &dyn EffectiveBalanceView,
+        bond_escrow: &mut dyn BondEscrow,
         network_id: &Bytes32,
     ) -> Result<SlashingResult, SlashingError> {
         // Verify first — no state mutation on rejection.
         let verified = verify_evidence(&evidence, validator_set, network_id, self.current_epoch)?;
+
+        // DSL-023: lock reporter bond BEFORE any validator-side mutation.
+        // Failure surfaces as `BondLockFailed` with validator state still
+        // untouched — ordering invariant tested by
+        // `test_dsl_023_lock_failure_no_mutation`.
+        let evidence_hash = evidence.hash();
+        bond_escrow
+            .lock(
+                evidence.reporter_validator_index,
+                REPORTER_BOND_MOJOS,
+                BondTag::Reporter(evidence_hash),
+            )
+            .map_err(|_| SlashingError::BondLockFailed)?;
 
         let base_bps = u64::from(verified.offense_type.base_penalty_bps());
         let mut per_validator: Vec<PerValidatorSlash> = Vec::new();
@@ -189,6 +209,7 @@ impl SlashingManager {
 
         Ok(SlashingResult {
             per_validator,
+            reporter_bond_escrowed: REPORTER_BOND_MOJOS,
             ..Default::default()
         })
     }
