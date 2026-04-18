@@ -231,7 +231,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [ ] DSL-164 — AppealAdjudicationResult serde roundtrip
 
 ### Lifecycle — Defensive + Serde
-- [ ] DSL-162 — submit_evidence skips already-slashed indices
+- [x] DSL-162 — submit_evidence skips already-slashed indices
 - [ ] DSL-163 — SlashingResult + PerValidatorSlash + FinalisationResult serde
 
 ### Orchestration — Serde
