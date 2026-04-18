@@ -66,11 +66,12 @@ items:
   - id: DSL-028
     section: "Optimistic Admission"
     summary: "submit_evidence rejects BondLockFailed on insufficient reporter stake"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-028.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-028"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_028_submit_evidence_bond_lock_failed_test
+    notes: "BondError → BondLockFailed mapping enforced in submit_evidence (landed with DSL-023 commit). 8-test suite with ToggleBond mock (runtime-configurable verdict + flip_to_accepting): InsufficientBalance → BondLockFailed, no slash_absolute on rejection, no reward.pay, no pending insert (book.len==0 + get(hash)==None), processed NOT set (retry permitted), retry after flipping mock to accepting succeeds, error variant exact equality, DoubleLock also maps to BondLockFailed (coarse mapping documented)."
 
   - id: DSL-029
     section: "Finalisation"
