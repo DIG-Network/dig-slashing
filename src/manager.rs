@@ -38,7 +38,9 @@ use crate::error::SlashingError;
 use crate::evidence::envelope::{SlashingEvidence, SlashingEvidencePayload};
 use crate::evidence::verify::verify_evidence;
 use crate::pending::{PendingSlash, PendingSlashBook, PendingSlashStatus};
-use crate::traits::{EffectiveBalanceView, ProposerView, RewardPayout, ValidatorView};
+use crate::traits::{
+    CollateralSlasher, EffectiveBalanceView, ProposerView, RewardPayout, ValidatorView,
+};
 
 /// Per-validator record produced by `submit_evidence`.
 ///
@@ -700,6 +702,123 @@ impl SlashingManager {
     /// step with the chain. Test helper.
     pub fn set_epoch(&mut self, epoch: u64) {
         self.current_epoch = epoch;
+    }
+
+    /// Record a processed-evidence entry for persistence load
+    /// or test fixtures.
+    ///
+    /// `submit_evidence` does this implicitly on admission;
+    /// this method is the public surface for replaying a
+    /// persisted book or constructing a unit-test fixture
+    /// without going through the full verify + bond-lock
+    /// pipeline.
+    pub fn mark_processed(&mut self, hash: Bytes32, epoch: u64) {
+        self.processed.insert(hash, epoch);
+    }
+
+    /// Record a `(epoch, validator_index) → effective_balance`
+    /// entry in the slashed-in-window cohort map. Companion to
+    /// `mark_processed`; used by persistence load + tests.
+    pub fn mark_slashed_in_window(&mut self, epoch: u64, idx: u32, effective_balance: u64) {
+        self.slashed_in_window
+            .insert((epoch, idx), effective_balance);
+    }
+
+    /// Lookup for `slashed_in_window` — test helper so integration
+    /// tests can verify DSL-129 rewind actually cleared an entry.
+    #[must_use]
+    pub fn is_slashed_in_window(&self, epoch: u64, idx: u32) -> bool {
+        self.slashed_in_window.contains_key(&(epoch, idx))
+    }
+
+    /// Rewind every pending slash whose `submitted_at_epoch` is
+    /// STRICTLY greater than `new_tip_epoch` — the canonical
+    /// fork-choice reorg response.
+    ///
+    /// Implements [DSL-129](../docs/requirements/domains/orchestration/specs/DSL-129.md).
+    /// Traces to SPEC §13.
+    ///
+    /// # Side effects per rewound entry
+    ///
+    ///   - `ValidatorEntry::credit_stake(base_slash_amount)` on
+    ///     each slashable validator.
+    ///   - `ValidatorEntry::restore_status()` on each.
+    ///   - `CollateralSlasher::credit(validator_index,
+    ///     collateral_slashed)` on each (when `collateral`
+    ///     present).
+    ///   - `BondEscrow::release` of the reporter bond at
+    ///     `BondTag::Reporter(evidence_hash)` — NOT `forfeit`.
+    ///     Reorg is not the reporter's fault; the bond returns
+    ///     intact.
+    ///   - Entry removed from `self.book`, `self.processed`,
+    ///     and `self.slashed_in_window`.
+    ///
+    /// # What it does NOT do
+    ///
+    /// - NO reporter penalty. DSL-069 applies a reporter
+    ///   penalty on SUSTAINED-APPEAL revert; a reorg is a
+    ///   consensus-layer signal that the original evidence was
+    ///   never canonical, so the reporter is not at fault.
+    /// - NO appeal-history inspection. Any filed appeals on the
+    ///   rewound slash are discarded along with the slash
+    ///   itself.
+    ///
+    /// # Returns
+    ///
+    /// List of `evidence_hash` values that were rewound. Empty
+    /// when no pending slashes are past the new tip.
+    pub fn rewind_on_reorg(
+        &mut self,
+        new_tip_epoch: u64,
+        validator_set: &mut dyn ValidatorView,
+        mut collateral: Option<&mut dyn CollateralSlasher>,
+        bond_escrow: &mut dyn BondEscrow,
+    ) -> Vec<Bytes32> {
+        let to_rewind = self.book.submitted_after(new_tip_epoch);
+
+        let mut rewound = Vec::with_capacity(to_rewind.len());
+        for hash in to_rewind {
+            let Some(pending) = self.book.remove(&hash) else {
+                continue;
+            };
+
+            // Credit stake + restore status + collateral per slashable
+            // validator. Snapshot epochs BEFORE the mutable borrows.
+            for per in &pending.base_slash_per_validator {
+                if let Some(entry) = validator_set.get_mut(per.validator_index) {
+                    entry.credit_stake(per.base_slash_amount);
+                    entry.restore_status();
+                }
+                if let Some(coll) = collateral.as_deref_mut() {
+                    coll.credit(per.validator_index, per.collateral_slashed);
+                }
+                // slashed_in_window row keyed by (epoch, idx) —
+                // remove so a later finalise pass does not
+                // double-count this validator in a cohort-sum.
+                self.slashed_in_window
+                    .remove(&(pending.submitted_at_epoch, per.validator_index));
+            }
+
+            // Release reporter bond — NOT forfeit. A forfeit here
+            // would punish the reporter for a consensus event they
+            // did not cause. Ignore release errors (TagNotFound)
+            // to keep rewind infallible under partial escrow state
+            // (defensive; should not happen if submit_evidence ran
+            // the lock).
+            let _ = bond_escrow.release(
+                pending.evidence.reporter_validator_index,
+                pending.reporter_bond_mojos,
+                BondTag::Reporter(hash),
+            );
+
+            // Clear dedup map so a re-submission on the new
+            // canonical chain admits cleanly.
+            self.processed.remove(&hash);
+
+            rewound.push(hash);
+        }
+
+        rewound
     }
 
     /// Prune processed-evidence map entries whose recorded epoch is

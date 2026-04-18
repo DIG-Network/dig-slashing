@@ -176,7 +176,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 - [x] DSL-127 — run_epoch_boundary fixed ordering
 - [x] DSL-128 — SlashingSystem::genesis
-- [ ] DSL-129 — SlashingManager::rewind_on_reorg
+- [x] DSL-129 — SlashingManager::rewind_on_reorg
 - [ ] DSL-130 — rewind_all_on_reorg
 
 ## Phase 9: External-State Traits (DSL-131..145)

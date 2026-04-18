@@ -224,6 +224,24 @@ impl PendingSlashBook {
         Some(record)
     }
 
+    /// Hashes of every pending slash whose `submitted_at_epoch` is
+    /// STRICTLY greater than `new_tip_epoch`. Used by DSL-129
+    /// `SlashingManager::rewind_on_reorg` to enumerate the slashes
+    /// that need to be rewound when the fork-choice tip moves
+    /// backwards.
+    ///
+    /// Returns a `Vec<Bytes32>` rather than an iterator because
+    /// the caller (`rewind_on_reorg`) then mutates `self.remove`
+    /// on each entry, which would conflict with a live borrow.
+    #[must_use]
+    pub fn submitted_after(&self, new_tip_epoch: u64) -> Vec<Bytes32> {
+        self.pending
+            .values()
+            .filter(|p| p.submitted_at_epoch > new_tip_epoch)
+            .map(|p| p.evidence_hash)
+            .collect()
+    }
+
     /// Current record count.
     #[must_use]
     pub fn len(&self) -> usize {

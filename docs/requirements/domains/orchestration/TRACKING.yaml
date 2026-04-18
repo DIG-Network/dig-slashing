@@ -26,11 +26,12 @@ items:
   - id: DSL-129
     section: "Manager Reorg"
     summary: "SlashingManager::rewind_on_reorg"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/orchestration/specs/DSL-129.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-129"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_129_manager_rewind_on_reorg_test
+    notes: "Adds pub fn rewind_on_reorg(new_tip_epoch, &mut dyn ValidatorView, Option<&mut dyn CollateralSlasher>, &mut dyn BondEscrow) -> Vec<Bytes32>. Iterates book.submitted_after(new_tip_epoch), removes each record, per slashable validator: credit_stake + restore_status + CollateralSlasher::credit (when supplied) + slashed_in_window row removal. Reporter bond RELEASED (not forfeited — reorg not reporter's fault; distinguishes from DSL-064 sustained-appeal path). Clears processed map so re-submission on canonical chain admits cleanly. Adds PendingSlashBook::submitted_after helper + SlashingManager::mark_processed / mark_slashed_in_window / is_slashed_in_window pub methods (persistence load + test observability). 6-test suite via FakeValidator + SpyBondEscrow + SpyCollateral spies."
 
   - id: DSL-130
     section: "Global Reorg"
