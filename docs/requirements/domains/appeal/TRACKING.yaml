@@ -386,11 +386,12 @@ items:
   - id: DSL-072
     section: "Adjudicator"
     summary: "Adjudicate Rejected keeps ChallengeOpen + appeal_count+1"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-072.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-072"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_072_adjudicate_rejected_challenge_open_test
+    notes: "adjudicate_rejected_challenge_open(pending: &mut, appeal, verdict, reason_hash) transitions status Accepted→ChallengeOpen{first_appeal_filed_epoch: appeal.filed_epoch, appeal_count: 1} or ChallengeOpen{first, count}→ChallengeOpen{first (preserved), count.saturating_add(1)}. Reverted/Finalised are defensive no-ops (DSL-060/061 already guard those). Pushes AppealAttempt{outcome: Lost{reason_hash}, bond_mojos: APPELLANT_BOND_MOJOS, ..}. Sustained → no-op. 4-test suite: first sets count=1, second increments, first_appeal_filed_epoch preserved across 3 rejections from epochs 10/11/15, Lost history entry."
 
   - id: DSL-073
     section: "Adjudicator"
