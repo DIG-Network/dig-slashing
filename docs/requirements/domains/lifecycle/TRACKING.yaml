@@ -196,11 +196,12 @@ items:
   - id: DSL-162
     section: "submit_evidence Short-Circuits"
     summary: "submit_evidence skips already-slashed indices"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-162.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-162"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_162_submit_evidence_skips_already_slashed_test
+    notes: "Skip loop already shipped in src/manager.rs:312. 4-test suite via AttesterSlashing fixtures (Proposer + InvalidBlock reject at verify per src/evidence/verify.rs:273/504 so the per-validator loop is only observable on attester evidence). Matrix: single-idx flagged (empty per_validator + 0 calls + no window row), 5-idx with 2 flagged (3 live entries + correct call attribution), all-flagged (empty result but is_processed true — retry surfaces AlreadySlashed — grief-resistance against dedup poisoning), correlation-window hygiene (per-idx is_slashed_in_window asserts on live + skipped after partial admission)."
 
   - id: DSL-163
     section: "Serialization"
