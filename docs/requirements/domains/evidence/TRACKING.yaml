@@ -126,11 +126,12 @@ items:
   - id: DSL-013
     section: "Verification"
     summary: "verify_proposer_slashing enforces same-slot/same-proposer/different-root/valid-sigs/active"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-013.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_013_verify_proposer_slashing_preconditions_test
+    notes: "verify_proposer_slashing() in src/evidence/verify.rs. Six preconditions in order: same slot (header.height), same proposer_index, distinct header hashes, 96-byte G2 decode for both sigs, proposer registered+not-slashed+active at header.epoch, both BLS verify under chia_bls::verify over block_signing_message. Helper block_signing_message() defined locally (SPEC names dig_block::block_signing_message but upstream 0.1 does not yet export it) — layout: DOMAIN_BEACON_PROPOSER || network_id || LE(epoch) || header_hash || LE(proposer_index), 98 bytes. New SlashingError variants: InvalidProposerSlashing(String), ValidatorNotRegistered(u32). verify_evidence dispatcher now routes Proposer through this verifier; Attester/InvalidBlock remain placeholder-accept pending DSL-014..020. DSL-011 + DSL-012 tests updated to use Attester payload for placeholder-success paths. 12-test suite: happy path, slot mismatch, proposer mismatch, identical headers, bad sig width, unregistered validator, already-slashed, inactive validator, bad sig A / B BLS verify, signing-message layout parity, direct-vs-dispatch call parity."
 
   - id: DSL-014
     section: "Verification"

@@ -164,12 +164,14 @@ fn test_dsl_012_reporter_self_accuse_rejected() {
     assert_eq!(err, SlashingError::ReporterIsAccused(9));
 }
 
-/// DSL-012 row 2: reporter distinct from any accused index → passes this
-/// check. (Placeholder success path — later DSLs tighten the post-check
-/// behavior; for now passing the check means `Ok`.)
+/// DSL-012 row 2: reporter distinct from any accused index → passes
+/// the reporter-self-accuse check. Uses an Attester payload because
+/// its downstream verifier is still a placeholder accept (DSL-014/015
+/// land later) — Proposer would now drive the full DSL-013 path, which
+/// needs a real ValidatorView.
 #[test]
 fn test_dsl_012_reporter_not_accused_passes() {
-    let ev = proposer_envelope(100, 9); // reporter 100, accused 9
+    let ev = attester_envelope(100, vec![1, 2, 3], vec![4, 5, 6]); // reporter 100 not in either side
     let vv = EmptyValidators;
     let result = verify_evidence(&ev, &vv, &network_id(), 50);
     assert!(result.is_ok(), "disjoint reporter must pass: {result:?}");

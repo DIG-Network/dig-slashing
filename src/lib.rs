@@ -37,14 +37,15 @@ pub mod traits;
 
 pub use constants::{
     ATTESTATION_BASE_BPS, BLS_PUBLIC_KEY_SIZE, BLS_SIGNATURE_SIZE, DOMAIN_BEACON_ATTESTER,
-    DOMAIN_SLASHING_EVIDENCE, EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS,
-    MAX_VALIDATORS_PER_COMMITTEE,
+    DOMAIN_BEACON_PROPOSER, DOMAIN_SLASHING_EVIDENCE, EQUIVOCATION_BASE_BPS,
+    INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS, MAX_VALIDATORS_PER_COMMITTEE,
 };
 pub use error::SlashingError;
 pub use evidence::{
     AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, InvalidBlockProof,
     InvalidBlockReason, OffenseType, ProposerSlashing, SignedBlockHeader, SlashingEvidence,
-    SlashingEvidencePayload, VerifiedEvidence, verify_evidence,
+    SlashingEvidencePayload, VerifiedEvidence, block_signing_message, verify_evidence,
+    verify_proposer_slashing,
 };
 pub use traits::{PublicKeyLookup, ValidatorEntry, ValidatorView};
 

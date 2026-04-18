@@ -42,6 +42,26 @@ pub enum SlashingError {
     #[error("BLS signature verification failed")]
     BlsVerifyFailed,
 
+    /// `ProposerSlashing` payload failed one of the preconditions in
+    /// DSL-013: slot mismatch, proposer mismatch, identical headers,
+    /// bad signature bytes, inactive validator, or BLS verify failure
+    /// on one of the two signatures.
+    ///
+    /// Reason string names the specific violation for diagnostics
+    /// (appeals in DSL-034..040 distinguish the same categories by
+    /// structured variants; this coarse string is only the verifier's
+    /// rejection channel).
+    #[error("invalid proposer slashing: {0}")]
+    InvalidProposerSlashing(String),
+
+    /// A validator index named in the evidence is not registered in
+    /// the validator view.
+    ///
+    /// Raised by DSL-013 (accused proposer) and DSL-018 (invalid-block
+    /// proposer). Carries the offending index.
+    #[error("validator not registered: {0}")]
+    ValidatorNotRegistered(u32),
+
     /// The evidence reporter named themselves among the slashable
     /// validators (self-accuse).
     ///

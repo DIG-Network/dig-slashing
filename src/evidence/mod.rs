@@ -26,4 +26,6 @@ pub use indexed_attestation::IndexedAttestation;
 pub use invalid_block::{InvalidBlockProof, InvalidBlockReason};
 pub use offense::OffenseType;
 pub use proposer_slashing::{ProposerSlashing, SignedBlockHeader};
-pub use verify::{VerifiedEvidence, verify_evidence};
+pub use verify::{
+    VerifiedEvidence, block_signing_message, verify_evidence, verify_proposer_slashing,
+};

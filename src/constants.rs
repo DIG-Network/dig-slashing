@@ -82,6 +82,14 @@ pub const DOMAIN_BEACON_ATTESTER: &[u8] = b"DIG_BEACON_ATTESTER_V1";
 /// under either structure would cause double-slashing or bond misrouting.
 pub const DOMAIN_SLASHING_EVIDENCE: &[u8] = b"DIG_SLASHING_EVIDENCE_V1";
 
+/// Domain tag for proposer `block_signing_message` (DSL-013, DSL-018).
+///
+/// Traces to SPEC §2.10, §5.2 step 6 + §5.4 step 1. Prefixed into the
+/// BLS signing message so a proposer signature produced for block
+/// production cannot be replayed as an attester signature (which uses
+/// `DOMAIN_BEACON_ATTESTER`) or any other context.
+pub const DOMAIN_BEACON_PROPOSER: &[u8] = b"DIG_BEACON_PROPOSER_V1";
+
 // ── BLS widths (SPEC §2.10) ─────────────────────────────────────────────────
 //
 // Canonical BLS12-381 byte widths used by `chia-bls`. Re-declared here so
