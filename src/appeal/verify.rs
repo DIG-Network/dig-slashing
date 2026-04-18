@@ -705,6 +705,48 @@ pub fn verify_invalid_block_appeal_failure_reason_mismatch(
     }
 }
 
+/// Verify `InvalidBlockAppealGround::EvidenceEpochMismatch`.
+///
+/// Implements [DSL-052](../../../docs/requirements/domains/appeal/specs/DSL-052.md).
+/// Traces to SPEC §6.4. Mirrors DSL-019 rejection inverted.
+///
+/// # Predicate
+///
+/// `evidence.signed_header.message.epoch != evidence_epoch` — the
+/// envelope claims the offense happened at one epoch, but the
+/// header inside the evidence carries a different epoch. One of
+/// the two is wrong, so the slash was admitted on inconsistent
+/// evidence.
+///
+/// # Verdict
+///
+/// - `Sustained { EvidenceEpochMismatch }` iff the two epochs
+///   disagree.
+/// - `Rejected { GroundDoesNotHold }` iff they match.
+///
+/// # Scope
+///
+/// Pure local check — no oracle, no cryptography. The
+/// `evidence_epoch` argument is the enclosing
+/// `SlashingEvidence::epoch` field; the dispatcher passes it in
+/// rather than the appeal carrying its own copy (which would just
+/// reintroduce the same inconsistency risk).
+#[must_use]
+pub fn verify_invalid_block_appeal_evidence_epoch_mismatch(
+    evidence: &InvalidBlockProof,
+    evidence_epoch: u64,
+) -> AppealVerdict {
+    if evidence.signed_header.message.epoch != evidence_epoch {
+        AppealVerdict::Sustained {
+            reason: AppealSustainReason::EvidenceEpochMismatch,
+        }
+    } else {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    }
+}
+
 // Compile-time sanity: keep `ProposerAppealGround::HeadersIdentical`
 // referenced from the verify module so the variant-to-verifier
 // mapping remains visible in cross-references.
