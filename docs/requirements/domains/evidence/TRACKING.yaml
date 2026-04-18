@@ -176,11 +176,12 @@ items:
   - id: DSL-018
     section: "Verification"
     summary: "verify_invalid_block enforces signature over dig_block::block_signing_message"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-018.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_018_verify_invalid_block_signature_over_domain_test
+    notes: "verify_invalid_block() in src/evidence/verify.rs implements full pipeline covering DSL-018..020 paths (epoch match, witness size, sig decode, validator lookup + active + not-slashed, BLS verify over block_signing_message, optional oracle). Shared block_signing_message helper with DSL-013 — same DOMAIN_BEACON_PROPOSER prefix so proposer-equivocation and invalid-block signatures are produced under a single domain. New SlashingError variant: InvalidSlashingEvidence(String). Traits: ExecutionOutcome enum + InvalidBlockOracle trait (default verify_failure = Ok bootstrap mode) in src/traits.rs. MAX_SLASH_PROPOSAL_PAYLOAD_BYTES = 65_536 added. Dispatcher routes InvalidBlock through this verifier with oracle=None by default; direct call allows oracle=Some. 7-test suite (DSL-018 only): valid sig accepted, raw-hash (no domain) rejected, wrong-key rejected, cross-network replay rejected, signing-message layout parity with helper, direct call ≡ dispatch, bad sig width rejected. DSL-019/020 tests land as separate commits. DSL-011/DSL-012 fixtures relaxed to match on error variant (accept ANY downstream error except the DSL under test)."
 
   - id: DSL-019
     section: "Verification"

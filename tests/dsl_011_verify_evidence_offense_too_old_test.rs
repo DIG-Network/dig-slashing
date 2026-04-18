@@ -112,11 +112,15 @@ fn sample_evidence(offense_epoch: u64) -> SlashingEvidence {
 }
 
 /// DSL-011 row 1: offense_epoch exactly at the boundary
-/// `current_epoch - SLASH_LOOKBACK_EPOCHS` is accepted.
+/// `current_epoch - SLASH_LOOKBACK_EPOCHS` MUST NOT raise OffenseTooOld.
 ///
 /// Using 2_000 as current means the boundary is 1_000 (since
 /// SLASH_LOOKBACK_EPOCHS = 1_000): `1_000 + 1_000 = 2_000 >= 2_000`
 /// satisfies the predicate.
+///
+/// The envelope may still fail downstream (InvalidBlock payload goes
+/// through full DSL-018 verification). DSL-011 scope is strictly
+/// OffenseTooOld; we assert the error, if any, is NOT that variant.
 #[test]
 fn test_dsl_011_at_boundary_accepted() {
     let current_epoch = 2_000;
@@ -125,7 +129,10 @@ fn test_dsl_011_at_boundary_accepted() {
     let vv = EmptyValidators;
 
     let result = verify_evidence(&ev, &vv, &network_id(), current_epoch);
-    assert!(result.is_ok(), "at-boundary must be accepted: {result:?}");
+    assert!(
+        !matches!(result, Err(SlashingError::OffenseTooOld { .. })),
+        "at-boundary must NOT surface OffenseTooOld: {result:?}",
+    );
 }
 
 /// DSL-011 row 2: offense_epoch one epoch earlier than the boundary
@@ -171,16 +178,18 @@ fn test_dsl_011_error_fields_match() {
 /// DSL-011 row 4: `current_epoch = 0` must not underflow or panic.
 ///
 /// The check is `evidence.epoch + SLASH_LOOKBACK_EPOCHS < 0`, which is
-/// vacuously false for any non-negative u64 sum → evidence is accepted.
-/// Also covers reorg-induced rollback to epoch 0.
+/// vacuously false for any non-negative u64 sum → evidence is accepted
+/// by DSL-011 (may still reject downstream for other reasons). Also
+/// covers reorg-induced rollback to epoch 0 and adversarial
+/// `evidence.epoch = u64::MAX` (saturating_add guard).
 #[test]
 fn test_dsl_011_current_zero_no_underflow() {
     let ev = sample_evidence(0);
     let vv = EmptyValidators;
     let result = verify_evidence(&ev, &vv, &network_id(), 0);
     assert!(
-        result.is_ok(),
-        "current_epoch = 0 must not panic or underflow: {result:?}",
+        !matches!(result, Err(SlashingError::OffenseTooOld { .. })),
+        "current_epoch = 0 must not panic, underflow, or surface OffenseTooOld: {result:?}",
     );
 
     // Also: offense_epoch near u64::MAX with current=0 must not
@@ -188,8 +197,8 @@ fn test_dsl_011_current_zero_no_underflow() {
     let ev_huge = sample_evidence(u64::MAX - 500);
     let result = verify_evidence(&ev_huge, &vv, &network_id(), 0);
     assert!(
-        result.is_ok(),
-        "saturating_add must guard against overflow on huge offense_epoch",
+        !matches!(result, Err(SlashingError::OffenseTooOld { .. })),
+        "saturating_add must guard against overflow on huge offense_epoch: {result:?}",
     );
 }
 
@@ -204,14 +213,17 @@ fn test_dsl_011_uses_dig_epoch_constant() {
     assert_eq!(SLASH_LOOKBACK_EPOCHS, 1_000u64);
 }
 
-/// DSL-011 row 6: `offense_epoch == current_epoch` is accepted (the
-/// offense just happened). Guards against an off-by-one that would
-/// reject same-epoch evidence.
+/// DSL-011 row 6: `offense_epoch == current_epoch` MUST NOT raise
+/// OffenseTooOld. Guards against an off-by-one that would reject
+/// same-epoch evidence at the lookback filter.
 #[test]
 fn test_dsl_011_same_epoch_accepted() {
     let current_epoch = 42;
     let ev = sample_evidence(current_epoch);
     let vv = EmptyValidators;
     let result = verify_evidence(&ev, &vv, &network_id(), current_epoch);
-    assert!(result.is_ok(), "same-epoch must be accepted: {result:?}");
+    assert!(
+        !matches!(result, Err(SlashingError::OffenseTooOld { .. })),
+        "same-epoch must NOT surface OffenseTooOld: {result:?}",
+    );
 }

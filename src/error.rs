@@ -73,6 +73,17 @@ pub enum SlashingError {
     #[error("attester slashing intersecting indices empty")]
     EmptySlashableIntersection,
 
+    /// `InvalidBlockProof` payload failed one of the preconditions in
+    /// DSL-018..020: BLS verify failure over `block_signing_message`,
+    /// `header.epoch != evidence.epoch`, out-of-range
+    /// `failure_witness`, or the optional `InvalidBlockOracle`
+    /// rejected the re-execution.
+    ///
+    /// Reason string names the specific violation. Appeals
+    /// (DSL-049..054) distinguish the categories at their own layer.
+    #[error("invalid block evidence: {0}")]
+    InvalidSlashingEvidence(String),
+
     /// `ProposerSlashing` payload failed one of the preconditions in
     /// DSL-013: slot mismatch, proposer mismatch, identical headers,
     /// bad signature bytes, inactive validator, or BLS verify failure

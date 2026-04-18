@@ -164,17 +164,20 @@ fn test_dsl_012_reporter_self_accuse_rejected() {
     assert_eq!(err, SlashingError::ReporterIsAccused(9));
 }
 
-/// DSL-012 row 2: reporter distinct from any accused index → passes
-/// the reporter-self-accuse check. InvalidBlock payload is used because
-/// its downstream verifier is still placeholder-accept (DSL-018..020
-/// land later); Proposer / Attester would drive their real verifiers
-/// (DSL-013 / DSL-014), which is out of scope for DSL-012.
+/// DSL-012 row 2: reporter distinct from any accused index → does NOT
+/// raise ReporterIsAccused. DSL-012 scope is strictly the self-accuse
+/// check; the envelope may still fail downstream (fixtures use
+/// placeholder signatures / empty validator view). We assert only that
+/// the DSL-012 error variant is absent.
 #[test]
 fn test_dsl_012_reporter_not_accused_passes() {
     let ev = invalid_block_envelope(100, 9); // reporter 100, accused 9
     let vv = EmptyValidators;
     let result = verify_evidence(&ev, &vv, &network_id(), 50);
-    assert!(result.is_ok(), "disjoint reporter must pass: {result:?}");
+    assert!(
+        !matches!(result, Err(SlashingError::ReporterIsAccused(_))),
+        "disjoint reporter must not hit DSL-012: {result:?}",
+    );
 }
 
 /// DSL-012 row 3: AttesterSlashing where reporter appears in BOTH
