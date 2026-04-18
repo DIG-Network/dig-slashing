@@ -18,7 +18,7 @@
 //! Score drives DSL-091 `inactivity_penalty(eff_bal, score)`
 //! on finalisation.
 
-use crate::constants::INACTIVITY_SCORE_BIAS;
+use crate::constants::{INACTIVITY_SCORE_BIAS, INACTIVITY_SCORE_RECOVERY_RATE};
 use crate::participation::ParticipationTracker;
 
 /// Per-validator inactivity-score store.
@@ -117,8 +117,17 @@ impl InactivityScoreTracker {
                 // recovery instead of accumulating here.
                 self.scores[i] = self.scores[i].saturating_add(INACTIVITY_SCORE_BIAS);
             }
-            // DSL-090: out-of-stall global -16 recovery
-            // (later commit).
+        }
+
+        // DSL-090: out-of-stall global recovery. Runs AFTER
+        // the per-validator pass above so the hit decrement
+        // (DSL-088) stacks with this global shrink. In-stall,
+        // no global recovery — only DSL-088 hit decrement
+        // fires.
+        if !in_finality_stall {
+            for score in &mut self.scores {
+                *score = score.saturating_sub(INACTIVITY_SCORE_RECOVERY_RATE);
+            }
         }
     }
 }

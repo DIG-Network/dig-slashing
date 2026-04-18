@@ -33,11 +33,11 @@ items:
   - id: DSL-090
     section: "Score Update"
     summary: "Global recovery decrement INACTIVITY_SCORE_RECOVERY_RATE (16) applied to all validators when out of stall"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/inactivity/specs/DSL-090.md"
     tests:
       - dsl_090_inactivity_score_out_of_stall_recovery_test
-    notes: "Applied after per-validator pass; saturating at 0; no recovery during stall."
+    notes: "Final branch of update_for_epoch. When !in_finality_stall, saturating_sub(INACTIVITY_SCORE_RECOVERY_RATE) on every slot AFTER per-validator hit/miss pass. Adds INACTIVITY_SCORE_RECOVERY_RATE=16 constant. Forced DSL-088 + DSL-089 test fixtures to stall=true (for isolation) or accept saturating behaviour. 3-test suite: 50→34, 10→0 saturates, stall=true → no recovery. Closes InactivityScoreTracker::update_for_epoch."
 
   - id: DSL-091
     section: "Per-Epoch Penalty"

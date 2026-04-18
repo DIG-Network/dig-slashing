@@ -162,6 +162,15 @@ pub const MIN_EPOCHS_TO_INACTIVITY_PENALTY: u64 = 4;
 /// the score (DSL-090 global recovery applies instead).
 pub const INACTIVITY_SCORE_BIAS: u64 = 4;
 
+/// Per-epoch global inactivity-score recovery applied once
+/// finality has resumed.
+///
+/// Traces to SPEC §2.4, §9.2. Consumed by DSL-090 — each
+/// validator's score shrinks by this amount (saturating at 0)
+/// every epoch outside a finality stall. Ethereum mainnet value
+/// = 16, so scores decay quickly once finality is restored.
+pub const INACTIVITY_SCORE_RECOVERY_RATE: u64 = 16;
+
 /// Proposer-inclusion reward weight (Ethereum Altair parity).
 ///
 /// Traces to SPEC §2.3, §8.4. Consumed by DSL-085
