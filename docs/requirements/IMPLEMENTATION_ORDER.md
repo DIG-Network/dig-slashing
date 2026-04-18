@@ -132,7 +132,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-094 — check_proposal_slot monotonic
 - [x] DSL-095 — check_attestation same (src,tgt) different hash fails
 - [x] DSL-096 — would_surround self-check
-- [ ] DSL-097 — record_proposal + record_attestation persist
+- [x] DSL-097 — record_proposal + record_attestation persist
 - [ ] DSL-098 — rewind_attestation_to_epoch clears hash
 - [ ] DSL-099 — reconcile_with_chain_tip rewinds both
 - [ ] DSL-100 — Legacy JSON loads (no hash field → None)

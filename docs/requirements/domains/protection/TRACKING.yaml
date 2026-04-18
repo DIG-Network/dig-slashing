@@ -36,11 +36,12 @@ items:
   - id: DSL-097
     section: "Recording"
     summary: "record_proposal / record_attestation persist"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/protection/specs/DSL-097.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-097"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_097_protection_record_persist_test
+    notes: "Pins the record contract previewed alongside DSL-094 (proposal) and DSL-095 (attestation). record_proposal overwrites unconditionally (monotonic guard is DSL-094 check_proposal_slot, not the recorder). record_attestation writes all three attested fields atomically in one call — partial writes would desync DSL-095/096 checks. Hash canonicalises to 0x + 64 lowercase hex chars via the to_hex_lower helper; verified against all-0xAB + sequential-byte (0x00..0x1F) fixtures. Save/load survival deferred to DSL-101. 3-test suite."
 
   - id: DSL-098
     section: "Tip Reconciliation"
