@@ -22,15 +22,16 @@
 //! in `SlashingResult`; the DSL-022 surface remains byte-stable across
 //! commits.
 
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 use dig_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::bonds::{BondEscrow, BondTag};
 use crate::constants::{
-    BPS_DENOMINATOR, MAX_PENDING_SLASHES, MIN_SLASHING_PENALTY_QUOTIENT, PROPOSER_REWARD_QUOTIENT,
-    REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, WHISTLEBLOWER_REWARD_QUOTIENT,
+    BPS_DENOMINATOR, MAX_PENDING_SLASHES, MIN_SLASHING_PENALTY_QUOTIENT,
+    PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT, REPORTER_BOND_MOJOS,
+    SLASH_APPEAL_WINDOW_EPOCHS, WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 use crate::error::SlashingError;
 use crate::evidence::envelope::SlashingEvidence;
@@ -129,6 +130,13 @@ pub struct SlashingManager {
     /// by DSL-026 (`AlreadySlashed` short-circuit) and by pruning
     /// (SPEC §8, `prune(lower_bound_epoch)`).
     processed: HashMap<Bytes32, u64>,
+    /// Per-epoch register of effective balances slashed inside the
+    /// correlation window. Keyed by `(slash_epoch, validator_index)`
+    /// so `expired_by`-style range scans can be done cheaply at
+    /// finalisation. Populated by `submit_evidence` (DSL-022) with
+    /// one entry per per-validator debit; consumed by DSL-030's
+    /// `cohort_sum` computation.
+    slashed_in_window: BTreeMap<(u64, u32), u64>,
 }
 
 impl Default for SlashingManager {
@@ -154,6 +162,7 @@ impl SlashingManager {
             current_epoch,
             book: PendingSlashBook::new(book_capacity),
             processed: HashMap::new(),
+            slashed_in_window: BTreeMap::new(),
         }
     }
 
@@ -305,6 +314,12 @@ impl SlashingManager {
                 base_slash_amount: base_slash,
                 effective_balance_at_slash: eff_bal,
             });
+
+            // DSL-030: record the slash in the correlation-window
+            // register. `slashed_in_window` is consumed at
+            // finalisation to compute `cohort_sum`.
+            self.slashed_in_window
+                .insert((self.current_epoch, idx), eff_bal);
         }
 
         // DSL-025: reward routing. Two optimistic payouts settled
@@ -393,27 +408,94 @@ impl SlashingManager {
     ///   (DSL-033).
     /// - Idempotent: calling twice in the same epoch yields an empty
     ///   second result vec.
-    pub fn finalise_expired_slashes(&mut self) -> Vec<FinalisationResult> {
+    pub fn finalise_expired_slashes(
+        &mut self,
+        validator_set: &mut dyn ValidatorView,
+        effective_balances: &dyn EffectiveBalanceView,
+        total_active_balance: u64,
+    ) -> Vec<FinalisationResult> {
         let expired = self.book.expired_by(self.current_epoch);
+
+        // DSL-030: compute `cohort_sum` ONCE per finalise pass.
+        // `slashed_in_window` is keyed by `(slash_epoch, idx)`; we
+        // sum every eff_bal_at_slash value for epochs in
+        // `[current - CORRELATION_WINDOW_EPOCHS, current]`. Saturating
+        // subtraction keeps the window lower-bound non-negative at
+        // network boot.
+        let window_lo = self
+            .current_epoch
+            .saturating_sub(u64::from(dig_epoch::CORRELATION_WINDOW_EPOCHS));
+        let cohort_sum: u64 = self
+            .slashed_in_window
+            .range((window_lo, 0)..=(self.current_epoch, u32::MAX))
+            .map(|(_, eff)| *eff)
+            .sum();
+
         let mut results = Vec::with_capacity(expired.len());
         for hash in expired {
-            let pending = match self.book.get_mut(&hash) {
-                Some(p) => p,
-                None => continue,
-            };
-            // DSL-033: skip terminal statuses.
-            match pending.status {
-                PendingSlashStatus::Reverted { .. } | PendingSlashStatus::Finalised { .. } => {
-                    continue;
-                }
-                _ => {}
+            // DSL-033: skip terminal statuses. Snapshot status via a
+            // short borrow so we can mutate other fields afterward.
+            let status_is_terminal = matches!(
+                self.book.get(&hash).map(|p| p.status),
+                Some(PendingSlashStatus::Reverted { .. } | PendingSlashStatus::Finalised { .. }),
+            );
+            if status_is_terminal {
+                continue;
             }
-            // DSL-030/031/032 side effects land here (none yet).
-            pending.status = PendingSlashStatus::Finalised {
-                finalised_at_epoch: self.current_epoch,
+
+            // Snapshot per-validator entries (clone the small vec)
+            // before the mutable borrow for the validator-set slash
+            // calls. Keeps the borrow graph simple.
+            let (slashable_indices, evidence_hash) = {
+                let pending = match self.book.get(&hash) {
+                    Some(p) => p,
+                    None => continue,
+                };
+                (
+                    pending
+                        .base_slash_per_validator
+                        .iter()
+                        .map(|p| p.validator_index)
+                        .collect::<Vec<u32>>(),
+                    pending.evidence_hash,
+                )
             };
+
+            // DSL-030: per-validator correlation penalty. Formula:
+            //   penalty = eff_bal * min(cohort_sum * 3, total) / total
+            // with total_active_balance==0 yielding 0 (defensive).
+            let mut correlation = Vec::with_capacity(slashable_indices.len());
+            let scaled = cohort_sum.saturating_mul(PROPORTIONAL_SLASHING_MULTIPLIER);
+            let capped = scaled.min(total_active_balance);
+            for idx in slashable_indices {
+                let eff_bal = effective_balances.get(idx);
+                // u128 intermediate prevents overflow on the multiply:
+                // `eff_bal * capped` can exceed u64 when both are near
+                // MIN_EFFECTIVE_BALANCE (e.g. 32e9 * 32e9 = 1.02e21 >
+                // u64::MAX). The final divide shrinks back to u64 range
+                // because `penalty <= eff_bal` (saturation property).
+                let penalty = if total_active_balance == 0 {
+                    0
+                } else {
+                    let product = u128::from(eff_bal) * u128::from(capped);
+                    (product / u128::from(total_active_balance)) as u64
+                };
+                if let Some(entry) = validator_set.get_mut(idx) {
+                    entry.slash_absolute(penalty, self.current_epoch);
+                }
+                correlation.push((idx, penalty));
+            }
+
+            // Now flip the pending status. Second borrow on book.
+            if let Some(pending) = self.book.get_mut(&hash) {
+                pending.status = PendingSlashStatus::Finalised {
+                    finalised_at_epoch: self.current_epoch,
+                };
+            }
+
             results.push(FinalisationResult {
-                evidence_hash: hash,
+                evidence_hash,
+                per_validator_correlation_penalty: correlation,
                 ..Default::default()
             });
         }

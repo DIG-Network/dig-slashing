@@ -120,6 +120,14 @@ pub const MAX_PENDING_SLASHES: usize = 4_096;
 /// on sustained appeal (DSL-067).
 pub const WHISTLEBLOWER_REWARD_QUOTIENT: u64 = 512;
 
+/// Ethereum-parity proportional-slashing multiplier — `3`.
+///
+/// Traces to SPEC §2.2, §4. Amplifies `cohort_sum` in the
+/// finalisation correlation penalty
+/// (`eff_bal * min(cohort_sum * 3, total_active) / total_active`),
+/// so coordinated-attack slashes are punished more than isolated ones.
+pub const PROPORTIONAL_SLASHING_MULTIPLIER: u64 = 3;
+
 /// Proposer inclusion-reward divisor — `8`.
 ///
 /// Traces to SPEC §2.3. `prop_reward = wb_reward / 8`. Paid to the
