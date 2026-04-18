@@ -216,6 +216,14 @@ impl SlashingManager {
         // Verify first — no state mutation on rejection.
         let verified = verify_evidence(&evidence, validator_set, network_id, self.current_epoch)?;
 
+        // DSL-027: capacity check BEFORE bond lock or any validator
+        // mutation. Placed after verify so only valid, non-duplicate
+        // evidence can trigger capacity exhaustion. Strict `>=` — the
+        // book never holds more than `capacity` records.
+        if self.book.len() >= self.book.capacity() {
+            return Err(SlashingError::PendingBookFull);
+        }
+
         // DSL-023: lock reporter bond BEFORE any validator-side mutation.
         // Failure surfaces as `BondLockFailed` with validator state still
         // untouched — ordering invariant tested by
