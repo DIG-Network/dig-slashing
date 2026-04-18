@@ -156,11 +156,12 @@ items:
   - id: DSL-016
     section: "Verification"
     summary: "verify_attester_slashing rejects EmptySlashableIntersection"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-016.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_016_verify_attester_empty_intersection_test
+    notes: "EmptySlashableIntersection check enforced in verify_attester_slashing (landed with DSL-014 commit). Ordering: after structure + byte-identical + predicate; before BLS aggregate verify — bounds DoS cost on disjoint-committee evidence. 5-test suite: disjoint rejected, non-empty passes, bad-sig + disjoint → EmptySlashableIntersection beats BlsVerifyFailed (ordering invariant vs BLS), single-element intersection passes (boundary), disjoint + neither-predicate → AttesterSlashingNotSlashable wins (predicate runs first, ordering invariant vs predicate decision)."
 
   - id: DSL-017
     section: "Verification"
