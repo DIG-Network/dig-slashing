@@ -209,7 +209,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-152 — submit_evidence ReporterIsAccused short-circuit
 
 ### Participation — Reorg + Serde
-- [ ] DSL-153 — ParticipationTracker::rewind_on_reorg
+- [x] DSL-153 — ParticipationTracker::rewind_on_reorg
 - [ ] DSL-154 — ParticipationFlags serde roundtrip
 
 ### Inactivity — Reorg

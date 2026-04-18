@@ -135,12 +135,13 @@ items:
 
   - id: DSL-153
     section: "Reorg"
-    summary: "ParticipationTracker::rewind_on_reorg ring-buffer restore"
-    status: gap
+    summary: "ParticipationTracker::rewind_on_reorg zero-fill restore"
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-153.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-153"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_153_participation_tracker_rewind_on_reorg_test
+    notes: "rewind_on_reorg already shipped as dependency of DSL-130; this cycle adds `if dropped == 0 { return 0; }` short-circuit guard to satisfy DSL-153 depth-0 no-op acceptance (orchestrator occasionally fires rewind_all_on_reorg defensively with new_tip == current). Adopted semantics: zero-fill both epoch vectors (no ring-buffer snapshots retained) — conservative choice shared with InactivityScoreTracker::rewind_on_reorg avoids ghost reward credits from rewound chain. 4-test suite: restores snapshot (post-rewind flags all zero), epoch_number anchors at new_tip (10→7 dropped=3), resize grow (4→7) + shrink (10→3), depth=0 no-op (new_tip==current preserves state + new_tip > current saturates dropped to 0)."
 
   - id: DSL-154
     section: "Serde"
