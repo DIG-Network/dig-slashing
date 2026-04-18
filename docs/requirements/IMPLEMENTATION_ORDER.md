@@ -113,7 +113,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-081 — base_reward formula
 - [x] DSL-082 — compute_flag_deltas reward on hit
 - [x] DSL-083 — compute_flag_deltas penalty (source+target), head exempt
-- [ ] DSL-084 — compute_flag_deltas in-stall zeroes rewards
+- [x] DSL-084 — compute_flag_deltas in-stall zeroes rewards
 - [ ] DSL-085 — proposer_inclusion_reward formula
 - [ ] DSL-086 — WEIGHT_DENOMINATOR = 64 (no sync committee, 2 units reserved)
 

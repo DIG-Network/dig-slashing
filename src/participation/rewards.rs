@@ -105,9 +105,8 @@ pub struct FlagDelta {
 /// Compute per-validator reward / penalty deltas for the
 /// just-finished epoch (the one now in `tracker.previous_epoch`).
 ///
-/// Implements [DSL-082](../../../docs/requirements/domains/participation/specs/DSL-082.md).
-/// Traces to SPEC §8.3. Penalty field is 0 until DSL-083 lands
-/// the miss-side math.
+/// Implements DSL-082 (reward-on-hit) + DSL-083 (penalty-on-
+/// miss, HEAD-exempt) + DSL-084 (stall zeroes rewards).
 ///
 /// # Reward weights (DSL-082)
 ///
@@ -132,6 +131,7 @@ pub fn compute_flag_deltas(
     tracker: &ParticipationTracker,
     effective_balances: &dyn EffectiveBalanceView,
     total_active_balance: u64,
+    in_finality_stall: bool,
 ) -> Vec<FlagDelta> {
     let n = tracker.validator_count();
     let mut out: Vec<FlagDelta> = Vec::with_capacity(n);
@@ -161,6 +161,13 @@ pub fn compute_flag_deltas(
             penalty = penalty.saturating_add(base * TIMELY_TARGET_WEIGHT / WEIGHT_DENOMINATOR);
         }
         // HEAD-miss deliberately omitted.
+
+        // DSL-084: finality-stall zeroes rewards but NOT
+        // penalties. Matches Ethereum inactivity-leak
+        // semantics — while finality is stalled, missed
+        // attestations continue to cost the validator, but
+        // honest attesters stop being paid.
+        let reward = if in_finality_stall { 0 } else { reward };
 
         out.push(FlagDelta {
             validator_index: idx,
