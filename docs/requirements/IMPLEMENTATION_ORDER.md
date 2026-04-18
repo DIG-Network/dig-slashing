@@ -167,7 +167,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 - [x] DSL-121 — BondEscrow::lock InsufficientBalance
 - [x] DSL-122 — BondEscrow::forfeit returns mojos
-- [ ] DSL-123 — BondEscrow::release full on finalise
+- [x] DSL-123 — BondEscrow::release full on finalise
 - [ ] DSL-124 — REPORTER_BOND_MOJOS = MIN_EFFECTIVE_BALANCE/64
 - [ ] DSL-125 — APPELLANT_BOND_MOJOS = MIN_EFFECTIVE_BALANCE/64
 - [ ] DSL-126 — BOND_AWARD_TO_WINNER_BPS = 5_000 (50/50)
