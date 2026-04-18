@@ -6,11 +6,12 @@ items:
   - id: DSL-131
     section: "ValidatorView + ValidatorEntry"
     summary: "ValidatorEntry::slash_absolute saturation"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-131.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-131"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_131_validator_entry_slash_absolute_saturation_test
+    notes: "Opens Phase 9 External-State Traits. dig-slashing doesn't own validator storage; embedders implement ValidatorEntry. DSL-131 pins contract via reference MockValidator in test. Saturation is load-bearing — DSL-022 base-slash + DSL-030 correlation can exceed remaining stake on partially-slashed validators. 5-test suite: under-stake exact, at-stake zeroes, over-stake saturates (incl u64::MAX vs 1 mojo), status+epoch flip on zero-amount slash (DSL-162 compat), repeated debits compose with epoch tracking latest call."
 
   - id: DSL-132
     section: "ValidatorView + ValidatorEntry"
