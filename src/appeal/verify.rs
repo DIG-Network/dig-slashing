@@ -556,6 +556,44 @@ pub fn verify_attester_appeal_attestations_identical(evidence: &AttesterSlashing
     }
 }
 
+/// Verify `InvalidBlockAppealGround::ProposerSignatureInvalid`.
+///
+/// Implements [DSL-050](../../../docs/requirements/domains/appeal/specs/DSL-050.md).
+/// Traces to SPEC §6.4.
+///
+/// # Predicate
+///
+/// Re-runs `chia_bls::verify(sig, proposer_pubkey,
+/// block_signing_message(...))` over `evidence.signed_header`.
+/// Pure BLS — no oracle needed. Mirrors DSL-018 (the inverse
+/// admission check in the evidence verifier) and DSL-036 (the
+/// proposer-equivocation variant).
+///
+/// Reuses the shared `verify_proposer_appeal_signature_side`
+/// helper — same contract (decode-failure / unknown-validator /
+/// crypto-reject all collapse to sustain) with a different sustain
+/// reason tag. Keeps the behavior surface identical across every
+/// "signature invalid" appeal ground in the crate.
+///
+/// # Verdict
+///
+/// - `Sustained { ProposerSignatureInvalid }` iff re-check fails.
+/// - `Rejected { GroundDoesNotHold }` iff signature verifies.
+#[must_use]
+pub fn verify_invalid_block_appeal_proposer_signature_invalid(
+    evidence: &InvalidBlockProof,
+    validator_view: &dyn ValidatorView,
+    network_id: &Bytes32,
+) -> AppealVerdict {
+    verify_proposer_appeal_signature_side(
+        &evidence.signed_header.message,
+        &evidence.signed_header.signature,
+        validator_view,
+        network_id,
+        AppealSustainReason::ProposerSignatureInvalid,
+    )
+}
+
 /// Verify `InvalidBlockAppealGround::BlockActuallyValid`.
 ///
 /// Implements [DSL-049](../../../docs/requirements/domains/appeal/specs/DSL-049.md).

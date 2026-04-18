@@ -166,11 +166,12 @@ items:
   - id: DSL-050
     section: "InvalidBlock Appeal"
     summary: "InvalidBlockAppeal ProposerSignatureInvalid sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-050.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-050"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_050_invalid_block_appeal_sig_invalid_test
+    notes: "verify_invalid_block_appeal_proposer_signature_invalid re-runs chia_bls::verify over (signed_header.signature, proposer_pk, block_signing_message(...)). Pure BLS — no oracle. Reuses shared helper verify_proposer_appeal_signature_side with sustain_reason=ProposerSignatureInvalid; same decode-failure / unknown-validator / crypto-reject contract as DSL-036/037/044/045. 3-test suite: corrupted sig → Sustained, honest sig → Rejected, cross-network sig → Sustained (domain-separation guard)."
 
   - id: DSL-051
     section: "InvalidBlock Appeal"
