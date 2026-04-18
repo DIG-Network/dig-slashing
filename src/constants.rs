@@ -171,6 +171,14 @@ pub const INACTIVITY_SCORE_BIAS: u64 = 4;
 /// = 16, so scores decay quickly once finality is restored.
 pub const INACTIVITY_SCORE_RECOVERY_RATE: u64 = 16;
 
+/// Divisor in the inactivity-penalty formula.
+///
+/// Traces to SPEC §2.4, §9.3. Consumed by DSL-092:
+/// `penalty = effective_balance * score /
+/// INACTIVITY_PENALTY_QUOTIENT` during a finality stall.
+/// Ethereum Bellatrix mainnet value = 2^24 (16_777_216).
+pub const INACTIVITY_PENALTY_QUOTIENT: u64 = 16_777_216;
+
 /// Proposer-inclusion reward weight (Ethereum Altair parity).
 ///
 /// Traces to SPEC §2.3, §8.4. Consumed by DSL-085
