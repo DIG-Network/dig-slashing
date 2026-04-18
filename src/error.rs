@@ -270,6 +270,21 @@ pub enum SlashingError {
     #[error("unknown evidence: {0}")]
     UnknownEvidence(String),
 
+    /// Mempool policy caught a byte-identical evidence between
+    /// `pending_evidence` and `incoming_evidence`, or a duplicate
+    /// within `incoming_evidence` itself.
+    ///
+    /// Raised by DSL-107
+    /// `enforce_slashing_evidence_mempool_dedup_policy`.
+    /// Fingerprint is the JSON wire bytes (`serde_json::to_vec`).
+    /// Separate from the manager-level dedup
+    /// [`SlashingError::AlreadySlashed`] (DSL-026) which operates
+    /// on the `evidence.hash()` digest and runs inside the
+    /// slashing manager; this variant runs earlier in the
+    /// mempool upstream of any manager state.
+    #[error("duplicate evidence in mempool policy")]
+    DuplicateEvidence,
+
     /// REMARK admission found an evidence whose derived
     /// `slashing_evidence_remark_puzzle_hash_v1` does NOT match
     /// the spent coin's `puzzle_hash`.

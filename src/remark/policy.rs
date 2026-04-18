@@ -28,7 +28,7 @@
 //! extends the mismatch path with the `AdmissionPuzzleHashMismatch`
 //! error. DSL-106..109 add mempool policy on top.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use chia_protocol::SpendBundle;
 use dig_protocol::Bytes32;
@@ -36,6 +36,7 @@ use dig_protocol::Bytes32;
 use dig_epoch::SLASH_LOOKBACK_EPOCHS;
 
 use crate::error::SlashingError;
+use crate::evidence::SlashingEvidence;
 use crate::remark::evidence_wire::{
     parse_slashing_evidence_from_conditions, slashing_evidence_remark_puzzle_hash_v1,
 };
@@ -142,6 +143,60 @@ pub fn enforce_slashing_evidence_mempool_policy(
                     current_epoch,
                 });
             }
+        }
+    }
+    Ok(())
+}
+
+/// Enforce the DSL-107 mempool-level dedup policy across
+/// `pending_evidence` (already in the mempool) and
+/// `incoming_evidence` (new REMARKs being admitted in this pass).
+///
+/// Fingerprint = `serde_json::to_vec(&ev)` bytes — the SAME bytes
+/// that rode on the wire via DSL-102, so a byte-identical REMARK
+/// payload collides without deriving any additional hash.
+///
+/// # Semantics
+///
+///   1. Every `pending_evidence` entry's fingerprint is inserted
+///      into a `HashSet`.
+///   2. For each `incoming_evidence` entry: compute its
+///      fingerprint; if `HashSet::insert` returns `false`
+///      (meaning the fingerprint was already present, from either
+///      pending or a prior incoming), return
+///      `SlashingError::DuplicateEvidence`.
+///
+/// Distinct from [`SlashingError::AlreadySlashed`] (DSL-026)
+/// which operates at the manager layer on `evidence.hash()`;
+/// DSL-107 is strictly upstream and catches spam BEFORE it
+/// reaches any validator / bond machinery.
+///
+/// # Errors
+///
+/// - [`SlashingError::DuplicateEvidence`] — first collision
+///   encountered. Iteration short-circuits so a single rogue
+///   payload does not amplify policy cost.
+/// - [`SlashingError::InvalidSlashingEvidence`] wrapping the
+///   `serde_json` error if a payload fails to serialize. In
+///   practice `SlashingEvidence` is infallibly serialisable;
+///   the error path exists for completeness.
+pub fn enforce_slashing_evidence_mempool_dedup_policy(
+    pending_evidence: &[SlashingEvidence],
+    incoming_evidence: &[SlashingEvidence],
+) -> Result<(), SlashingError> {
+    let mut seen: HashSet<Vec<u8>> =
+        HashSet::with_capacity(pending_evidence.len() + incoming_evidence.len());
+
+    for ev in pending_evidence {
+        let fp = serde_json::to_vec(ev)
+            .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("dedup fp: {e}")))?;
+        seen.insert(fp);
+    }
+    for ev in incoming_evidence {
+        let fp = serde_json::to_vec(ev)
+            .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("dedup fp: {e}")))?;
+        if !seen.insert(fp) {
+            return Err(SlashingError::DuplicateEvidence);
         }
     }
     Ok(())
