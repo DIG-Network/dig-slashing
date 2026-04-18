@@ -155,6 +155,17 @@ pub enum SlashingError {
     #[error("reporter cannot accuse self (index {0})")]
     ReporterIsAccused(u32),
 
+    /// Appeal's payload variant does not match the evidence's
+    /// payload variant (e.g., `ProposerSlashingAppeal` filed
+    /// against `AttesterSlashing` evidence).
+    ///
+    /// Raised by DSL-057. Cheap structural check — no state
+    /// inspection beyond the two enum tags. Runs AFTER DSL-055
+    /// (UnknownEvidence) + DSL-056 (WindowExpired) and BEFORE any
+    /// bond operation.
+    #[error("appeal payload variant does not match evidence variant")]
+    AppealVariantMismatch,
+
     /// Appeal filed after the slash's appeal window closed.
     ///
     /// Raised by DSL-056. The window is `[submitted_at_epoch,

@@ -34,7 +34,7 @@ use crate::constants::{
     SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS, WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 use crate::error::SlashingError;
-use crate::evidence::envelope::SlashingEvidence;
+use crate::evidence::envelope::{SlashingEvidence, SlashingEvidencePayload};
 use crate::evidence::verify::verify_evidence;
 use crate::pending::{PendingSlash, PendingSlashBook, PendingSlashStatus};
 use crate::traits::{EffectiveBalanceView, ProposerView, RewardPayout, ValidatorView};
@@ -589,8 +589,29 @@ impl SlashingManager {
             });
         }
 
-        // Subsequent DSLs add: VariantMismatch, DuplicateAppeal,
-        // TooManyAttempts, bond lock, dispatch, adjudicate.
+        // DSL-057: VariantMismatch — the appeal payload variant
+        // MUST match the evidence payload variant. Structural
+        // check; no state inspection beyond the two enum tags.
+        use crate::appeal::SlashAppealPayload;
+        let variants_match = matches!(
+            (&appeal.payload, &pending.evidence.payload),
+            (
+                SlashAppealPayload::Proposer(_),
+                SlashingEvidencePayload::Proposer(_)
+            ) | (
+                SlashAppealPayload::Attester(_),
+                SlashingEvidencePayload::Attester(_)
+            ) | (
+                SlashAppealPayload::InvalidBlock(_),
+                SlashingEvidencePayload::InvalidBlock(_)
+            )
+        );
+        if !variants_match {
+            return Err(SlashingError::AppealVariantMismatch);
+        }
+
+        // Subsequent DSLs add: DuplicateAppeal, TooManyAttempts,
+        // bond lock, dispatch, adjudicate.
         Ok(())
     }
 
