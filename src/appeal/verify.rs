@@ -185,6 +185,51 @@ pub fn verify_proposer_appeal_signature_b_invalid(
     )
 }
 
+/// Verify `ProposerAppealGround::ValidatorNotActiveAtEpoch`.
+///
+/// Implements [DSL-039](../../../docs/requirements/domains/appeal/specs/DSL-039.md).
+/// Traces to SPEC §6.2 + §15.1.
+///
+/// # Predicate
+///
+/// `!validator_view.get(proposer_index)?.is_active_at_epoch(header_a.epoch)`
+/// — the accused was outside their active window at the claimed
+/// offense epoch, so they could not have been the proposer.
+///
+/// # Verdict
+///
+/// - `Sustained { ValidatorNotActiveAtEpoch }` iff inactive at epoch
+///   OR the validator is not registered (unknown validator → cannot
+///   be active, same coarse handling as DSL-036).
+/// - `Rejected { GroundDoesNotHold }` iff active.
+///
+/// Checks only header A — if both headers share the same
+/// `proposer_index` (DSL-013 precondition 2), activation status at
+/// header-A's epoch is dispositive. A verifier bug admitting
+/// different epochs between A and B is separately catchable under
+/// DSL-035 (ProposerIndexMismatch) or DSL-019 (InvalidBlock epoch
+/// mismatch).
+#[must_use]
+pub fn verify_proposer_appeal_validator_not_active_at_epoch(
+    evidence: &ProposerSlashing,
+    validator_view: &dyn ValidatorView,
+) -> AppealVerdict {
+    let header = &evidence.signed_header_a.message;
+    let sustain = AppealVerdict::Sustained {
+        reason: AppealSustainReason::ValidatorNotActiveAtEpoch,
+    };
+    let Some(entry) = validator_view.get(header.proposer_index) else {
+        return sustain;
+    };
+    if entry.is_active_at_epoch(header.epoch) {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    } else {
+        sustain
+    }
+}
+
 /// Shared helper: re-check one header's BLS signature. Returns
 /// `Sustained { sustain_reason }` on verify-failure / decode-failure
 /// / missing-pubkey, `Rejected { GroundDoesNotHold }` on successful
@@ -248,3 +293,6 @@ const _SIGNATURE_A_INVALID_GROUND: ProposerAppealGround = ProposerAppealGround::
 const _SIGNATURE_B_INVALID_GROUND: ProposerAppealGround = ProposerAppealGround::SignatureBInvalid;
 #[allow(dead_code)]
 const _SLOT_MISMATCH_GROUND: ProposerAppealGround = ProposerAppealGround::SlotMismatch;
+#[allow(dead_code)]
+const _VALIDATOR_NOT_ACTIVE_GROUND: ProposerAppealGround =
+    ProposerAppealGround::ValidatorNotActiveAtEpoch;

@@ -57,7 +57,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-036 — ProposerAppeal SignatureAInvalid sustained
 - [x] DSL-037 — ProposerAppeal SignatureBInvalid sustained
 - [x] DSL-038 — ProposerAppeal SlotMismatch sustained
-- [ ] DSL-039 — ProposerAppeal ValidatorNotActiveAtEpoch sustained
+- [x] DSL-039 — ProposerAppeal ValidatorNotActiveAtEpoch sustained
 - [ ] DSL-040 — ProposerAppeal rejected on false claim
 
 ### Attester Appeal Grounds
