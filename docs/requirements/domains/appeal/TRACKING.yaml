@@ -246,11 +246,12 @@ items:
   - id: DSL-058
     section: "Submission Preconditions"
     summary: "submit_appeal DuplicateAppeal"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-058.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-058"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_058_submit_appeal_duplicate_test
+    notes: "Fourth submit_appeal precondition. Adds SlashingError::DuplicateAppeal + SlashAppeal::hash() (DSL-058/159 preview: SHA-256(DOMAIN_SLASH_APPEAL || bincode(self))). DOMAIN_SLASH_APPEAL = b\"DIG_SLASH_APPEAL_V1\" added to constants. Rejects iff appeal.hash() is already in pending.appeal_history. 3-test suite: byte-equal duplicate → DuplicateAppeal + zero lock_calls, witness diff → accepted (witness participates in hash), ground diff → accepted (enum discriminant participates)."
 
   - id: DSL-059
     section: "Submission Preconditions"

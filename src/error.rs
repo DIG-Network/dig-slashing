@@ -155,6 +155,18 @@ pub enum SlashingError {
     #[error("reporter cannot accuse self (index {0})")]
     ReporterIsAccused(u32),
 
+    /// Byte-equal appeal already present in
+    /// `PendingSlash::appeal_history`.
+    ///
+    /// Raised by DSL-058. Prevents an appellant from spamming the
+    /// adjudicator with identical rejected appeals. Near-duplicates
+    /// (different witness bytes or different ground) are accepted;
+    /// only byte-equal envelopes trip this check. Runs AFTER
+    /// `AppealVariantMismatch` (DSL-057) and BEFORE bond lock
+    /// (DSL-062).
+    #[error("duplicate appeal: byte-equal to prior attempt")]
+    DuplicateAppeal,
+
     /// Appeal's payload variant does not match the evidence's
     /// payload variant (e.g., `ProposerSlashingAppeal` filed
     /// against `AttesterSlashing` evidence).

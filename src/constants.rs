@@ -172,6 +172,16 @@ pub const DOMAIN_BEACON_ATTESTER: &[u8] = b"DIG_BEACON_ATTESTER_V1";
 /// under either structure would cause double-slashing or bond misrouting.
 pub const DOMAIN_SLASHING_EVIDENCE: &[u8] = b"DIG_SLASHING_EVIDENCE_V1";
 
+/// Domain tag for `SlashAppeal::hash` (DSL-058, DSL-159).
+///
+/// Traces to SPEC §2.10, §3.7. Prefixed into the SHA-256 digest of
+/// a bincode-serialized `SlashAppeal` envelope so the appeal hash
+/// cannot collide with an evidence hash (`DOMAIN_SLASHING_EVIDENCE`)
+/// or any other protocol digest. Appeal hashes key
+/// `PendingSlash::appeal_history` entries (DSL-058 duplicate check)
+/// and are used by the adjudicator (DSL-070 `winning_appeal_hash`).
+pub const DOMAIN_SLASH_APPEAL: &[u8] = b"DIG_SLASH_APPEAL_V1";
+
 /// Domain tag for proposer `block_signing_message` (DSL-013, DSL-018).
 ///
 /// Traces to SPEC §2.10, §5.2 step 6 + §5.4 step 1. Prefixed into the
