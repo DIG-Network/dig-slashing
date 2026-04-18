@@ -14,6 +14,7 @@ chia-bls = "0.26"
 chia-protocol = { version = "0.26", features = ["serde"] }
 chia-sha2 = "0.26"
 dig-block = "0.1"
+dig-epoch = "0.1"
 dig-protocol = "0.1"
 serde = { version = "1", features = ["derive"] }
 serde_bytes = "0.11"

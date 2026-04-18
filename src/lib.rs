@@ -44,6 +44,12 @@ pub use error::SlashingError;
 pub use evidence::{
     AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, InvalidBlockProof,
     InvalidBlockReason, OffenseType, ProposerSlashing, SignedBlockHeader, SlashingEvidence,
-    SlashingEvidencePayload,
+    SlashingEvidencePayload, VerifiedEvidence, verify_evidence,
 };
-pub use traits::PublicKeyLookup;
+pub use traits::{PublicKeyLookup, ValidatorEntry, ValidatorView};
+
+// Re-export the slash-lookback window from `dig-epoch` so downstream
+// consumers do not need to pull the dep transitively to compute
+// `OffenseTooOld` boundaries for tests or REMARK-admission policy.
+// Per SPEC §2.7.
+pub use dig_epoch::SLASH_LOOKBACK_EPOCHS;

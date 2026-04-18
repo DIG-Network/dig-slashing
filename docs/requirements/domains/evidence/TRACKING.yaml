@@ -106,11 +106,12 @@ items:
   - id: DSL-011
     section: "Verification"
     summary: "verify_evidence rejects OffenseTooOld when evidence.epoch + SLASH_LOOKBACK_EPOCHS < current_epoch"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-011.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_011_verify_evidence_offense_too_old_test
+    notes: "verify_evidence() in src/evidence/verify.rs. OffenseTooOld check uses saturating_add on LHS (evidence.epoch + SLASH_LOOKBACK_EPOCHS) to avoid underflow when current_epoch=0 and overflow on huge offense_epoch. SLASH_LOOKBACK_EPOCHS re-exported from dig-epoch (1_000). Added ValidatorView + ValidatorEntry traits in src/traits.rs (stubs for DSL-131..136); dig-epoch dep added. Remaining precondition branches (DSL-012..021) land in future commits — current placeholder accept after the lookback check. 6-test suite: at-boundary accepted, beyond-boundary rejected, error fields carry inputs, current=0 no underflow + saturating_add guard, constant re-export parity with dig_epoch, same-epoch accepted."
 
   - id: DSL-012
     section: "Verification"
