@@ -155,6 +155,19 @@ pub enum SlashingError {
     #[error("reporter cannot accuse self (index {0})")]
     ReporterIsAccused(u32),
 
+    /// Serialized `SlashAppeal` exceeds `MAX_APPEAL_PAYLOAD_BYTES`.
+    ///
+    /// Raised by DSL-063. Caps memory + DoS cost for invalid-block
+    /// witness storage. Runs BEFORE the DSL-062 bond lock so an
+    /// oversized appeal never reaches collateral.
+    #[error("appeal payload too large: actual={actual}, limit={limit}")]
+    AppealPayloadTooLarge {
+        /// Actual bincode-encoded length in bytes.
+        actual: usize,
+        /// `MAX_APPEAL_PAYLOAD_BYTES` at the time of check.
+        limit: usize,
+    },
+
     /// Appellant-bond lock failed — principal lacks collateral or
     /// the escrow rejected the tag.
     ///

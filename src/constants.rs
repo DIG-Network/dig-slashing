@@ -115,6 +115,19 @@ pub const SLASH_LOCK_EPOCHS: u64 = 100;
 /// uses 8 epochs to match L2 block cadence.
 pub const SLASH_APPEAL_WINDOW_EPOCHS: u64 = 8;
 
+/// Maximum serialized-bytes length of a `SlashAppeal` envelope.
+///
+/// Traces to SPEC §2.6, §6.1. Caps memory + DoS cost for
+/// invalid-block witness storage. Measured against the same
+/// bincode encoding used by `SlashAppeal::hash` (DSL-058) —
+/// deterministic, compact, length-prefixed. SPEC allows any
+/// canonical encoding; we pick bincode for parity with the
+/// `SlashingEvidence` envelope and to avoid pulling serde_json
+/// into the hot path.
+///
+/// Consumed by DSL-063 (`PayloadTooLarge`) rejection.
+pub const MAX_APPEAL_PAYLOAD_BYTES: usize = 131_072;
+
 /// Maximum distinct appeal attempts per pending slash.
 ///
 /// Traces to SPEC §2.6, §6.1. Caps adjudication cost at a fixed
