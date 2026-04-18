@@ -316,11 +316,12 @@ items:
   - id: DSL-065
     section: "Adjudicator"
     summary: "Adjudicate Sustained reverts collateral"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-065.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-065"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_065_adjudicate_sustained_reverts_collateral_test
+    notes: "Adds CollateralSlasher trait (credit(u32, u64)) + collateral_slashed: u64 field on PerValidatorSlash (serde default 0). adjudicate_sustained_revert_collateral(pending, appeal, verdict, Option<&mut dyn CollateralSlasher>) -> Vec<u32> mirrors DSL-064 scope branching, calls slasher.credit per validator where collateral_slashed > 0. Light-client path (None slasher) is no-op. 3-test suite: 3 non-zero → 3 credits in order, None → empty, zero entries skipped per-item."
 
   - id: DSL-066
     section: "Adjudicator"

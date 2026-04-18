@@ -58,6 +58,16 @@ pub struct PerValidatorSlash {
     /// formula without re-reading state (which may drift after further
     /// epochs).
     pub effective_balance_at_slash: u64,
+    /// Collateral mojos slashed alongside the stake debit. Populated
+    /// by the consensus-layer collateral slasher wiring (landing in
+    /// a later orchestration DSL); default `0` so records produced
+    /// before that wiring still serialize + roundtrip.
+    ///
+    /// Consumed by DSL-065 on sustained appeal: the adjudicator
+    /// calls `CollateralSlasher::credit(validator_index, collateral_slashed)`
+    /// per reverted validator when a collateral slasher is supplied.
+    #[serde(default)]
+    pub collateral_slashed: u64,
 }
 
 /// Aggregate result of a `finalise_expired_slashes` pass — one
@@ -325,6 +335,9 @@ impl SlashingManager {
                 validator_index: idx,
                 base_slash_amount: base_slash,
                 effective_balance_at_slash: eff_bal,
+                // DSL-065: collateral wiring lands in a later
+                // orchestration DSL; stake-only path records 0.
+                collateral_slashed: 0,
             });
 
             // DSL-030: record the slash in the correlation-window
