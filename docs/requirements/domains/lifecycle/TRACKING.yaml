@@ -46,11 +46,12 @@ items:
   - id: DSL-026
     section: "Optimistic Admission"
     summary: "submit_evidence rejects AlreadySlashed on duplicate evidence_hash"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-026.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-026"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_026_submit_evidence_already_slashed_test
+    notes: "Dedup check runs as FIRST statement in submit_evidence — before verify_evidence, bond lock, slash_absolute, reward.pay, book.insert. Returns SlashingError::AlreadySlashed. No state mutation on duplicate path. New SlashingError variant: AlreadySlashed. 7-test suite with RecordingBond + RecordingReward + slash_call counters: duplicate rejected, no state mutation on dup (bond/reward/slash/book counts unchanged), dedup precedes verify (corrupted dup still surfaces AlreadySlashed), is_processed helper returns true post-admit, distinct evidences admitted independently (different hashes), duplicate no bond lock, duplicate no reward pay."
 
   - id: DSL-027
     section: "Optimistic Admission"

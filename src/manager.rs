@@ -203,14 +203,25 @@ impl SlashingManager {
         proposer: &dyn ProposerView,
         network_id: &Bytes32,
     ) -> Result<SlashingResult, SlashingError> {
+        // DSL-026: duplicate evidence dedup. Runs BEFORE verify /
+        // capacity / bond / slash — cheapest rejection path. Uses
+        // evidence.hash() (DSL-002) as the dedup key. Persists across
+        // pending statuses until reorg rewind (DSL-129) or prune
+        // clears the entry.
+        let evidence_hash_pre = evidence.hash();
+        if self.processed.contains_key(&evidence_hash_pre) {
+            return Err(SlashingError::AlreadySlashed);
+        }
+
         // Verify first — no state mutation on rejection.
         let verified = verify_evidence(&evidence, validator_set, network_id, self.current_epoch)?;
 
         // DSL-023: lock reporter bond BEFORE any validator-side mutation.
         // Failure surfaces as `BondLockFailed` with validator state still
         // untouched — ordering invariant tested by
-        // `test_dsl_023_lock_failure_no_mutation`.
-        let evidence_hash = evidence.hash();
+        // `test_dsl_023_lock_failure_no_mutation`. Reuses the hash
+        // computed for the DSL-026 dedup check above.
+        let evidence_hash = evidence_hash_pre;
         bond_escrow
             .lock(
                 evidence.reporter_validator_index,
