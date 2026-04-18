@@ -156,11 +156,12 @@ items:
   - id: DSL-117
     section: "Appeal Mempool Policy"
     summary: "AppealVariantMismatch"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-117.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-117"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_117_appeal_mempool_variant_mismatch_test
+    notes: "Adds pub fn enforce_slash_appeal_variant_policy(appeals, evidence_payload_by_hash: &HashMap<Bytes32, SlashingEvidencePayload>) in policy.rs. Matches appeal-payload variant against evidence-payload variant for the three valid pairings (P↔P, A↔A, I↔I). Cross-pairing → SlashingError::AppealVariantMismatch (DSL-057 variant reuse). Absent hash skips — DSL-114 owns that rejection. 5-test suite covers each of the three cross-variant permutations + exhaustive positive path + unknown-hash skip."
 
   - id: DSL-118
     section: "Appeal Mempool Policy"
