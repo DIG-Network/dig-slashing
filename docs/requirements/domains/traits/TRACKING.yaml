@@ -76,11 +76,12 @@ items:
   - id: DSL-138
     section: "EffectiveBalanceView + PublicKeyLookup"
     summary: "PublicKeyLookup::pubkey_of"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-138.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-138"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_138_public_key_lookup_test
+    notes: "Adds blanket impl<T: ValidatorView + ?Sized> PublicKeyLookup for T in src/traits.rs delegating pubkey_of to ValidatorEntry::public_key. Lets DSL-006/013 verifiers accept a single trait-object pointer for state-read + pubkey-lookup. Existing direct impls (test MapLookup fixtures) continue to work since they don't implement ValidatorView. 3-test suite: key identity via blanket matches direct, unknown + u32::MAX None, `&dyn PublicKeyLookup` accepts &ValidatorView with correct per-seed key identity."
 
   - id: DSL-139
     section: "CollateralSlasher"
