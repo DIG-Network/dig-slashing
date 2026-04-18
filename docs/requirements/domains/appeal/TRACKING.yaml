@@ -136,11 +136,12 @@ items:
   - id: DSL-047
     section: "Attester Appeal"
     summary: "AttesterAppeal ValidatorNotInIntersection sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-047.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-047"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_047_attester_appeal_validator_not_in_intersection_test
+    notes: "verify_attester_appeal_validator_not_in_intersection(evidence, validator_index) returns Sustained{ValidatorNotInIntersection} iff the named index is absent from slashable_indices() (DSL-007). Parameterised on validator_index so the per-validator revert scope required by DSL-064 adjudicator is free: same evidence + different named indices produce independent verdicts. 3-test suite: not-in-intersection → Sustained, in-intersection → Rejected, scope sweep over {1,2,3,4,99}."
 
   - id: DSL-048
     section: "Attester Appeal"

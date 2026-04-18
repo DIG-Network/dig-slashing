@@ -67,7 +67,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-044 — AttesterAppeal SignatureAInvalid sustained
 - [x] DSL-045 — AttesterAppeal SignatureBInvalid sustained
 - [x] DSL-046 — AttesterAppeal InvalidIndexedAttestationStructure sustained
-- [ ] DSL-047 — AttesterAppeal ValidatorNotInIntersection sustained
+- [x] DSL-047 — AttesterAppeal ValidatorNotInIntersection sustained
 - [ ] DSL-048 — AttesterAppeal rejected on genuine slash
 
 ### Invalid-Block Appeal Grounds
