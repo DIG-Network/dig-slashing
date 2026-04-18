@@ -16,11 +16,12 @@ items:
   - id: DSL-075
     section: "Timeliness Classification"
     summary: "classify_timeliness TIMELY_SOURCE"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-075.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-075"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_075_classify_timely_source_test
+    notes: "New src/participation/timeliness.rs. classify_timeliness(data, inclusion_slot, source_is_justified, _target, _head) -> ParticipationFlags. Full 5-arg signature pre-wires DSL-076/077 (target + head flags stub now, populated later). delay = inclusion_slot.saturating_sub(data.slot). TIMELY_SOURCE set iff (MIN_ATTESTATION_INCLUSION_DELAY..=TIMELY_SOURCE_MAX_DELAY_SLOTS).contains(&delay) && source_is_justified. Adds constants MIN_ATTESTATION_INCLUSION_DELAY=1 + TIMELY_SOURCE_MAX_DELAY_SLOTS=5. 4-test suite: delay=1 justified set, delay=5 justified set (boundary), delay=6/0 not set, unjustified loop 1..=5 not set."
 
   - id: DSL-076
     section: "Timeliness Classification"
