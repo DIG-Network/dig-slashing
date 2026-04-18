@@ -266,11 +266,12 @@ items:
   - id: DSL-060
     section: "Submission Preconditions"
     summary: "submit_appeal SlashAlreadyReverted"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-060.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-060"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_060_submit_appeal_already_reverted_test
+    notes: "Terminal-state guard. Adds SlashingError::SlashAlreadyReverted + SlashAlreadyFinalised. submit_appeal matches pending.status: Reverted{..} → SlashAlreadyReverted, Finalised{..} → SlashAlreadyFinalised (DSL-061), Accepted/ChallengeOpen pass through. Checked right after UnknownEvidence so terminal state short-circuits cheaply. 2-test suite: Reverted → error + zero lock_calls, Accepted → Ok."
 
   - id: DSL-061
     section: "Submission Preconditions"

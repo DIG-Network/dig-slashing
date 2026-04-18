@@ -155,6 +155,24 @@ pub enum SlashingError {
     #[error("reporter cannot accuse self (index {0})")]
     ReporterIsAccused(u32),
 
+    /// Pending slash is already in the `Reverted` terminal state —
+    /// no further appeals are accepted.
+    ///
+    /// Raised by DSL-060. A sustained appeal (DSL-064..070)
+    /// transitions the book entry to `Reverted{..}`. Additional
+    /// appeals against a reverted slash would have nothing to
+    /// revert; the check short-circuits cheaply before bond lock.
+    #[error("slash already reverted")]
+    SlashAlreadyReverted,
+
+    /// Pending slash is already in the `Finalised` terminal state —
+    /// no further appeals are accepted.
+    ///
+    /// Raised by DSL-061. Window closed, correlation penalty
+    /// applied, exit lock scheduled. Terminal; non-actionable.
+    #[error("slash already finalised")]
+    SlashAlreadyFinalised,
+
     /// Appellant ran out of distinct attempts against this pending
     /// slash.
     ///

@@ -575,6 +575,21 @@ impl SlashingManager {
             SlashingError::UnknownEvidence(hex_encode(appeal.evidence_hash.as_ref()))
         })?;
 
+        // DSL-060 / DSL-061: terminal-state guards. Reverted and
+        // Finalised pending slashes are non-actionable — no
+        // further appeals are accepted. Checked BEFORE the
+        // window/variant/duplicate logic because terminal state
+        // trumps all other dispositions.
+        match pending.status {
+            PendingSlashStatus::Reverted { .. } => {
+                return Err(SlashingError::SlashAlreadyReverted);
+            }
+            PendingSlashStatus::Finalised { .. } => {
+                return Err(SlashingError::SlashAlreadyFinalised);
+            }
+            PendingSlashStatus::Accepted | PendingSlashStatus::ChallengeOpen { .. } => {}
+        }
+
         // DSL-056: WindowExpired — reject when the appeal was
         // filed strictly AFTER the window-close boundary. The
         // boundary epoch itself (`filed_epoch ==
