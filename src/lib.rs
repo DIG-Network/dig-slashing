@@ -37,6 +37,7 @@ pub mod inactivity;
 pub mod manager;
 pub mod participation;
 pub mod pending;
+pub mod protection;
 pub mod traits;
 
 // ── Public re-exports (alphabetical within category) ────────────────────────
@@ -96,6 +97,7 @@ pub use participation::{
 pub use pending::{
     AppealAttempt, AppealOutcome, PendingSlash, PendingSlashBook, PendingSlashStatus,
 };
+pub use protection::SlashingProtection;
 pub use traits::{
     CollateralSlasher, EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, ProposerView,
     PublicKeyLookup, RewardClawback, RewardPayout, ValidatorEntry, ValidatorView,

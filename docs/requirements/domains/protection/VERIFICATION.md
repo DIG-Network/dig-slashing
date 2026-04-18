@@ -2,7 +2,7 @@
 
 | ID | Status | Summary | Verification Approach |
 |----|--------|---------|----------------------|
-| [DSL-094](NORMATIVE.md#DSL-094) | ❌ | check_proposal_slot monotonic | 3 tests: first slot ok, same slot fails, lower slot fails, higher slot ok. |
+| [DSL-094](NORMATIVE.md#DSL-094) | ✅ | check_proposal_slot monotonic | 4 tests against new `SlashingProtection` in `src/protection.rs`: default state → `check(10)=true`, `record(10)+check(10)=false` (equivocation self-check), `record(10)+check(9/5/0)=false`, `record(10)+check(11)=true` (and chained `record(11)+check(11)=false`). Opens Phase 5 Protection. Test file: `tests/dsl_094_protection_proposal_monotonic_test.rs`. |
 | [DSL-095](NORMATIVE.md#DSL-095) | ❌ | check_attestation same epoch different hash | 3 tests: same hash ok, different hash fails, case-insensitive hash compare. |
 | [DSL-096](NORMATIVE.md#DSL-096) | ❌ | would_surround self-check | 4 tests: genuine surround rejected, exact match ok, flanking allowed, edge. |
 | [DSL-097](NORMATIVE.md#DSL-097) | ❌ | record_proposal / record_attestation persist | 3 tests: proposal watermark set, attestation fields set, hash hex-encoded. |
