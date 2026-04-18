@@ -356,11 +356,12 @@ items:
   - id: DSL-069
     section: "Adjudicator"
     summary: "Adjudicate Sustained reporter penalty"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-069.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-069"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_069_adjudicate_sustained_reporter_penalty_test
+    notes: "Adds ReporterPenalty{reporter_index, effective_balance_at_slash, penalty_mojos} + adjudicate_sustained_reporter_penalty(pending, verdict, validator_set, effective_balances, slashed_in_window, current_epoch) -> Option<ReporterPenalty>. Slashes reporter via InvalidBlock base formula (identical to DSL-022 InvalidBlock branch) + inserts (current_epoch, reporter_idx) → eff_bal into slashed_in_window for DSL-030 correlation amplification. Rejected → None. Absent reporter → None (defensive). 3-test suite: slash_absolute call shape, window insert, formula parity with InvalidBlock arithmetic."
 
   - id: DSL-070
     section: "Adjudicator"

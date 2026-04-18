@@ -25,6 +25,8 @@
 //! `adjudicate_appeal` dispatcher composes them once enough
 //! slices exist to be worth orchestrating.
 
+use std::collections::BTreeMap;
+
 use dig_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
@@ -33,11 +35,14 @@ use crate::appeal::ground::AttesterAppealGround;
 use crate::appeal::verdict::{AppealSustainReason, AppealVerdict};
 use crate::bonds::{BondError, BondEscrow, BondTag};
 use crate::constants::{
-    BOND_AWARD_TO_WINNER_BPS, BPS_DENOMINATOR, PROPOSER_REWARD_QUOTIENT, REPORTER_BOND_MOJOS,
+    BOND_AWARD_TO_WINNER_BPS, BPS_DENOMINATOR, INVALID_BLOCK_BASE_BPS,
+    MIN_SLASHING_PENALTY_QUOTIENT, PROPOSER_REWARD_QUOTIENT, REPORTER_BOND_MOJOS,
     WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 use crate::pending::PendingSlash;
-use crate::traits::{CollateralSlasher, RewardClawback, RewardPayout, ValidatorView};
+use crate::traits::{
+    CollateralSlasher, EffectiveBalanceView, RewardClawback, RewardPayout, ValidatorView,
+};
 
 /// Outcome of a reward clawback pass.
 ///
@@ -376,6 +381,95 @@ pub fn adjudicate_sustained_forfeit_reporter_bond(
         forfeited,
         winner_award,
         burn,
+    })
+}
+
+/// Outcome of the reporter-penalty step on a sustained appeal.
+///
+/// Traces to [SPEC §6.5](../../../docs/resources/SPEC.md). Reports
+/// the index + amount debited from the reporter so the top-level
+/// adjudicator + downstream correlation-window bookkeeping (DSL-030
+/// at finalisation) have everything they need.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct ReporterPenalty {
+    /// Validator index of the reporter that filed the appealed
+    /// evidence.
+    pub reporter_index: u32,
+    /// `EffectiveBalanceView::get(idx)` captured at adjudication
+    /// time. Stored so the DSL-030 correlation-penalty formula
+    /// can read the same value later without re-reading state
+    /// (which may drift across further epochs).
+    pub effective_balance_at_slash: u64,
+    /// Mojos debited via `ValidatorEntry::slash_absolute`. Follows
+    /// the InvalidBlock base formula:
+    /// `max(eff_bal * INVALID_BLOCK_BASE_BPS / BPS_DENOMINATOR,
+    /// eff_bal / MIN_SLASHING_PENALTY_QUOTIENT)`.
+    pub penalty_mojos: u64,
+}
+
+/// Slash the reporter that filed the sustained-appeal-losing
+/// evidence.
+///
+/// Implements [DSL-069](../../../docs/requirements/domains/appeal/specs/DSL-069.md).
+/// Traces to SPEC §6.5.
+///
+/// # Formula
+///
+/// Mirrors the DSL-022 InvalidBlock base-slash branch exactly:
+///
+/// ```text
+/// penalty = max(
+///     eff_bal * INVALID_BLOCK_BASE_BPS / BPS_DENOMINATOR,
+///     eff_bal / MIN_SLASHING_PENALTY_QUOTIENT,
+/// )
+/// ```
+///
+/// The reporter staked reputation by filing evidence; a sustained
+/// appeal proves the evidence was at least partially wrong, so
+/// they absorb the protocol's standard penalty for filing a
+/// false invalid-block report.
+///
+/// # Correlation-window bookkeeping
+///
+/// Inserts `(current_epoch, reporter_index) → eff_bal` into
+/// `slashed_in_window`. At finalisation (DSL-030) that entry
+/// contributes to the `cohort_sum` used to amplify correlated
+/// slashes — i.e. if the reporter also got slashed through the
+/// normal channel in the same correlation window, the
+/// proportional-slashing multiplier activates against both.
+///
+/// # Skip conditions
+///
+/// - Rejected verdict → returns `None`, no side effects.
+/// - Reporter absent from `validator_set.get_mut` → returns
+///   `None`. Defensive tolerance for an already-exited reporter;
+///   consensus never needs to slash a validator that no longer
+///   exists.
+pub fn adjudicate_sustained_reporter_penalty(
+    pending: &PendingSlash,
+    verdict: &AppealVerdict,
+    validator_set: &mut dyn ValidatorView,
+    effective_balances: &dyn EffectiveBalanceView,
+    slashed_in_window: &mut BTreeMap<(u64, u32), u64>,
+    current_epoch: u64,
+) -> Option<ReporterPenalty> {
+    if matches!(verdict, AppealVerdict::Rejected { .. }) {
+        return None;
+    }
+    let reporter_index = pending.evidence.reporter_validator_index;
+    let eff_bal = effective_balances.get(reporter_index);
+    let bps_term = eff_bal * u64::from(INVALID_BLOCK_BASE_BPS) / BPS_DENOMINATOR;
+    let floor_term = eff_bal / MIN_SLASHING_PENALTY_QUOTIENT;
+    let penalty_mojos = std::cmp::max(bps_term, floor_term);
+
+    let entry = validator_set.get_mut(reporter_index)?;
+    entry.slash_absolute(penalty_mojos, current_epoch);
+    slashed_in_window.insert((current_epoch, reporter_index), eff_bal);
+
+    Some(ReporterPenalty {
+        reporter_index,
+        effective_balance_at_slash: eff_bal,
+        penalty_mojos,
     })
 }
 

@@ -24,9 +24,10 @@ pub mod verdict;
 pub mod verify;
 
 pub use adjudicator::{
-    BondSplitResult, ClawbackResult, adjudicate_sustained_clawback_rewards,
-    adjudicate_sustained_forfeit_reporter_bond, adjudicate_sustained_restore_status,
-    adjudicate_sustained_revert_base_slash, adjudicate_sustained_revert_collateral,
+    BondSplitResult, ClawbackResult, ReporterPenalty, adjudicate_sustained_clawback_rewards,
+    adjudicate_sustained_forfeit_reporter_bond, adjudicate_sustained_reporter_penalty,
+    adjudicate_sustained_restore_status, adjudicate_sustained_revert_base_slash,
+    adjudicate_sustained_revert_collateral,
 };
 
 pub use envelope::{SlashAppeal, SlashAppealPayload};
