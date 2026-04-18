@@ -46,11 +46,12 @@ items:
   - id: DSL-098
     section: "Tip Reconciliation"
     summary: "rewind_attestation_to_epoch clears hash"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/protection/specs/DSL-098.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-098"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_098_protection_rewind_attestation_clears_hash_test
+    notes: "Adds pub fn rewind_attestation_to_epoch(&mut self, new_tip_epoch: u64) to SlashingProtection. Two legs: (a) cap last_attested_source_epoch/last_attested_target_epoch with strict `>` (never raises; == is no-op); (b) clear last_attested_block_hash unconditionally (hash binds to a specific block; reorg invalidates that binding regardless of epoch ordering). Called by DSL-099 reconcile_with_chain_tip + DSL-130 global reorg orchestration. 4-test suite pins: hash cleared below/equal/above tip, both-epochs-capped case, already-lower + mixed + boundary unchanged cases, and post-rewind re-attestation admissibility (the whole point of the operation)."
 
   - id: DSL-099
     section: "Tip Reconciliation"

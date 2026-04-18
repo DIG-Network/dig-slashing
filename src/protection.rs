@@ -224,6 +224,48 @@ impl SlashingProtection {
         self.last_attested_target_epoch = target_epoch;
         self.last_attested_block_hash = Some(to_hex_lower(block_hash.as_ref()));
     }
+
+    /// Rewind attestation state on fork-choice reorg or chain-tip
+    /// refresh.
+    ///
+    /// Implements [DSL-098](../docs/requirements/domains/protection/specs/DSL-098.md).
+    /// Traces to SPEC §14.3.
+    ///
+    /// # Semantics
+    ///
+    /// The stored (source, target, hash) triple is the validator's
+    /// local memory of "what I already signed." When a reorg drops
+    /// the chain back below the attested epochs, that memory is
+    /// a ghost watermark — the block the hash points to no longer
+    /// exists on the canonical chain. Keeping it would block honest
+    /// re-attestation through DSL-095/096.
+    ///
+    /// Two legs:
+    ///
+    ///   1. Cap `last_attested_source_epoch` and
+    ///      `last_attested_target_epoch` at `new_tip_epoch`. Use
+    ///      strict `>` so the boundary case (stored == tip) is a
+    ///      no-op — the cap must never RAISE a watermark, only
+    ///      lower it.
+    ///   2. Clear `last_attested_block_hash` unconditionally. The
+    ///      hash binds to a specific block; a reorg invalidates
+    ///      that binding regardless of epoch ordering.
+    ///
+    /// After rewind, a re-attestation on the new canonical tip
+    /// passes [`check_attestation`].
+    ///
+    /// Companion DSL-099 (`reconcile_with_chain_tip`) calls this
+    /// alongside the proposal-rewind DSL-156; DSL-130 triggers the
+    /// whole bundle on global reorg.
+    pub fn rewind_attestation_to_epoch(&mut self, new_tip_epoch: u64) {
+        if self.last_attested_source_epoch > new_tip_epoch {
+            self.last_attested_source_epoch = new_tip_epoch;
+        }
+        if self.last_attested_target_epoch > new_tip_epoch {
+            self.last_attested_target_epoch = new_tip_epoch;
+        }
+        self.last_attested_block_hash = None;
+    }
 }
 
 /// Fixed-size lowercase hex encoder with `0x` prefix. Matches
