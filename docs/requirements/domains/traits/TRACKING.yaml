@@ -96,11 +96,12 @@ items:
   - id: DSL-140
     section: "Bonds + Rewards"
     summary: "BondEscrow::escrowed"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-140.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-140"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_140_bond_escrowed_query_test
+    notes: "Pins BondEscrow::escrowed read-side query via reference MockBondEscrow. Consumers: DSL-023 lock verification, DSL-068/071 pre-forfeit inspection, DSL-121..123 observers. 5-test suite: post-lock returns amount, post-release 0, post-forfeit 0 (parallel drain), unknown pairings (idx, tag, u32::MAX, cross-tag-same-principal) return 0, read-only invariance across 10 repeated calls."
 
   - id: DSL-141
     section: "Bonds + Rewards"

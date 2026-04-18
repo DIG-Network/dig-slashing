@@ -190,7 +190,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-137 — EffectiveBalanceView::get / total_active
 - [x] DSL-138 — PublicKeyLookup::pubkey_of
 - [x] DSL-139 — CollateralSlasher slash+credit symmetry
-- [ ] DSL-140 — BondEscrow::escrowed
+- [x] DSL-140 — BondEscrow::escrowed
 - [ ] DSL-141 — RewardPayout::pay
 - [ ] DSL-142 — RewardClawback::claw_back partial
 - [ ] DSL-143 — JustificationView contract
