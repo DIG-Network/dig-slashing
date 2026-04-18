@@ -76,11 +76,12 @@ items:
   - id: DSL-081
     section: "Base Reward"
     summary: "base_reward = eff_bal * 64 / isqrt(total_active)"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-081.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-081"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_081_base_reward_formula_test
+    notes: "New src/participation/rewards.rs. base_reward(effective_balance: u64, total_active_balance: u64) -> u64. Uses stdlib u128::isqrt (stable 1.84+) instead of num_integer::Roots::sqrt per SPEC — avoids crate pull. u128 intermediate for overflow safety. Zero guard on total_active_balance. Saturates at u64::MAX. Adds BASE_REWARD_FACTOR=64 constant. 4-test suite: exact formula match at MIN_EFFECTIVE_BALANCE, doubling total halves reward by sqrt(2) within ±1% bps window [13900, 14200], total=0 → 0, (u64::MAX, …) does not panic."
 
   - id: DSL-082
     section: "Flag Deltas"

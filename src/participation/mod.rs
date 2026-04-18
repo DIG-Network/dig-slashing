@@ -22,10 +22,12 @@
 
 pub mod error;
 pub mod flags;
+pub mod rewards;
 pub mod timeliness;
 pub mod tracker;
 
 pub use error::ParticipationError;
 pub use flags::ParticipationFlags;
+pub use rewards::base_reward;
 pub use timeliness::classify_timeliness;
 pub use tracker::ParticipationTracker;

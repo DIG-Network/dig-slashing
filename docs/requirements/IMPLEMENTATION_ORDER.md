@@ -110,7 +110,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-078 — ParticipationTracker::record_attestation
 - [x] DSL-079 — ParticipationTracker non-ascending rejection
 - [x] DSL-080 — ParticipationTracker::rotate_epoch
-- [ ] DSL-081 — base_reward formula
+- [x] DSL-081 — base_reward formula
 - [ ] DSL-082 — compute_flag_deltas reward on hit
 - [ ] DSL-083 — compute_flag_deltas penalty (source+target), head exempt
 - [ ] DSL-084 — compute_flag_deltas in-stall zeroes rewards
