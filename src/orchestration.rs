@@ -49,6 +49,7 @@ use std::collections::BTreeMap;
 use dig_epoch::CORRELATION_WINDOW_EPOCHS;
 
 use dig_protocol::Bytes32;
+use serde::{Deserialize, Serialize};
 
 use crate::bonds::BondEscrow;
 use crate::error::SlashingError;
@@ -126,7 +127,7 @@ pub trait JustificationView {
 /// The struct intentionally contains vectors rather than
 /// callback channels — the orchestrator is infallible by
 /// construction and produces a complete report in one pass.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct EpochBoundaryReport {
     /// Per-validator reward/penalty deltas from DSL-082/083.
     pub flag_deltas: Vec<FlagDelta>,
@@ -248,7 +249,7 @@ type _KeepBTreeMap<K, V> = BTreeMap<K, V>;
 /// subsystem rewind outcomes so the caller (a chain-shell
 /// orchestrator) can log or emit metrics without re-deriving
 /// the rewind scope from internal tracker state.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct ReorgReport {
     /// Evidence hashes rewound by
     /// [`SlashingManager::rewind_on_reorg`] (DSL-129).

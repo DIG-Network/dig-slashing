@@ -235,7 +235,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-163 — SlashingResult + PerValidatorSlash + FinalisationResult serde
 
 ### Orchestration — Serde
-- [ ] DSL-165 — EpochBoundaryReport + ReorgReport + FlagDelta serde
+- [x] DSL-165 — EpochBoundaryReport + ReorgReport + FlagDelta serde
 
 ### Bonds — Variant Distinction
 - [ ] DSL-166 — BondTag::Reporter vs Appellant distinguishable
