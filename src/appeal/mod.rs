@@ -28,4 +28,6 @@ pub use ground::{
     ProposerAppealGround, ProposerSlashingAppeal,
 };
 pub use verdict::{AppealRejectReason, AppealSustainReason, AppealVerdict};
-pub use verify::verify_proposer_appeal_headers_identical;
+pub use verify::{
+    verify_proposer_appeal_headers_identical, verify_proposer_appeal_proposer_index_mismatch,
+};
