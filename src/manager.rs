@@ -610,8 +610,22 @@ impl SlashingManager {
             return Err(SlashingError::AppealVariantMismatch);
         }
 
-        // Subsequent DSLs add: DuplicateAppeal, TooManyAttempts,
-        // bond lock, dispatch, adjudicate.
+        // DSL-058: DuplicateAppeal — the appeal's content-addressed
+        // hash (DOMAIN_SLASH_APPEAL || bincode(appeal)) MUST NOT
+        // already appear in `pending.appeal_history`. Near-dupes
+        // (different witness bytes, different ground, etc.)
+        // produce distinct hashes and are accepted.
+        let appeal_hash = appeal.hash();
+        if pending
+            .appeal_history
+            .iter()
+            .any(|a| a.appeal_hash == appeal_hash)
+        {
+            return Err(SlashingError::DuplicateAppeal);
+        }
+
+        // Subsequent DSLs add: TooManyAttempts, bond lock,
+        // dispatch, adjudicate.
         Ok(())
     }
 

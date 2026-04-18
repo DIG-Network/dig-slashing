@@ -11,10 +11,12 @@
 //! `hash()` serves as the appeal's unique identity. DSL-159 will
 //! land the hash method once adjudication needs it.
 
+use chia_sha2::Sha256;
 use dig_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::appeal::ground::{AttesterSlashingAppeal, InvalidBlockAppeal, ProposerSlashingAppeal};
+use crate::constants::DOMAIN_SLASH_APPEAL;
 
 /// Per-payload appeal body.
 ///
@@ -57,4 +59,41 @@ pub struct SlashAppeal {
     pub filed_epoch: u64,
     /// Per-variant body.
     pub payload: SlashAppealPayload,
+}
+
+impl SlashAppeal {
+    /// Content-addressed identity of the appeal.
+    ///
+    /// Implements DSL-058 + DSL-159. Traces to SPEC §3.7.
+    ///
+    /// # Construction
+    ///
+    /// ```text
+    /// hash = SHA-256(
+    ///   DOMAIN_SLASH_APPEAL          (19 bytes, "DIG_SLASH_APPEAL_V1")
+    ///   || bincode::serialize(self)  (variable, full envelope encoding)
+    /// )
+    /// ```
+    ///
+    /// Mirror of `SlashingEvidence::hash` (DSL-002) with a DIFFERENT
+    /// domain tag — an appeal and an evidence envelope with
+    /// otherwise-identical bytes must produce distinct digests so
+    /// the pending-book keys (evidence) and appeal-history entries
+    /// (appeal) cannot collide. DSL-159 pins the determinism +
+    /// mutation-sensitivity test suite.
+    ///
+    /// # Why bincode
+    ///
+    /// Deterministic, length-prefixed, canonical — same rationale
+    /// as `SlashingEvidence::hash`. Serialization failure is
+    /// unreachable (the envelope holds only bincode-compatible
+    /// types); `.expect` is the honest signal on a programmer bug.
+    pub fn hash(&self) -> Bytes32 {
+        let mut h = Sha256::new();
+        h.update(DOMAIN_SLASH_APPEAL);
+        let encoded = bincode::serialize(self).expect("SlashAppeal bincode must not fail");
+        h.update(&encoded);
+        let out: [u8; 32] = h.finalize();
+        Bytes32::new(out)
+    }
 }
