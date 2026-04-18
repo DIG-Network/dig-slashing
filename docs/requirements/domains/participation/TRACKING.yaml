@@ -66,11 +66,12 @@ items:
   - id: DSL-080
     section: "Tracker"
     summary: "ParticipationTracker::rotate_epoch"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-080.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-080"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_080_participation_tracker_rotate_test
+    notes: "rotate_epoch(new_epoch, validator_count): mem::swap(&mut previous, &mut current); current.clear(); current.resize(validator_count, default); current_epoch_number = new_epoch. Drops trailing entries on shrink. Previous-epoch vec keeps its length from the swap; out-of-range previous_flags(idx) → None. Closes ParticipationTracker state machine; DSL-081..086 read previous_flags for reward/penalty math. 4-test suite: swap with per-index snapshots, current zeroed, grow 5→12 + shrink 12→3, epoch_number updates across multiple rotations."
 
   - id: DSL-081
     section: "Base Reward"

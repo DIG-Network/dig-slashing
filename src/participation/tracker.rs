@@ -102,6 +102,45 @@ impl ParticipationTracker {
         self.current_epoch.len()
     }
 
+    /// Advance to a new epoch: swap current → previous, reset
+    /// current to `validator_count` zero-initialised slots, and
+    /// update `current_epoch_number`.
+    ///
+    /// Implements [DSL-080](../../../docs/requirements/domains/participation/specs/DSL-080.md).
+    /// Traces to SPEC §8.2, §10.
+    ///
+    /// # Ordering
+    ///
+    /// 1. `swap(previous, current)` — what was accumulated during
+    ///    the just-finished epoch moves into `previous_epoch`.
+    ///    DSL-082..086 reward / penalty math reads these bits.
+    /// 2. `current.clear(); current.resize(validator_count, 0)` —
+    ///    accept validator-set growth at the boundary. New
+    ///    validators that activated this epoch get zero flags.
+    /// 3. `current_epoch_number = new_epoch`.
+    ///
+    /// # Shrinking validator set
+    ///
+    /// If `validator_count < old.len()`, the trailing entries
+    /// are dropped. This is the correct behaviour for exited
+    /// validators — their previous-epoch flags are preserved
+    /// (in the just-swapped `previous_epoch`), only the current
+    /// -epoch slot is discarded.
+    ///
+    /// # Previous-epoch sizing
+    ///
+    /// `previous_epoch` keeps whatever length `current` had
+    /// before rotation. Downstream reward math reads
+    /// `previous_flags(idx)` via `.get(idx).copied()`, so
+    /// out-of-range reads return `None` rather than panicking.
+    pub fn rotate_epoch(&mut self, new_epoch: u64, validator_count: usize) {
+        std::mem::swap(&mut self.previous_epoch, &mut self.current_epoch);
+        self.current_epoch.clear();
+        self.current_epoch
+            .resize(validator_count, ParticipationFlags::default());
+        self.current_epoch_number = new_epoch;
+    }
+
     /// Record an attestation: apply `flags` to every entry in
     /// `attesting_indices` via bit-OR into the current epoch's
     /// per-validator bucket.
