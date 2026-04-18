@@ -40,7 +40,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-023 — submit_evidence escrows reporter bond
 - [x] DSL-024 — submit_evidence creates PendingSlash Accepted
 - [x] DSL-025 — submit_evidence reward routing (wb + proposer)
-- [ ] DSL-026 — submit_evidence AlreadySlashed on duplicate
+- [x] DSL-026 — submit_evidence AlreadySlashed on duplicate
 - [ ] DSL-027 — submit_evidence PendingBookFull at capacity
 - [ ] DSL-028 — submit_evidence BondLockFailed on insufficient stake
 - [ ] DSL-029 — finalise_expired_slashes transitions to Finalised

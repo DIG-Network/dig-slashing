@@ -104,6 +104,17 @@ pub enum SlashingError {
     #[error("validator not registered: {0}")]
     ValidatorNotRegistered(u32),
 
+    /// Duplicate `submit_evidence` for an `evidence.hash()` already in
+    /// the manager's `processed` map.
+    ///
+    /// Raised by DSL-026 as the FIRST pipeline check — before verify,
+    /// capacity check, bond lock, or any state mutation. Persists
+    /// across pending statuses (`Accepted`, `ChallengeOpen`,
+    /// `Reverted`, `Finalised`) until a reorg rewind (DSL-129) or
+    /// prune clears the entry.
+    #[error("evidence already slashed")]
+    AlreadySlashed,
+
     /// `ProposerView::proposer_at_slot(current_slot)` returned `None`.
     ///
     /// Raised by DSL-025 reward routing. A `None` here is a
