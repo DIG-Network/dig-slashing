@@ -30,13 +30,16 @@
 use chia_bls::{PublicKey, Signature};
 use dig_protocol::Bytes32;
 
-use crate::constants::{BLS_SIGNATURE_SIZE, DOMAIN_BEACON_PROPOSER};
+use crate::constants::{
+    BLS_SIGNATURE_SIZE, DOMAIN_BEACON_PROPOSER, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES,
+};
 use crate::error::SlashingError;
 use crate::evidence::attester_slashing::AttesterSlashing;
 use crate::evidence::envelope::{SlashingEvidence, SlashingEvidencePayload};
+use crate::evidence::invalid_block::InvalidBlockProof;
 use crate::evidence::offense::OffenseType;
 use crate::evidence::proposer_slashing::{ProposerSlashing, SignedBlockHeader};
-use crate::traits::{PublicKeyLookup, ValidatorView};
+use crate::traits::{InvalidBlockOracle, PublicKeyLookup, ValidatorView};
 
 /// Successful-verification return shape.
 ///
@@ -146,11 +149,12 @@ pub fn verify_evidence(
         SlashingEvidencePayload::Attester(a) => {
             verify_attester_slashing(evidence, a, validator_view, network_id)
         }
-        // Placeholder for DSL-018..020. Not yet soundness-complete.
-        SlashingEvidencePayload::InvalidBlock(_) => Ok(VerifiedEvidence {
-            offense_type: evidence.offense_type,
-            slashable_validator_indices: evidence.slashable_validators(),
-        }),
+        // DSL-018..020: invalid-block. Dispatcher passes `None` for the
+        // oracle — bootstrap semantics; callers needing full re-execution
+        // call `verify_invalid_block` directly with `Some(oracle)`.
+        SlashingEvidencePayload::InvalidBlock(i) => {
+            verify_invalid_block(evidence, i, validator_view, network_id, None)
+        }
     }
 }
 
@@ -368,6 +372,135 @@ pub fn verify_attester_slashing(
     Ok(VerifiedEvidence {
         offense_type: evidence.offense_type,
         slashable_validator_indices: slashable,
+    })
+}
+
+/// Invalid-block verifier.
+///
+/// Implements [DSL-018](../../docs/requirements/domains/evidence/specs/DSL-018.md)
+/// (BLS over `block_signing_message`). Also enforces the sibling
+/// preconditions that share the same control flow:
+/// [DSL-019](../../docs/requirements/domains/evidence/specs/DSL-019.md)
+/// (`evidence.epoch == header.epoch`) and
+/// [DSL-020](../../docs/requirements/domains/evidence/specs/DSL-020.md)
+/// (optional `InvalidBlockOracle::verify_failure` call).
+///
+/// Traces to SPEC §5.4.
+///
+/// # Preconditions (checked in order)
+///
+/// 1. `header.epoch == evidence.epoch` (DSL-019) — cheap filter before
+///    any BLS work.
+/// 2. `failure_witness.len() ∈ [1, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES]`
+///    (SPEC §5.4 step 4).
+/// 3. Signature decodes as a valid 96-byte G2 element.
+/// 4. Validator exists in the view, is not already slashed, and is
+///    active at `header.epoch`.
+/// 5. BLS verify via `chia_bls::verify(sig, pk, block_signing_message(...))`
+///    using the SAME helper as honest block production (DSL-018).
+/// 6. Optional `oracle.verify_failure(header, witness, reason)` —
+///    bootstrap mode (`oracle = None`) accepts; full-node mode
+///    re-executes and rejects on disagreement (DSL-020).
+///
+/// # Ordering rationale
+///
+/// Cheap scalar compare → size check → sig parse → validator lookup →
+/// BLS pairing → oracle re-execution. Each stage is stricty more
+/// expensive than the previous; honest nodes reject adversarial
+/// evidence at the earliest possible stage.
+///
+/// # Returns
+///
+/// `Ok(VerifiedEvidence)` with
+/// `slashable_validator_indices = [proposer_index]` (cardinality 1
+/// per DSL-010).
+pub fn verify_invalid_block(
+    evidence: &SlashingEvidence,
+    payload: &InvalidBlockProof,
+    validator_view: &dyn ValidatorView,
+    network_id: &Bytes32,
+    oracle: Option<&dyn InvalidBlockOracle>,
+) -> Result<VerifiedEvidence, SlashingError> {
+    let header = &payload.signed_header.message;
+
+    // 1. Epoch match (DSL-019). Cheap + first — a mismatched envelope
+    // epoch is either a reporter bug or a replay attempt.
+    if header.epoch != evidence.epoch {
+        return Err(SlashingError::InvalidSlashingEvidence(format!(
+            "epoch mismatch: header={} envelope={}",
+            header.epoch, evidence.epoch,
+        )));
+    }
+
+    // 2. Witness size bound. Zero-length witnesses are trivially
+    // useless (nothing to re-execute); oversized witnesses are a
+    // payload-bloat attack.
+    let witness_len = payload.failure_witness.len();
+    if witness_len == 0 {
+        return Err(SlashingError::InvalidSlashingEvidence(
+            "failure_witness is empty".into(),
+        ));
+    }
+    if witness_len > MAX_SLASH_PROPOSAL_PAYLOAD_BYTES {
+        return Err(SlashingError::InvalidSlashingEvidence(format!(
+            "failure_witness length {witness_len} exceeds MAX_SLASH_PROPOSAL_PAYLOAD_BYTES ({MAX_SLASH_PROPOSAL_PAYLOAD_BYTES})",
+        )));
+    }
+
+    // 3. Signature decode.
+    let sig_bytes: &[u8; BLS_SIGNATURE_SIZE] = payload
+        .signed_header
+        .signature
+        .as_slice()
+        .try_into()
+        .map_err(|_| {
+            SlashingError::InvalidSlashingEvidence(format!(
+                "signature width {} != {BLS_SIGNATURE_SIZE}",
+                payload.signed_header.signature.len(),
+            ))
+        })?;
+    let sig = Signature::from_bytes(sig_bytes).map_err(|_| {
+        SlashingError::InvalidSlashingEvidence("signature failed to decode as BLS G2".into())
+    })?;
+
+    // 4. Validator lookup + state checks.
+    let proposer_index = header.proposer_index;
+    let entry = validator_view
+        .get(proposer_index)
+        .ok_or(SlashingError::ValidatorNotRegistered(proposer_index))?;
+    if entry.is_slashed() {
+        return Err(SlashingError::InvalidSlashingEvidence(format!(
+            "proposer {proposer_index} is already slashed",
+        )));
+    }
+    if !entry.is_active_at_epoch(header.epoch) {
+        return Err(SlashingError::InvalidSlashingEvidence(format!(
+            "proposer {proposer_index} not active at epoch {}",
+            header.epoch,
+        )));
+    }
+
+    // 5. BLS verify over the canonical block-signing message (DSL-018).
+    // SAME helper as honest block production → domain binding prevents
+    // cross-network replay + cross-context (attester) replay.
+    let msg = block_signing_message(network_id, header.epoch, &header.hash(), proposer_index);
+    let pk = entry.public_key();
+    if !chia_bls::verify(&sig, pk, &msg) {
+        return Err(SlashingError::InvalidSlashingEvidence(
+            "bad invalid-block signature".into(),
+        ));
+    }
+
+    // 6. Optional oracle (DSL-020). `None` → bootstrap mode. Full-node
+    // impls re-execute the block and validate the claimed failure
+    // reason. Any oracle error propagates.
+    if let Some(oracle) = oracle {
+        oracle.verify_failure(header, &payload.failure_witness, payload.failure_reason)?;
+    }
+
+    Ok(VerifiedEvidence {
+        offense_type: evidence.offense_type,
+        slashable_validator_indices: vec![proposer_index],
     })
 }
 

@@ -117,3 +117,14 @@ pub const BLS_PUBLIC_KEY_SIZE: usize = 48;
 /// itself is valid (boundary behaviour enforced by
 /// `test_dsl_005_at_cap_accepted`).
 pub const MAX_VALIDATORS_PER_COMMITTEE: usize = 2_048;
+
+/// Maximum size of a slash-proposal payload (`failure_witness` bytes +
+/// appeal witness bytes combined) in bytes.
+///
+/// Traces to SPEC §2.7. Bounds memory + wire-size of evidence and
+/// appeals at 64 KiB — enough room for a block re-execution witness
+/// (trie proofs + state diff) without allowing unbounded adversary
+/// payloads. `verify_invalid_block` (DSL-018) rejects `failure_witness`
+/// with length `> MAX_SLASH_PROPOSAL_PAYLOAD_BYTES`; REMARK admission
+/// (DSL-109) mirrors this cap at the mempool layer.
+pub const MAX_SLASH_PROPOSAL_PAYLOAD_BYTES: usize = 65_536;

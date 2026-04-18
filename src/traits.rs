@@ -14,7 +14,11 @@
 //! DSL-131..145 Phase 9 tasks.
 
 use chia_bls::PublicKey;
+use dig_block::L2BlockHeader;
 use dig_protocol::Bytes32;
+
+use crate::error::SlashingError;
+use crate::evidence::invalid_block::InvalidBlockReason;
 
 /// Validator-index → BLS public-key lookup.
 ///
@@ -124,4 +128,70 @@ pub trait ValidatorEntry {
     fn restore_status(&mut self) -> bool;
     /// Schedule the post-finalisation exit lock. DSL-135.
     fn schedule_exit(&mut self, exit_lock_until_epoch: u64);
+}
+
+/// Block re-execution result used by `InvalidBlockOracle`.
+///
+/// Traces to [SPEC §15.3](../../docs/resources/SPEC.md), catalogue row
+/// [DSL-145](../../docs/requirements/domains/).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ExecutionOutcome {
+    /// Block re-executed successfully — it is NOT invalid.
+    Valid,
+    /// Block is invalid; variant carries the specific failure reason
+    /// so the adjudicator can cross-check against
+    /// `InvalidBlockProof::failure_reason` (DSL-051
+    /// `FailureReasonMismatch` appeal ground).
+    Invalid(InvalidBlockReason),
+}
+
+/// Full-node block re-execution hook.
+///
+/// Traces to [SPEC §15.3](../../docs/resources/SPEC.md), catalogue rows
+/// [DSL-020](../../docs/requirements/domains/evidence/specs/DSL-020.md)
+/// + [DSL-049](../../docs/requirements/domains/) + [DSL-145].
+///
+/// # Role
+///
+/// - `verify_invalid_block` (DSL-020) calls `verify_failure` when the
+///   caller supplied an oracle; absence means bootstrap mode (the
+///   evidence is admitted and defers to the challenge window).
+/// - `InvalidBlockAppeal::BlockActuallyValid` (DSL-049) calls
+///   `re_execute` to adjudicate whether the accused block really is
+///   invalid.
+///
+/// # Default `verify_failure`
+///
+/// The default body is `Ok(())` — bootstrap mode where every
+/// well-signed evidence envelope is admitted. Real full-node impls
+/// override to re-execute the block and cross-check the claimed
+/// failure reason.
+///
+/// # Determinism
+///
+/// `re_execute` MUST be deterministic — same inputs → same outcome
+/// (DSL-145). Non-determinism here would let the same block flip
+/// between "valid" and "invalid" across honest nodes, breaking
+/// evidence consensus.
+pub trait InvalidBlockOracle {
+    /// Verify the caller's claim that `header` is invalid for the
+    /// stated `reason`, using `witness` bytes (trie proofs, state
+    /// diff, etc.).
+    ///
+    /// Default: accept — bootstrap path. Full nodes override.
+    fn verify_failure(
+        &self,
+        _header: &L2BlockHeader,
+        _witness: &[u8],
+        _reason: InvalidBlockReason,
+    ) -> Result<(), SlashingError> {
+        Ok(())
+    }
+    /// Re-execute the block deterministically. Returns whether it is
+    /// Valid or Invalid (with the specific reason when invalid).
+    fn re_execute(
+        &self,
+        header: &L2BlockHeader,
+        witness: &[u8],
+    ) -> Result<ExecutionOutcome, SlashingError>;
 }
