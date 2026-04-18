@@ -63,7 +63,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 ### Attester Appeal Grounds
 - [x] DSL-041 — AttesterAppeal AttestationsIdentical sustained
 - [x] DSL-042 — AttesterAppeal NotSlashableByPredicate sustained
-- [ ] DSL-043 — AttesterAppeal EmptyIntersection sustained
+- [x] DSL-043 — AttesterAppeal EmptyIntersection sustained
 - [ ] DSL-044 — AttesterAppeal SignatureAInvalid sustained
 - [ ] DSL-045 — AttesterAppeal SignatureBInvalid sustained
 - [ ] DSL-046 — AttesterAppeal InvalidIndexedAttestationStructure sustained

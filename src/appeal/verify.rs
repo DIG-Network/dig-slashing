@@ -324,6 +324,36 @@ pub fn verify_attester_appeal_not_slashable_by_predicate(
     }
 }
 
+/// Verify `AttesterAppealGround::EmptyIntersection`.
+///
+/// Implements [DSL-043](../../../docs/requirements/domains/appeal/specs/DSL-043.md).
+/// Traces to SPEC §6.3.
+///
+/// # Predicate
+///
+/// `evidence.slashable_indices().is_empty()` — delegates to DSL-007
+/// two-pointer sorted intersection. Sustains when no validator
+/// participated in BOTH attestations (non-actionable evidence).
+///
+/// # Verdict
+///
+/// - `Sustained { EmptyIntersection }` iff intersection empty.
+/// - `Rejected { GroundDoesNotHold }` otherwise.
+///
+/// Evidence-only; witness ignored.
+#[must_use]
+pub fn verify_attester_appeal_empty_intersection(evidence: &AttesterSlashing) -> AppealVerdict {
+    if evidence.slashable_indices().is_empty() {
+        AppealVerdict::Sustained {
+            reason: AppealSustainReason::EmptyIntersection,
+        }
+    } else {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    }
+}
+
 /// Verify `AttesterAppealGround::AttestationsIdentical`.
 ///
 /// Implements [DSL-041](../../../docs/requirements/domains/appeal/specs/DSL-041.md).
