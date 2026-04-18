@@ -36,11 +36,12 @@ items:
   - id: DSL-077
     section: "Timeliness Classification"
     summary: "classify_timeliness TIMELY_HEAD"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-077.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-077"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_077_classify_timely_head_test
+    notes: "Closes classify_timeliness. Predicate: delay == MIN_ATTESTATION_INCLUSION_DELAY (strict equality, not range) && is_canonical_head. Strictest window — only inclusion in the very next block credits the head vote. All 3 classify_timeliness flags now populated. 4-test suite: delay=1 canonical set, delay=2 unset, delay=0 unset, non-canonical unset."
 
   - id: DSL-078
     section: "Tracker"

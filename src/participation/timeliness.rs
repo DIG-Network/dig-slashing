@@ -22,8 +22,8 @@
 //! against the earlier slice.
 
 use crate::constants::{
-    MIN_ATTESTATION_INCLUSION_DELAY, TIMELY_SOURCE_FLAG_INDEX, TIMELY_SOURCE_MAX_DELAY_SLOTS,
-    TIMELY_TARGET_FLAG_INDEX, TIMELY_TARGET_MAX_DELAY_SLOTS,
+    MIN_ATTESTATION_INCLUSION_DELAY, TIMELY_HEAD_FLAG_INDEX, TIMELY_SOURCE_FLAG_INDEX,
+    TIMELY_SOURCE_MAX_DELAY_SLOTS, TIMELY_TARGET_FLAG_INDEX, TIMELY_TARGET_MAX_DELAY_SLOTS,
 };
 use crate::evidence::attestation_data::AttestationData;
 use crate::participation::flags::ParticipationFlags;
@@ -73,7 +73,7 @@ pub fn classify_timeliness(
     inclusion_slot: u64,
     source_is_justified: bool,
     is_canonical_target: bool,
-    _is_canonical_head: bool,
+    is_canonical_head: bool,
 ) -> ParticipationFlags {
     let delay = inclusion_slot.saturating_sub(data.slot);
     let mut flags = ParticipationFlags::default();
@@ -93,6 +93,14 @@ pub fn classify_timeliness(
         flags.set(TIMELY_TARGET_FLAG_INDEX);
     }
 
-    // DSL-077 predicate lands here in a subsequent commit.
+    // DSL-077: TIMELY_HEAD. Strictest window — only delay == 1
+    // (`MIN_ATTESTATION_INCLUSION_DELAY`) counts. Matches
+    // Ethereum's head-vote rule: an attestation included in the
+    // very next block after its origin slot can credit the head
+    // vote iff the claimed head matches consensus.
+    if delay == MIN_ATTESTATION_INCLUSION_DELAY && is_canonical_head {
+        flags.set(TIMELY_HEAD_FLAG_INDEX);
+    }
+
     flags
 }
