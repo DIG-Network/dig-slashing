@@ -86,11 +86,12 @@ items:
   - id: DSL-110
     section: "Appeal Wire"
     summary: "Appeal REMARK wire roundtrip"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-110.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-110"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_110_appeal_remark_wire_roundtrip_test
+    notes: "Opens appeal-side REMARK block. New src/remark/appeal_wire.rs mirrors evidence_wire.rs. encode_slash_appeal_remark_payload_v1(&SlashAppeal) = SLASH_APPEAL_REMARK_MAGIC_V1 || serde_json(ap). parse_slash_appeals_from_conditions generic over AsRef<[u8]>, strict prefix compare, silent-skip on short/foreign/malformed. Cross-category isolation pinned: evidence-magic payload does NOT leak into appeal parser. 4-test suite: roundtrip, magic pinned + anti-cross-category assertion, foreign/short/empty/garbage-JSON/evidence-prefix all skip, mixed interleaving preserves input order."
 
   - id: DSL-111
     section: "Appeal Wire"
