@@ -23,6 +23,7 @@
 
 use crate::constants::{
     MIN_ATTESTATION_INCLUSION_DELAY, TIMELY_SOURCE_FLAG_INDEX, TIMELY_SOURCE_MAX_DELAY_SLOTS,
+    TIMELY_TARGET_FLAG_INDEX, TIMELY_TARGET_MAX_DELAY_SLOTS,
 };
 use crate::evidence::attestation_data::AttestationData;
 use crate::participation::flags::ParticipationFlags;
@@ -71,7 +72,7 @@ pub fn classify_timeliness(
     data: &AttestationData,
     inclusion_slot: u64,
     source_is_justified: bool,
-    _is_canonical_target: bool,
+    is_canonical_target: bool,
     _is_canonical_head: bool,
 ) -> ParticipationFlags {
     let delay = inclusion_slot.saturating_sub(data.slot);
@@ -84,8 +85,14 @@ pub fn classify_timeliness(
         flags.set(TIMELY_SOURCE_FLAG_INDEX);
     }
 
-    // DSL-076 + DSL-077 predicates land here in subsequent
-    // commits — signature preserved so fixture code doesn't
-    // break when those fields start contributing.
+    // DSL-076: TIMELY_TARGET. Wider window than source (1..=32)
+    // plus the fork-choice canonicality signal.
+    if (MIN_ATTESTATION_INCLUSION_DELAY..=TIMELY_TARGET_MAX_DELAY_SLOTS).contains(&delay)
+        && is_canonical_target
+    {
+        flags.set(TIMELY_TARGET_FLAG_INDEX);
+    }
+
+    // DSL-077 predicate lands here in a subsequent commit.
     flags
 }

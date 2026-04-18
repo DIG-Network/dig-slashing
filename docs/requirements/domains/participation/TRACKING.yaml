@@ -26,11 +26,12 @@ items:
   - id: DSL-076
     section: "Timeliness Classification"
     summary: "classify_timeliness TIMELY_TARGET"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-076.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-076"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_076_classify_timely_target_test
+    notes: "Extends classify_timeliness with TIMELY_TARGET branch. Predicate: (MIN_ATTESTATION_INCLUSION_DELAY..=TIMELY_TARGET_MAX_DELAY_SLOTS).contains(&delay) && is_canonical_target. Wider window than TIMELY_SOURCE (1..=32 vs 1..=5). Adds constant TIMELY_TARGET_MAX_DELAY_SLOTS=32 (=SLOTS_PER_EPOCH). 4-test suite: delay=1 canonical set, delay=32 boundary set, delay=33/0 unset, non-canonical loop [1,10,32] unset."
 
   - id: DSL-077
     section: "Timeliness Classification"
