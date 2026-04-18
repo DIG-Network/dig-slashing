@@ -76,11 +76,12 @@ items:
   - id: DSL-029
     section: "Finalisation"
     summary: "finalise_expired_slashes transitions Accepted/ChallengeOpen to Finalised after window"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-029.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-029"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_029_finalise_transitions_to_finalised_test
+    notes: "SlashingManager::finalise_expired_slashes(&mut self) -> Vec<FinalisationResult> added to src/manager.rs. Iterates book.expired_by(current_epoch) in ascending window-expiry order, skips Reverted/Finalised (DSL-033), transitions Accepted/ChallengeOpen to Finalised { finalised_at_epoch: current_epoch } with one FinalisationResult per transition. Side-effect fields (per_validator_correlation_penalty, reporter_bond_returned, exit_lock_until_epoch) stay default-zero/empty until DSL-030/031/032 ship. New FinalisationResult struct (SPEC §3.9). New SlashingManager::set_epoch test helper. 7-test suite: Accepted→Finalised at epoch 9 (window=8), ChallengeOpen covered via same match arm, FinalisationResult.evidence_hash matches, idempotent (second call empty vec), empty-book returns empty, 3 distinct admissions in deterministic ascending order, not-yet-expired pending untouched (stays Accepted)."
 
   - id: DSL-030
     section: "Finalisation"

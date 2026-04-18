@@ -54,7 +54,7 @@ pub use evidence::{
     SlashingEvidencePayload, VerifiedEvidence, block_signing_message, verify_attester_slashing,
     verify_evidence, verify_evidence_for_inclusion, verify_invalid_block, verify_proposer_slashing,
 };
-pub use manager::{PerValidatorSlash, SlashingManager, SlashingResult};
+pub use manager::{FinalisationResult, PerValidatorSlash, SlashingManager, SlashingResult};
 pub use pending::{
     AppealAttempt, AppealOutcome, PendingSlash, PendingSlashBook, PendingSlashStatus,
 };

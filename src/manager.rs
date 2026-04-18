@@ -58,6 +58,32 @@ pub struct PerValidatorSlash {
     pub effective_balance_at_slash: u64,
 }
 
+/// Aggregate result of a `finalise_expired_slashes` pass — one
+/// record per pending slash that transitioned from
+/// `Accepted`/`ChallengeOpen` to `Finalised` during the call.
+///
+/// Traces to [SPEC §3.9](../../docs/resources/SPEC.md). Fields other
+/// than `evidence_hash` land as their owning DSLs ship:
+///
+///   - `per_validator_correlation_penalty` — DSL-030.
+///   - `reporter_bond_returned` — DSL-031.
+///   - `exit_lock_until_epoch` — DSL-032.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
+pub struct FinalisationResult {
+    /// Evidence hash of the finalised pending slash.
+    pub evidence_hash: Bytes32,
+    /// Per-validator correlation penalty applied at finalisation
+    /// (DSL-030). `(validator_index, penalty_mojos)`. Empty until
+    /// DSL-030 ships.
+    pub per_validator_correlation_penalty: Vec<(u32, u64)>,
+    /// Reporter bond returned in full at finalisation (DSL-031).
+    /// `0` until DSL-031 ships.
+    pub reporter_bond_returned: u64,
+    /// Epoch the validator's exit lock runs until (DSL-032). `0`
+    /// until DSL-032 ships.
+    pub exit_lock_until_epoch: u64,
+}
+
 /// Aggregate result of a `submit_evidence` call.
 ///
 /// Traces to [SPEC §3.9](../../docs/resources/SPEC.md). Fields other
@@ -338,5 +364,67 @@ impl SlashingManager {
             reporter_bond_escrowed: REPORTER_BOND_MOJOS,
             pending_slash_hash: evidence_hash,
         })
+    }
+
+    /// Transition every expired pending slash from
+    /// `Accepted`/`ChallengeOpen` to `Finalised { finalised_at_epoch:
+    /// self.current_epoch }` and emit one `FinalisationResult` per
+    /// transition.
+    ///
+    /// Implements [DSL-029](../../docs/requirements/domains/lifecycle/specs/DSL-029.md).
+    /// Traces to SPEC §7.4 steps 1, 6–7.
+    ///
+    /// # Scope (incremental)
+    ///
+    /// This method currently covers the status transition + result
+    /// emission only. Side effects land in subsequent DSLs:
+    ///
+    ///   - DSL-030 populates `per_validator_correlation_penalty`.
+    ///   - DSL-031 populates `reporter_bond_returned` via
+    ///     `bond_escrow.release`.
+    ///   - DSL-032 populates `exit_lock_until_epoch` via
+    ///     `validator_set.schedule_exit`.
+    ///
+    /// # Behaviour
+    ///
+    /// - Iterates `book.expired_by(self.current_epoch)` in ascending
+    ///   window-expiry order (stable across calls).
+    /// - Skips pendings already in `Reverted { .. }` or `Finalised { .. }`
+    ///   (DSL-033).
+    /// - Idempotent: calling twice in the same epoch yields an empty
+    ///   second result vec.
+    pub fn finalise_expired_slashes(&mut self) -> Vec<FinalisationResult> {
+        let expired = self.book.expired_by(self.current_epoch);
+        let mut results = Vec::with_capacity(expired.len());
+        for hash in expired {
+            let pending = match self.book.get_mut(&hash) {
+                Some(p) => p,
+                None => continue,
+            };
+            // DSL-033: skip terminal statuses.
+            match pending.status {
+                PendingSlashStatus::Reverted { .. } | PendingSlashStatus::Finalised { .. } => {
+                    continue;
+                }
+                _ => {}
+            }
+            // DSL-030/031/032 side effects land here (none yet).
+            pending.status = PendingSlashStatus::Finalised {
+                finalised_at_epoch: self.current_epoch,
+            };
+            results.push(FinalisationResult {
+                evidence_hash: hash,
+                ..Default::default()
+            });
+        }
+        results
+    }
+
+    /// Advance the manager's epoch. Consumers at the consensus layer
+    /// call this at every epoch boundary AFTER running
+    /// `finalise_expired_slashes` — keeps the current epoch in lock
+    /// step with the chain. Test helper.
+    pub fn set_epoch(&mut self, epoch: u64) {
+        self.current_epoch = epoch;
     }
 }

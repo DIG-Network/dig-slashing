@@ -43,7 +43,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-026 — submit_evidence AlreadySlashed on duplicate
 - [x] DSL-027 — submit_evidence PendingBookFull at capacity
 - [x] DSL-028 — submit_evidence BondLockFailed on insufficient stake
-- [ ] DSL-029 — finalise_expired_slashes transitions to Finalised
+- [x] DSL-029 — finalise_expired_slashes transitions to Finalised
 - [ ] DSL-030 — finalise_expired_slashes correlation penalty
 - [ ] DSL-031 — finalise_expired_slashes returns reporter bond
 - [ ] DSL-032 — finalise_expired_slashes schedules exit lock
