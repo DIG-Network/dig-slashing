@@ -96,11 +96,12 @@ items:
   - id: DSL-083
     section: "Flag Deltas"
     summary: "compute_flag_deltas penalises SOURCE/TARGET miss; HEAD miss exempt"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-083.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-083"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_083_flag_deltas_penalty_head_exempt_test
+    notes: "Extends compute_flag_deltas with penalty branch. Debits base * weight / WEIGHT_DENOMINATOR for SOURCE-miss + TARGET-miss; HEAD-miss is deliberately exempt (timing too network-dependent per Ethereum Altair). 4-test suite: SOURCE miss → 14/64, TARGET miss → 26/64, HEAD miss (SOURCE+TARGET set) → 0, all three miss → 40/64. DSL-082 tests relaxed to not assert penalty (now populated)."
 
   - id: DSL-084
     section: "Flag Deltas"
