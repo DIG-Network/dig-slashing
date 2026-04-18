@@ -38,6 +38,7 @@ pub mod manager;
 pub mod participation;
 pub mod pending;
 pub mod protection;
+pub mod remark;
 pub mod traits;
 
 // ── Public re-exports (alphabetical within category) ────────────────────────
@@ -76,10 +77,11 @@ pub use constants::{
     MAX_VALIDATORS_PER_COMMITTEE, MIN_ATTESTATION_INCLUSION_DELAY, MIN_EFFECTIVE_BALANCE,
     MIN_EPOCHS_TO_INACTIVITY_PENALTY, MIN_SLASHING_PENALTY_QUOTIENT,
     PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT, PROPOSER_WEIGHT,
-    REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, SLASH_LOCK_EPOCHS, TIMELY_HEAD_FLAG_INDEX,
-    TIMELY_HEAD_WEIGHT, TIMELY_SOURCE_FLAG_INDEX, TIMELY_SOURCE_MAX_DELAY_SLOTS,
-    TIMELY_SOURCE_WEIGHT, TIMELY_TARGET_FLAG_INDEX, TIMELY_TARGET_MAX_DELAY_SLOTS,
-    TIMELY_TARGET_WEIGHT, WEIGHT_DENOMINATOR, WHISTLEBLOWER_REWARD_QUOTIENT,
+    REPORTER_BOND_MOJOS, SLASH_APPEAL_REMARK_MAGIC_V1, SLASH_APPEAL_WINDOW_EPOCHS,
+    SLASH_EVIDENCE_REMARK_MAGIC_V1, SLASH_LOCK_EPOCHS, TIMELY_HEAD_FLAG_INDEX, TIMELY_HEAD_WEIGHT,
+    TIMELY_SOURCE_FLAG_INDEX, TIMELY_SOURCE_MAX_DELAY_SLOTS, TIMELY_SOURCE_WEIGHT,
+    TIMELY_TARGET_FLAG_INDEX, TIMELY_TARGET_MAX_DELAY_SLOTS, TIMELY_TARGET_WEIGHT,
+    WEIGHT_DENOMINATOR, WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 pub use error::SlashingError;
 pub use evidence::{
@@ -98,6 +100,9 @@ pub use pending::{
     AppealAttempt, AppealOutcome, PendingSlash, PendingSlashBook, PendingSlashStatus,
 };
 pub use protection::SlashingProtection;
+pub use remark::{
+    encode_slashing_evidence_remark_payload_v1, parse_slashing_evidence_from_conditions,
+};
 pub use traits::{
     CollateralSlasher, EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, ProposerView,
     PublicKeyLookup, RewardClawback, RewardPayout, ValidatorEntry, ValidatorView,

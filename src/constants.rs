@@ -341,6 +341,32 @@ pub const DOMAIN_SLASH_APPEAL: &[u8] = b"DIG_SLASH_APPEAL_V1";
 /// `DOMAIN_BEACON_ATTESTER`) or any other context.
 pub const DOMAIN_BEACON_PROPOSER: &[u8] = b"DIG_BEACON_PROPOSER_V1";
 
+// ── REMARK wire magic prefixes (SPEC §4, §16.1, §16.2) ──────────────────────
+//
+// On-chain evidence + appeal payloads are carried inside CLVM `REMARK`
+// conditions whose byte contents begin with a namespace-and-version magic
+// prefix. The parser strips this prefix, serde_json-decodes the remainder,
+// and silently skips any payload whose prefix does not match — many
+// unrelated apps share the REMARK namespace, so skip-on-mismatch is the
+// ONLY correct policy (raising on every foreign payload would make the
+// parser unusable in production).
+//
+// The trailing NUL is an explicit terminator so the prefix can be
+// pattern-matched exactly without a length field. A future v2 format
+// coexists by using a distinct `_V2\0` suffix; we never reuse a magic.
+
+/// Magic prefix for evidence REMARK payloads (DSL-102).
+///
+/// Wire format: `SLASH_EVIDENCE_REMARK_MAGIC_V1 || serde_json(SlashingEvidence)`.
+/// Traces to SPEC §4 + §16.1.
+pub const SLASH_EVIDENCE_REMARK_MAGIC_V1: &[u8] = b"DIG_SLASH_EVIDENCE_V1\0";
+
+/// Magic prefix for appeal REMARK payloads (DSL-110).
+///
+/// Wire format: `SLASH_APPEAL_REMARK_MAGIC_V1 || serde_json(SlashAppeal)`.
+/// Traces to SPEC §4 + §16.2.
+pub const SLASH_APPEAL_REMARK_MAGIC_V1: &[u8] = b"DIG_SLASH_APPEAL_V1\0";
+
 // ── BLS widths (SPEC §2.10) ─────────────────────────────────────────────────
 //
 // Canonical BLS12-381 byte widths used by `chia-bls`. Re-declared here so

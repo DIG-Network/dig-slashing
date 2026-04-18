@@ -141,7 +141,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 ## Phase 6: REMARK Admission (DSL-102..120)
 
 ### Evidence REMARK
-- [ ] DSL-102 — Evidence REMARK wire roundtrip
+- [x] DSL-102 — Evidence REMARK wire roundtrip
 - [ ] DSL-103 — Evidence puzzle_reveal emits one REMARK
 - [ ] DSL-104 — Evidence admission matching coin
 - [ ] DSL-105 — Evidence admission mismatch rejected
