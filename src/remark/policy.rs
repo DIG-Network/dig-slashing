@@ -35,6 +35,7 @@ use dig_protocol::Bytes32;
 
 use dig_epoch::SLASH_LOOKBACK_EPOCHS;
 
+use crate::appeal::envelope::SlashAppeal;
 use crate::error::SlashingError;
 use crate::evidence::SlashingEvidence;
 use crate::remark::appeal_wire::{
@@ -316,4 +317,47 @@ pub fn enforce_slash_appeal_remark_admission(
         }
     }
     Ok(())
+}
+
+/// Enforce the DSL-114 mempool-level "appeal must reference a
+/// known pending slash" rule.
+///
+/// Mempool admission runs before the slashing-manager's own
+/// DSL-055 `UnknownEvidence` check. Catching the stale-target
+/// case here avoids pointless bond-lock / BLS work on a payload
+/// the manager would reject anyway.
+///
+/// # Errors
+///
+/// - [`SlashingError::UnknownEvidence`] carrying a lowercase-hex
+///   rendering of the appeal's `evidence_hash` (matches the
+///   DSL-055 diagnostic string for log-aggregator grep-friendly
+///   pattern matching). Short-circuits on first miss.
+pub fn enforce_slash_appeal_mempool_policy(
+    appeals: &[SlashAppeal],
+    pending_slashes: &std::collections::HashSet<Bytes32>,
+) -> Result<(), SlashingError> {
+    for ap in appeals {
+        if !pending_slashes.contains(&ap.evidence_hash) {
+            return Err(SlashingError::UnknownEvidence(hex_encode_lower(
+                ap.evidence_hash.as_ref(),
+            )));
+        }
+    }
+    Ok(())
+}
+
+/// Lowercase-hex encode without the `0x` prefix. Used by DSL-114
+/// and future DSL-116..118 appeal-mempool errors that carry hex
+/// diagnostic strings. Mirrors the DSL-055 manager-side format
+/// so log aggregators see identical string shapes from either
+/// layer.
+fn hex_encode_lower(bytes: &[u8]) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for &b in bytes {
+        out.push(HEX[(b >> 4) as usize] as char);
+        out.push(HEX[(b & 0x0F) as usize] as char);
+    }
+    out
 }

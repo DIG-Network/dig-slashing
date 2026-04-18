@@ -126,11 +126,12 @@ items:
   - id: DSL-114
     section: "Appeal Mempool Policy"
     summary: "AppealForUnknownSlash"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-114.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-114"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_114_appeal_mempool_unknown_slash_test
+    notes: "Adds pub fn enforce_slash_appeal_mempool_policy(appeals, pending_slashes: &HashSet<Bytes32>) + new private hex_encode_lower helper in policy.rs. Reuses existing SlashingError::UnknownEvidence variant (DSL-055) rather than defining a separate AppealForUnknownSlash — unified diagnostic string across mempool + manager layers for log-grep consistency. Short-circuits on first miss. 4-test suite: unknown rejects with 64-char lowercase-hex string, known admits, empty vacuous, first-unknown in mixed batch halts iteration (`got` == first bad hex)."
 
   - id: DSL-115
     section: "Appeal Mempool Policy"
