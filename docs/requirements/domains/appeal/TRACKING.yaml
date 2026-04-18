@@ -26,11 +26,12 @@ items:
   - id: DSL-036
     section: "Proposer Appeal"
     summary: "ProposerAppeal SignatureAInvalid sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-036.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-036"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_036_proposer_appeal_signature_a_invalid_test
+    notes: "verify_proposer_appeal_signature_a_invalid re-runs chia_bls::verify over header_a's signature against block_signing_message. Shared helper verify_proposer_appeal_signature_side parameterised by SustainReason — reused by DSL-037. Sustains on: BLS verify false, bad sig width, sig decode fail, unknown validator. 6-test suite: corrupted sig → Sustained, valid → Rejected, wrong-key → Sustained, cross-network replay → Sustained, unknown validator → Sustained, bad sig width → Sustained."
 
   - id: DSL-037
     section: "Proposer Appeal"
