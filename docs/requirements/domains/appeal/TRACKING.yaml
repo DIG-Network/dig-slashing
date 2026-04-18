@@ -86,11 +86,12 @@ items:
   - id: DSL-042
     section: "Attester Appeal"
     summary: "AttesterAppeal NotSlashableByPredicate sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-042.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-042"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_042_attester_appeal_not_slashable_predicate_test
+    notes: "verify_attester_appeal_not_slashable_by_predicate re-evaluates DSL-014 (double-vote) + DSL-015 (surround-vote) predicates over the stored evidence, sustains when neither holds. Evidence-only. 4-test suite: disjoint windows → Sustained, double-vote → Rejected, a-surrounds-b → Rejected, b-surrounds-a → Rejected."
 
   - id: DSL-043
     section: "Attester Appeal"
