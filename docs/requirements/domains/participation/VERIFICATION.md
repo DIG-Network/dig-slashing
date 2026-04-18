@@ -2,7 +2,7 @@
 
 | ID | Status | Summary | Verification Approach |
 |----|--------|---------|----------------------|
-| [DSL-074](NORMATIVE.md#DSL-074) | ❌ | ParticipationFlags bits set/has | 3 tests: set each bit, has returns true, other bits untouched. |
+| [DSL-074](NORMATIVE.md#DSL-074) | ✅ | ParticipationFlags bits set/has | 5 tests against new `ParticipationFlags(u8)` in `src/participation/flags.rs`: `Default::default()` → 0, `set(0)` → `has(0)` true + `is_source_timely()`, other bits untouched (0b0000_0101 after `set(0); set(2)`), idempotent `set(i)` twice, named accessors match `has(index)` for 3 flags. Adds `TIMELY_SOURCE_FLAG_INDEX=0`, `TIMELY_TARGET_FLAG_INDEX=1`, `TIMELY_HEAD_FLAG_INDEX=2` constants. Opens Phase 3 Participation. Test file: `tests/dsl_074_participation_flags_bits_test.rs`. |
 | [DSL-075](NORMATIVE.md#DSL-075) | ❌ | classify_timeliness TIMELY_SOURCE | 4 tests: delay in [1,5] + justified → set; out-of-range or unjustified → unset. |
 | [DSL-076](NORMATIVE.md#DSL-076) | ❌ | classify_timeliness TIMELY_TARGET | 4 tests: delay in [1,32] + canonical → set; beyond range or non-canonical → unset. |
 | [DSL-077](NORMATIVE.md#DSL-077) | ❌ | classify_timeliness TIMELY_HEAD | 4 tests: delay == 1 + canonical head → set; delay > 1 → unset. |
