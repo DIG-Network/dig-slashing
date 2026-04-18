@@ -270,6 +270,23 @@ pub enum SlashingError {
     #[error("unknown evidence: {0}")]
     UnknownEvidence(String),
 
+    /// Serialized evidence payload exceeds
+    /// `MAX_SLASH_PROPOSAL_PAYLOAD_BYTES`.
+    ///
+    /// Raised by DSL-109 `enforce_slashing_evidence_payload_cap`.
+    /// Caps memory + DoS cost for invalid-block witness storage
+    /// inside a single REMARK. Mirrors the appeal-side
+    /// [`SlashingError::AppealPayloadTooLarge`] (DSL-063); the two
+    /// variants are kept distinct because callers upstream route
+    /// them through different admission pipelines.
+    #[error("evidence payload too large: actual={actual}, limit={limit}")]
+    EvidencePayloadTooLarge {
+        /// Actual JSON-encoded length in bytes.
+        actual: usize,
+        /// `MAX_SLASH_PROPOSAL_PAYLOAD_BYTES` at the time of check.
+        limit: usize,
+    },
+
     /// Block-level evidence cap exceeded
     /// (`evidence_count > MAX_SLASH_PROPOSALS_PER_BLOCK`) or
     /// appeal cap exceeded

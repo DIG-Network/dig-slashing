@@ -40,5 +40,6 @@ pub use evidence_wire::{
 };
 pub use policy::{
     enforce_block_level_slashing_caps, enforce_slashing_evidence_mempool_dedup_policy,
-    enforce_slashing_evidence_mempool_policy, enforce_slashing_evidence_remark_admission,
+    enforce_slashing_evidence_mempool_policy, enforce_slashing_evidence_payload_cap,
+    enforce_slashing_evidence_remark_admission,
 };

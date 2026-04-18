@@ -76,11 +76,12 @@ items:
   - id: DSL-109
     section: "Evidence Mempool Policy"
     summary: "Payload cap"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-109.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-109"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_109_evidence_payload_cap_test
+    notes: "Adds pub fn enforce_slashing_evidence_payload_cap(evidences: &[SlashingEvidence]) -> Result<(), SlashingError> + new SlashingError::EvidencePayloadTooLarge { actual, limit } variant (distinct from DSL-063 AppealPayloadTooLarge — different pipelines). Strict `>` on serde_json::to_vec(ev).len() against MAX_SLASH_PROPOSAL_PAYLOAD_BYTES=65_536. Short-circuits on first oversize. Closes DSL-102..109 evidence REMARK block (wire, puzzle, admission match/mismatch, mempool expiry/dedup, block count + payload caps). 3-test suite with InvalidBlockProof.failure_witness as variable-size lever + binary-search witness_len tuner to land at-limit boundary."
 
   - id: DSL-110
     section: "Appeal Wire"
