@@ -36,11 +36,12 @@ items:
   - id: DSL-037
     section: "Proposer Appeal"
     summary: "ProposerAppeal SignatureBInvalid sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-037.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-037"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_037_proposer_appeal_signature_b_invalid_test
+    notes: "verify_proposer_appeal_signature_b_invalid mirrors DSL-036 on signed_header_b via shared verify_proposer_appeal_signature_side helper. 6-test suite: corrupted sig_b → Sustained, valid → Rejected, wrong-key → Sustained, cross-network → Sustained, sig_a corruption ignored on B path, bad sig width → Sustained."
 
   - id: DSL-038
     section: "Proposer Appeal"
