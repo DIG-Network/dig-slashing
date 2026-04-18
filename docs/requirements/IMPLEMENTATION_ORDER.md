@@ -204,7 +204,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-147 — PendingSlashBook::expired_by
 - [x] DSL-148 — SlashingManager::new + set_epoch
 - [x] DSL-149 — SlashingManager::is_slashed
-- [ ] DSL-150 — SlashingManager is_processed + pending + prune
+- [x] DSL-150 — SlashingManager is_processed + pending + prune
 - [ ] DSL-151 — Correlation penalty saturation clamp
 - [ ] DSL-152 — submit_evidence ReporterIsAccused short-circuit
 

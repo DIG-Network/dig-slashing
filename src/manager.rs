@@ -731,6 +731,33 @@ impl SlashingManager {
         self.slashed_in_window.contains_key(&(epoch, idx))
     }
 
+    /// Read-side lookup for a pending slash by `evidence_hash`.
+    ///
+    /// Implements [DSL-150](../docs/requirements/domains/lifecycle/specs/DSL-150.md).
+    /// Convenience wrapper over `self.book().get(hash)` so callers
+    /// don't need to chain through `book()`. Returns `None` when
+    /// the slash has been removed via `book.remove` or was never
+    /// admitted.
+    #[must_use]
+    pub fn pending(&self, hash: &Bytes32) -> Option<&PendingSlash> {
+        self.book.get(hash)
+    }
+
+    /// Prune processed + slashed_in_window entries older than
+    /// `before_epoch`. Convenience alias for
+    /// [`prune_processed_older_than`](Self::prune_processed_older_than)
+    /// per DSL-150 naming.
+    ///
+    /// Does NOT touch `book` — pending slashes are removed via
+    /// `book.remove` or `finalise_expired_slashes` which own the
+    /// status-transition lifecycle.
+    ///
+    /// Typical caller: DSL-127 run_epoch_boundary with
+    /// `before_epoch = current.saturating_sub(CORRELATION_WINDOW_EPOCHS)`.
+    pub fn prune(&mut self, before_epoch: u64) -> usize {
+        self.prune_processed_older_than(before_epoch)
+    }
+
     /// Delegate to `ValidatorView::get(idx)?.is_slashed()`.
     ///
     /// Implements [DSL-149](../docs/requirements/domains/lifecycle/specs/DSL-149.md).

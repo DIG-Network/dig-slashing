@@ -166,11 +166,12 @@ items:
   - id: DSL-150
     section: "SlashingManager Query"
     summary: "SlashingManager is_processed + pending + prune"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-150.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-150"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_150_slashing_manager_is_processed_pending_prune_test
+    notes: "Adds pub fn pending(&Bytes32) -> Option<&PendingSlash> and pub fn prune(&mut self, before_epoch: u64) -> usize on SlashingManager in src/manager.rs; is_processed already shipped earlier. pending delegates to book.get; prune is a naming-alias over prune_processed_older_than. 6-test suite: is_processed known + unknown (with negative seed), pending Some + None, prune processed (strict `<` cutoff keeps boundary epoch 8, drops 5, retains 10), prune slashed_in_window symmetric, prune leaves book untouched (processed cleared but book.len stays 1 under cutoff 100)."
 
   - id: DSL-151
     section: "Correlation Penalty"
