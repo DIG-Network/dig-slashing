@@ -15,7 +15,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-003 — Checkpoint roundtrip
 - [x] DSL-004 — AttestationData::signing_root domain-prefixed
 - [x] DSL-005 — IndexedAttestation::validate_structure
-- [ ] DSL-006 — IndexedAttestation::verify_signature (aggregate BLS)
+- [x] DSL-006 — IndexedAttestation::verify_signature (aggregate BLS)
 - [x] DSL-007 — AttesterSlashing::slashable_indices (intersection)
 - [x] DSL-008 — InvalidBlockProof + InvalidBlockReason roundtrip
 - [x] DSL-009 — SignedBlockHeader roundtrip
