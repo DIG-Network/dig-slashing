@@ -56,11 +56,12 @@ items:
   - id: DSL-027
     section: "Optimistic Admission"
     summary: "submit_evidence rejects PendingBookFull at MAX_PENDING_SLASHES capacity"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-027.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-027"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_027_submit_evidence_book_full_test
+    notes: "Capacity check inserted in submit_evidence AFTER verify_evidence + dedup (DSL-026) but BEFORE bond.lock / slash / reward / book.insert. Predicate book.len() >= book.capacity() returns Err(PendingBookFull). 7-test suite uses SlashingManager::with_book_capacity(n) with tiny capacities (1, 2): submit succeeds at capacity-1, rejected at capacity, no bond lock on rejection, no validator mutation, no processed-map write (retry permitted), no reward pay, verify runs before capacity check (OffenseTooOld surfaces even at capacity)."
 
   - id: DSL-028
     section: "Optimistic Admission"
