@@ -236,11 +236,12 @@ items:
   - id: DSL-057
     section: "Submission Preconditions"
     summary: "submit_appeal VariantMismatch"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-057.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-057"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_057_submit_appeal_variant_mismatch_test
+    notes: "Third submit_appeal precondition. Adds SlashingError::AppealVariantMismatch. Cheap structural check: appeal.payload variant must match pending.evidence.payload variant (Proposer↔Proposer, Attester↔Attester, InvalidBlock↔InvalidBlock). Runs AFTER UnknownEvidence/WindowExpired, BEFORE bond lock. 4-test suite: 3 cross-variant combos reject with zero lock_calls, all 3 matching pairs pass."
 
   - id: DSL-058
     section: "Submission Preconditions"
