@@ -166,11 +166,12 @@ items:
   - id: DSL-118
     section: "Appeal Mempool Policy"
     summary: "Duplicate appeal rejected"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-118.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-118"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_118_appeal_mempool_duplicate_test
+    notes: "Adds pub fn enforce_slash_appeal_mempool_dedup_policy(pending: &[SlashAppeal], incoming: &[SlashAppeal]). Appeal-side analogue of DSL-107 with same HashSet/fingerprint structure using serde_json::to_vec bytes. Reuses existing SlashingError::DuplicateAppeal variant (DSL-058). Upstream of DSL-058 manager-layer bincode-hash dedup. 4-test suite: pending/incoming collision, in-batch incoming dup, distinct admits, empty inputs vacuous."
 
   - id: DSL-119
     section: "Appeal Mempool Policy"
