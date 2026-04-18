@@ -16,11 +16,12 @@ items:
   - id: DSL-128
     section: "Genesis"
     summary: "SlashingSystem::genesis"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/orchestration/specs/DSL-128.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-128"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_128_genesis_initialisation_test
+    notes: "New src/system.rs with GenesisParameters (genesis_epoch + initial_validator_count + network_id) + SlashingSystem aggregate (manager + participation + inactivity) + genesis constructor. Thin wrapper — each sub-tracker was already independently usable; aggregate gives embedders one struct to snapshot/pass around. 5-test suite: manager processed+book empty, trackers sized to initial_validator_count, all flags + inactivity scores zero, epoch matches params (canonical 0 AND non-zero fork 1_234), in_finality_stall(0,0)==false."
 
   - id: DSL-129
     section: "Manager Reorg"
