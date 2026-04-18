@@ -56,11 +56,12 @@ items:
   - id: DSL-136
     section: "ValidatorView + ValidatorEntry"
     summary: "ValidatorView::get / get_mut"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-136.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-136"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_136_validator_view_get_contract_test
+    notes: "Pins ValidatorView surface via reference MockValidatorSet. Live idx Some, out-of-range (including u32::MAX) None, get_mut + mutation visible via get (no clone), len consistent across [0,1,5,100], empty set all-None (bootstrap scenarios). Every slashing path that reads validator state goes through this trait — buggy Some past len would create phantom validators."
 
   - id: DSL-137
     section: "EffectiveBalanceView + PublicKeyLookup"
