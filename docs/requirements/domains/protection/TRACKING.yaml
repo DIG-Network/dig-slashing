@@ -86,8 +86,9 @@ items:
   - id: DSL-156
     section: "Proposal Rewind"
     summary: "SlashingProtection::rewind_proposal_to_slot"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/protection/specs/DSL-156.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-156"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_156_protection_rewind_proposal_to_slot_test
+    notes: "rewind_proposal_to_slot already shipped as DSL-099 dependency (reconcile_with_chain_tip composes it with DSL-098 rewind_attestation_to_epoch). No src/ changes — 4-test suite pins existing implementation. Matrix: higher slot lowered (20→10, plus post-rewind check_proposal_slot(11)==true confirms DSL-094 guard tracks rewound slot), lower-unchanged (5 stays 5 despite tip=10 — pins non-raising safety invariant; raising would enable proposer equivocation by loosening check_proposal_slot), equal-unchanged (10 stays 10 at strict `>` boundary distinguishes from `>=`), idempotent both paths (rewind-then-stable × 3 iterations + no-op path × 2)."
