@@ -232,7 +232,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 ### Lifecycle — Defensive + Serde
 - [x] DSL-162 — submit_evidence skips already-slashed indices
-- [ ] DSL-163 — SlashingResult + PerValidatorSlash + FinalisationResult serde
+- [x] DSL-163 — SlashingResult + PerValidatorSlash + FinalisationResult serde
 
 ### Orchestration — Serde
 - [ ] DSL-165 — EpochBoundaryReport + ReorgReport + FlagDelta serde
