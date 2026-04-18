@@ -56,11 +56,12 @@ items:
   - id: DSL-126
     section: "Bond Award Split"
     summary: "BOND_AWARD_TO_WINNER_BPS = 5_000"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/bonds/specs/DSL-126.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-126"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_126_bond_award_50_50_split_test
+    notes: "Closes Phase 7 Bonds. Pure-arithmetic pin of the 50/50 split ratio — DSL-068/071 integration tests already exercise the constant through the adjudicator; this test isolates the formula so a future adjudicator rewrite can't drift the ratio silently. 5-test suite: constant value + 2*BPS==DENOMINATOR symmetry, sustained path split, rejected path (same formula, different winner), odd rounding favors burn (prevents micro-griefing, verified across [1,5,7,9,11,99,1001] with award<=burn), exhaustive conservation across [0, 1, 2, 100, 500_000_000, u64::MAX/10_000]."
 
   - id: DSL-166
     section: "BondTag"
