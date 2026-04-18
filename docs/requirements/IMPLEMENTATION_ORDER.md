@@ -210,7 +210,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 ### Participation — Reorg + Serde
 - [x] DSL-153 — ParticipationTracker::rewind_on_reorg
-- [ ] DSL-154 — ParticipationFlags serde roundtrip
+- [x] DSL-154 — ParticipationFlags serde roundtrip
 
 ### Inactivity — Reorg
 - [ ] DSL-155 — InactivityScoreTracker::rewind_on_reorg
