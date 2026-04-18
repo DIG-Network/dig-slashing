@@ -60,11 +60,11 @@ items:
   - id: DSL-093
     section: "Resize"
     summary: "InactivityScoreTracker::resize_for grows scores vec; new entries start at 0"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/inactivity/specs/DSL-093.md"
     tests:
       - dsl_093_inactivity_resize_test
-    notes: "Prior entries preserved; idempotent when sizes equal; grow-only for new activations."
+    notes: "Thin wrapper over Vec::resize(n, 0). Grow: new trailing slots are 0 (fresh activation); shrink: trailing dropped (rarely used); same-size: no-op. Existing scores preserved byte-for-byte. Closes Phase 4 Inactivity (DSL-087..093). 4-test suite: grow adds zeros, pre-populated scores survive grow, shrink truncates, same-size no-op."
 
   - id: DSL-155
     section: "Reorg"
