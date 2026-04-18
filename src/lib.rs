@@ -73,9 +73,9 @@ pub use constants::{
     DOMAIN_BEACON_PROPOSER, DOMAIN_SLASH_APPEAL, DOMAIN_SLASHING_EVIDENCE, EQUIVOCATION_BASE_BPS,
     INACTIVITY_PENALTY_QUOTIENT, INACTIVITY_SCORE_BIAS, INACTIVITY_SCORE_RECOVERY_RATE,
     INVALID_BLOCK_BASE_BPS, MAX_APPEAL_ATTEMPTS_PER_SLASH, MAX_APPEAL_PAYLOAD_BYTES,
-    MAX_PENALTY_BPS, MAX_PENDING_SLASHES, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES,
-    MAX_VALIDATORS_PER_COMMITTEE, MIN_ATTESTATION_INCLUSION_DELAY, MIN_EFFECTIVE_BALANCE,
-    MIN_EPOCHS_TO_INACTIVITY_PENALTY, MIN_SLASHING_PENALTY_QUOTIENT,
+    MAX_APPEALS_PER_BLOCK, MAX_PENALTY_BPS, MAX_PENDING_SLASHES, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES,
+    MAX_SLASH_PROPOSALS_PER_BLOCK, MAX_VALIDATORS_PER_COMMITTEE, MIN_ATTESTATION_INCLUSION_DELAY,
+    MIN_EFFECTIVE_BALANCE, MIN_EPOCHS_TO_INACTIVITY_PENALTY, MIN_SLASHING_PENALTY_QUOTIENT,
     PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT, PROPOSER_WEIGHT,
     REPORTER_BOND_MOJOS, SLASH_APPEAL_REMARK_MAGIC_V1, SLASH_APPEAL_WINDOW_EPOCHS,
     SLASH_EVIDENCE_REMARK_MAGIC_V1, SLASH_LOCK_EPOCHS, TIMELY_HEAD_FLAG_INDEX, TIMELY_HEAD_WEIGHT,
@@ -101,10 +101,10 @@ pub use pending::{
 };
 pub use protection::SlashingProtection;
 pub use remark::{
-    encode_slashing_evidence_remark_payload_v1, enforce_slashing_evidence_mempool_dedup_policy,
-    enforce_slashing_evidence_mempool_policy, enforce_slashing_evidence_remark_admission,
-    parse_slashing_evidence_from_conditions, slashing_evidence_remark_puzzle_hash_v1,
-    slashing_evidence_remark_puzzle_reveal_v1,
+    encode_slashing_evidence_remark_payload_v1, enforce_block_level_slashing_caps,
+    enforce_slashing_evidence_mempool_dedup_policy, enforce_slashing_evidence_mempool_policy,
+    enforce_slashing_evidence_remark_admission, parse_slashing_evidence_from_conditions,
+    slashing_evidence_remark_puzzle_hash_v1, slashing_evidence_remark_puzzle_reveal_v1,
 };
 pub use traits::{
     CollateralSlasher, EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, ProposerView,
