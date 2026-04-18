@@ -35,6 +35,7 @@ pub use verify::{
     verify_attester_appeal_signature_b_invalid,
     verify_attester_appeal_validator_not_in_intersection,
     verify_invalid_block_appeal_block_actually_valid,
+    verify_invalid_block_appeal_failure_reason_mismatch,
     verify_invalid_block_appeal_proposer_signature_invalid,
     verify_proposer_appeal_headers_identical, verify_proposer_appeal_proposer_index_mismatch,
     verify_proposer_appeal_signature_a_invalid, verify_proposer_appeal_signature_b_invalid,

@@ -651,6 +651,60 @@ pub fn verify_invalid_block_appeal_block_actually_valid(
     }
 }
 
+/// Verify `InvalidBlockAppealGround::FailureReasonMismatch`.
+///
+/// Implements [DSL-051](../../../docs/requirements/domains/appeal/specs/DSL-051.md).
+/// Traces to SPEC §6.4.
+///
+/// # Predicate
+///
+/// Calls `InvalidBlockOracle::re_execute`. The block IS invalid but
+/// the classified reason (`ExecutionOutcome::Invalid(actual)`)
+/// differs from `evidence.failure_reason`. This is a reporter
+/// mis-classification — they slashed the proposer under the wrong
+/// `InvalidBlockReason`.
+///
+/// # Verdict
+///
+/// - `Sustained { FailureReasonMismatch }` iff oracle returns
+///   `Invalid(actual)` with `actual != evidence.failure_reason`.
+/// - `Rejected { GroundDoesNotHold }` iff oracle returns
+///   `Invalid(same)` (reason matches — evidence is correct) OR
+///   `Valid` (DSL-049 is the correct ground for that case).
+/// - `Rejected { MalformedWitness }` iff oracle returns `Err`.
+/// - `Rejected { MissingOracle }` iff no oracle supplied.
+///
+/// # Witness forwarding
+///
+/// Forwards the APPEAL's witness to the oracle (not
+/// `evidence.failure_witness`) — same rationale as DSL-049. The
+/// appellant may supply different replay material than the slasher.
+#[must_use]
+pub fn verify_invalid_block_appeal_failure_reason_mismatch(
+    evidence: &InvalidBlockProof,
+    appeal_witness: &[u8],
+    oracle: Option<&dyn InvalidBlockOracle>,
+) -> AppealVerdict {
+    let Some(oracle) = oracle else {
+        return AppealVerdict::Rejected {
+            reason: AppealRejectReason::MissingOracle,
+        };
+    };
+    match oracle.re_execute(&evidence.signed_header.message, appeal_witness) {
+        Ok(ExecutionOutcome::Invalid(actual)) if actual != evidence.failure_reason => {
+            AppealVerdict::Sustained {
+                reason: AppealSustainReason::FailureReasonMismatch,
+            }
+        }
+        Ok(_) => AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        },
+        Err(_) => AppealVerdict::Rejected {
+            reason: AppealRejectReason::MalformedWitness,
+        },
+    }
+}
+
 // Compile-time sanity: keep `ProposerAppealGround::HeadersIdentical`
 // referenced from the verify module so the variant-to-verifier
 // mapping remains visible in cross-references.

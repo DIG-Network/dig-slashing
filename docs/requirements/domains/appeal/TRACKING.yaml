@@ -176,11 +176,12 @@ items:
   - id: DSL-051
     section: "InvalidBlock Appeal"
     summary: "InvalidBlockAppeal FailureReasonMismatch sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-051.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-051"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_051_invalid_block_appeal_reason_mismatch_test
+    notes: "verify_invalid_block_appeal_failure_reason_mismatch(evidence, appeal_witness, oracle) calls oracle.re_execute; Ok(Invalid(actual)) with actual != evidence.failure_reason → Sustained{FailureReasonMismatch}; Ok(Invalid(same)) or Ok(Valid) → Rejected{GroundDoesNotHold}; Err → Rejected{MalformedWitness}; None oracle → Rejected{MissingOracle}. Forwards APPEAL's witness (not evidence.failure_witness) — same rationale as DSL-049. 4-test suite: differ → Sustained, match → Rejected, Valid → Rejected, None → MissingOracle."
 
   - id: DSL-052
     section: "InvalidBlock Appeal"
