@@ -36,11 +36,12 @@ items:
   - id: DSL-124
     section: "Bond Sizes"
     summary: "REPORTER_BOND_MOJOS = MIN_EFFECTIVE_BALANCE / 64"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/bonds/specs/DSL-124.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-124"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_124_bond_reporter_size_test
+    notes: "Dedicated constant-pin test. Constants already defined in src/constants.rs; DSL-023 exercises submit_evidence lock call separately. 4-test suite: exact value + numeric pin (500_000_000 mojos = 0.5 DIG out of 32 DIG min), exact-divides no-truncation invariant (MIN % 64 == 0 AND MIN/64*64 == MIN), compile-time const assertion via const block (any runtime-cell refactor fails to compile), symmetry pin with APPELLANT_BOND_MOJOS (DSL-125 partner)."
 
   - id: DSL-125
     section: "Bond Sizes"
