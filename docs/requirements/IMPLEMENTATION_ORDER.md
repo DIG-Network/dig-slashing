@@ -221,7 +221,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 ## Phase 11: Gap Fills 2 — Serde + Defensive + BondTag (DSL-157..166)
 
 ### Evidence — Serde
-- [ ] DSL-157 — SlashingEvidence + payload serde roundtrip
+- [x] DSL-157 — SlashingEvidence + payload serde roundtrip
 - [ ] DSL-158 — IndexedAttestation serde roundtrip
 
 ### Appeal — Hash + Serde
