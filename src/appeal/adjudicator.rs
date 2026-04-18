@@ -35,11 +35,11 @@ use crate::appeal::ground::AttesterAppealGround;
 use crate::appeal::verdict::{AppealSustainReason, AppealVerdict};
 use crate::bonds::{BondError, BondEscrow, BondTag};
 use crate::constants::{
-    BOND_AWARD_TO_WINNER_BPS, BPS_DENOMINATOR, INVALID_BLOCK_BASE_BPS,
+    APPELLANT_BOND_MOJOS, BOND_AWARD_TO_WINNER_BPS, BPS_DENOMINATOR, INVALID_BLOCK_BASE_BPS,
     MIN_SLASHING_PENALTY_QUOTIENT, PROPOSER_REWARD_QUOTIENT, REPORTER_BOND_MOJOS,
     WHISTLEBLOWER_REWARD_QUOTIENT,
 };
-use crate::pending::PendingSlash;
+use crate::pending::{AppealAttempt, AppealOutcome, PendingSlash, PendingSlashStatus};
 use crate::traits::{
     CollateralSlasher, EffectiveBalanceView, RewardClawback, RewardPayout, ValidatorView,
 };
@@ -559,6 +559,59 @@ pub fn adjudicate_sustained_clawback_rewards(
         prop_clawed,
         shortfall,
     }
+}
+
+/// Transition a `PendingSlash` to the `Reverted` terminal state
+/// and record the winning appeal in `appeal_history`.
+///
+/// Implements [DSL-070](../../../docs/requirements/domains/appeal/specs/DSL-070.md).
+/// Traces to SPEC §6.5.
+///
+/// # Mutation order
+///
+/// 1. `pending.appeal_history.push(AppealAttempt { outcome: Won,
+///    .. })` — the attempt is recorded BEFORE the status flips
+///    so observers reading status and history together see
+///    consistent state (DSL-161 serde roundtrip implicitly
+///    validates this pairing).
+/// 2. `pending.status = Reverted { winning_appeal_hash,
+///    reverted_at_epoch: current_epoch }` — terminal state;
+///    `submit_appeal` rejects subsequent attempts via DSL-060.
+///
+/// # Rejected branch
+///
+/// No-op — rejected appeals do not transition the pending slash.
+/// DSL-072 handles the rejected-path bookkeeping (appeal_count
+/// bump + ChallengeOpen).
+///
+/// # Bond amount recorded
+///
+/// The `AppealAttempt::bond_mojos` field stores
+/// `APPELLANT_BOND_MOJOS` — the amount actually locked by
+/// DSL-062. Downstream auditors (DSL-073, adjudication result
+/// serialisation) read this to route the forfeited/refunded
+/// amount correctly.
+pub fn adjudicate_sustained_status_reverted(
+    pending: &mut PendingSlash,
+    appeal: &SlashAppeal,
+    verdict: &AppealVerdict,
+    current_epoch: u64,
+) {
+    if matches!(verdict, AppealVerdict::Rejected { .. }) {
+        return;
+    }
+    let appeal_hash = appeal.hash();
+    pending.appeal_history.push(AppealAttempt {
+        appeal_hash,
+        appellant_index: appeal.appellant_index,
+        filed_epoch: appeal.filed_epoch,
+        outcome: AppealOutcome::Won,
+        bond_mojos: APPELLANT_BOND_MOJOS,
+    });
+    pending.status = PendingSlashStatus::Reverted {
+        winning_appeal_hash: appeal_hash,
+        reverted_at_epoch: current_epoch,
+    };
 }
 
 /// Extract the named `validator_index` from an attester

@@ -96,7 +96,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-067 — Adjudicate Sustained clawback rewards
 - [x] DSL-068 — Adjudicate Sustained reporter-bond 50/50 split
 - [x] DSL-069 — Adjudicate Sustained reporter penalty
-- [ ] DSL-070 — Adjudicate Sustained status Reverted
+- [x] DSL-070 — Adjudicate Sustained status Reverted
 - [ ] DSL-071 — Adjudicate Rejected appellant-bond 50/50 split
 - [ ] DSL-072 — Adjudicate Rejected keeps ChallengeOpen + appeal_count+1
 - [ ] DSL-073 — Adjudicate clawback shortfall absorbed from bond
