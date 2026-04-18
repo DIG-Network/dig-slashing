@@ -56,11 +56,12 @@ items:
   - id: DSL-039
     section: "Proposer Appeal"
     summary: "ProposerAppeal ValidatorNotActiveAtEpoch sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-039.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-039"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_039_proposer_appeal_validator_not_active_test
+    notes: "verify_proposer_appeal_validator_not_active_at_epoch. Predicate: !validator_view.get(header_a.proposer_index).is_active_at_epoch(header_a.epoch). Unknown validator → Sustained (coarse). Uses header A — DSL-013 guarantees same proposer_index on both headers. 6-test suite: pre-activation → Sustained, post-exit → Sustained, active → Rejected, epoch == activation_epoch → Rejected (inclusive), epoch == exit_epoch → Sustained (exclusive), unknown validator → Sustained."
 
   - id: DSL-040
     section: "Proposer Appeal"
