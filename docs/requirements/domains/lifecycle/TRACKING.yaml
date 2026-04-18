@@ -146,11 +146,12 @@ items:
   - id: DSL-148
     section: "SlashingManager Construction"
     summary: "SlashingManager::new + set_epoch"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-148.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-148"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_148_slashing_manager_new_set_epoch_test
+    notes: "Pins baseline SlashingManager constructor + epoch setter. Standalone entry point distinct from DSL-128 SlashingSystem::genesis (which wraps + participation + inactivity trackers). 5-test suite: new(0) empty state, non-zero preserved across [1, 42, 1_234, u64::MAX], set_epoch updates, monotonic-agnostic (backward moves allowed — DSL-130 reorg path depends), Default::default() ≡ new(0)."
 
   - id: DSL-149
     section: "SlashingManager Query"
