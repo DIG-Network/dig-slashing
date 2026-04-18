@@ -116,11 +116,12 @@ items:
   - id: DSL-045
     section: "Attester Appeal"
     summary: "AttesterAppeal SignatureBInvalid sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-045.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-045"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_045_attester_appeal_signature_b_invalid_test
+    notes: "verify_attester_appeal_signature_b_invalid mirrors DSL-044 on attestation_b via shared helper verify_attester_appeal_signature_side. 3-test suite: corrupted sig_b → Sustained, honest sig_b → Rejected, sig_a corruption does NOT leak to B-side verdict (cross-leak guard proving the verifier reads the correct field)."
 
   - id: DSL-046
     section: "Attester Appeal"
