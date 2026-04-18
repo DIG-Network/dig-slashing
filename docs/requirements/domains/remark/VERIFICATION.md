@@ -2,7 +2,7 @@
 
 | ID | Status | Summary | Verification Approach |
 |----|--------|---------|----------------------|
-| [DSL-102](NORMATIVE.md#DSL-102) | ❌ | Evidence wire roundtrip | 3 tests: encode+parse roundtrip, magic-prefix present, rejects non-magic payload. |
+| [DSL-102](NORMATIVE.md#DSL-102) | ✅ | Evidence wire roundtrip | 5 tests against new `src/remark/evidence_wire.rs`: `encode_slashing_evidence_remark_payload_v1(&ev)` emits `SLASH_EVIDENCE_REMARK_MAGIC_V1 \|\| serde_json(ev)`; `parse_slashing_evidence_from_conditions(&[P: AsRef<[u8]>])` strips magic + decodes, silent-skipping short/foreign/malformed/wrong-schema payloads. Roundtrip PartialEq; magic-prefix substring pinned to `b"DIG_SLASH_EVIDENCE_V1\0"`; empty + short-prefix + foreign-prefix + garbage-JSON + wrong-schema-JSON all skip cleanly; interleaved valid+foreign+valid list preserves input order. Opens Phase 6 REMARK Admission with new `src/remark/` module + `SLASH_EVIDENCE_REMARK_MAGIC_V1` / `SLASH_APPEAL_REMARK_MAGIC_V1` constants (appeal prefix landed early so DSL-110 can reuse without a second constants commit). Test file: `tests/dsl_102_evidence_remark_wire_roundtrip_test.rs`. |
 | [DSL-103](NORMATIVE.md#DSL-103) | ❌ | Evidence puzzle_reveal emits one REMARK | 3 tests: run_puzzle yields 1 Condition::Remark, message parses, puzzle_hash stable. |
 | [DSL-104](NORMATIVE.md#DSL-104) | ❌ | Admission matching coin | 2 tests: bundle with derived puzzle_hash admits. |
 | [DSL-105](NORMATIVE.md#DSL-105) | ❌ | Admission mismatched rejected | 3 tests: wrong puzzle_hash rejected; error message includes both hashes. |

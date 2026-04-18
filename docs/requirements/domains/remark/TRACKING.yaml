@@ -6,11 +6,12 @@ items:
   - id: DSL-102
     section: "Evidence Wire"
     summary: "Evidence REMARK wire roundtrip"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-102.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-102"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_102_evidence_remark_wire_roundtrip_test
+    notes: "Opens Phase 6 REMARK Admission. New src/remark/ module with mod.rs + evidence_wire.rs. Adds SLASH_EVIDENCE_REMARK_MAGIC_V1 (b\"DIG_SLASH_EVIDENCE_V1\\0\") + SLASH_APPEAL_REMARK_MAGIC_V1 (b\"DIG_SLASH_APPEAL_V1\\0\") constants (appeal magic shipped early for DSL-110 reuse). Encoder: MAGIC || serde_json(SlashingEvidence). Parser generic over AsRef<[u8]>, strict prefix compare (magic MUST land at byte 0 to thwart in-middle smuggling), silent-skip on: short-payload, wrong-prefix, malformed-JSON, wrong-schema-JSON. Returns matches in input order so admission layer preserves block-level sequencing. 5-test suite: roundtrip, magic-prefix pin, foreign/empty/short skip, malformed+wrong-schema skip, mixed valid/foreign/valid interleaving preserves order."
 
   - id: DSL-103
     section: "Evidence Wire"
