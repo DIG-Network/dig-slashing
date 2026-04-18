@@ -306,11 +306,12 @@ items:
   - id: DSL-064
     section: "Adjudicator"
     summary: "Adjudicate Sustained reverts base slash via credit_stake"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-064.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-064"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_064_adjudicate_sustained_reverts_base_slash_test
+    notes: "Opens adjudicator module (src/appeal/adjudicator.rs). adjudicate_sustained_revert_base_slash(pending, appeal, verdict, validator_set) -> Vec<u32>. Rejected → no-op empty vec. Sustained{ValidatorNotInIntersection} → only named index from attester ground variant; every other Sustained → all indices in base_slash_per_validator. Calls ValidatorEntry::credit_stake per slashed validator; skips absent validators. 3-test suite: single (proposer), multi (attester 3 validators), per-index (ValidatorNotInIntersection{validator_index:3})."
 
   - id: DSL-065
     section: "Adjudicator"

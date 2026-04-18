@@ -17,10 +17,13 @@
 //! (ProposerAppeal HeadersIdentical). Sibling grounds + the
 //! dispatcher + adjudicator come in subsequent commits.
 
+pub mod adjudicator;
 pub mod envelope;
 pub mod ground;
 pub mod verdict;
 pub mod verify;
+
+pub use adjudicator::adjudicate_sustained_revert_base_slash;
 
 pub use envelope::{SlashAppeal, SlashAppealPayload};
 pub use ground::{
