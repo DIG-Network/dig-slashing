@@ -176,11 +176,12 @@ items:
   - id: DSL-119
     section: "Appeal Mempool Policy"
     summary: "Appeal block cap"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-119.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-119"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_119_appeal_block_cap_test
+    notes: "Adds pub fn enforce_block_level_appeal_caps(appeals: &[SlashAppeal]) -> Result<(), SlashingError>. Appeal-side analogue of DSL-108 reusing SlashingError::BlockCapExceeded variant with limit=MAX_APPEALS_PER_BLOCK (64) so callers can distinguish from DSL-108 slashing cap at the match site. MAX_APPEALS_PER_BLOCK constant was shipped early in DSL-108 commit for this purpose. 3-test suite: MAX+1 rejects + limit carries MAX_APPEALS_PER_BLOCK, exactly-MAX + MAX-1 admit, empty vacuous."
 
   - id: DSL-120
     section: "Appeal Mempool Policy"

@@ -46,7 +46,8 @@ use crate::remark::evidence_wire::{
     parse_slashing_evidence_from_conditions, slashing_evidence_remark_puzzle_hash_v1,
 };
 use crate::{
-    MAX_SLASH_PROPOSAL_PAYLOAD_BYTES, MAX_SLASH_PROPOSALS_PER_BLOCK, SLASH_APPEAL_WINDOW_EPOCHS,
+    MAX_APPEALS_PER_BLOCK, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES, MAX_SLASH_PROPOSALS_PER_BLOCK,
+    SLASH_APPEAL_WINDOW_EPOCHS,
 };
 
 /// Enforce the DSL-104 admission predicate over every evidence
@@ -515,6 +516,26 @@ pub fn enforce_slash_appeal_mempool_dedup_policy(
         if !seen.insert(fp) {
             return Err(SlashingError::DuplicateAppeal);
         }
+    }
+    Ok(())
+}
+
+/// Enforce the DSL-119 block-level cap on appeal admissions.
+///
+/// Appeal-side analogue of DSL-108 `enforce_block_level_slashing_caps`.
+/// Rejects when `appeals.len() > MAX_APPEALS_PER_BLOCK`.
+/// Boundary (`== MAX`) admits via strict `>`.
+///
+/// Shares the `BlockCapExceeded` variant with DSL-108; the
+/// distinction at the call site comes from the `limit` field
+/// (which carries `MAX_APPEALS_PER_BLOCK` here vs
+/// `MAX_SLASH_PROPOSALS_PER_BLOCK` there).
+pub fn enforce_block_level_appeal_caps(appeals: &[SlashAppeal]) -> Result<(), SlashingError> {
+    if appeals.len() > MAX_APPEALS_PER_BLOCK {
+        return Err(SlashingError::BlockCapExceeded {
+            actual: appeals.len(),
+            limit: MAX_APPEALS_PER_BLOCK,
+        });
     }
     Ok(())
 }
