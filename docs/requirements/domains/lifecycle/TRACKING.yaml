@@ -36,11 +36,12 @@ items:
   - id: DSL-025
     section: "Optimistic Admission"
     summary: "submit_evidence routes wb_reward to reporter and prop_reward to block proposer"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-025.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-025"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_025_submit_evidence_reward_routing_test
+    notes: "Reward routing landed in src/manager.rs: wb_reward = total_eff/512 routed to reporter_puzzle_hash, prop_reward = wb_reward/8 routed to block-proposer puzzle hash via ProposerView::proposer_at_slot(current_slot). burn = total_base - wb - prop. New traits in src/traits.rs: RewardPayout, RewardClawback, ProposerView. New constants: WHISTLEBLOWER_REWARD_QUOTIENT=512, PROPOSER_REWARD_QUOTIENT=8. New SlashingError variant: ProposerUnavailable. submit_evidence signature extended with reward_payout + proposer params (clippy too_many_arguments allowed). 9-test suite: happy path amounts, reporter PH target, proposer PH target, burn accounting, multi-validator totals, zero rewards still emit two pay(0) calls, proposer lookup uses current_slot, determinism, ProposerUnavailable error. DSL-022/023/024 fixtures patched with NullReward + FixedProposer stubs + inject_proposer helper."
 
   - id: DSL-026
     section: "Optimistic Admission"
