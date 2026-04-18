@@ -95,11 +95,12 @@ items:
   - id: DSL-010
     section: "Types"
     summary: "SlashingEvidence::slashable_validators returns 1 for Proposer/InvalidBlock, N for Attester"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-010.md"
     catalogue_ref: "docs/resources/SPEC.md#22.1"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_010_slashable_validators_list_test
+    notes: "slashable_validators() in src/evidence/envelope.rs. Proposer/InvalidBlock → [proposer_index], Attester delegates to AttesterSlashing::slashable_indices (DSL-007). 6-test suite: Proposer cardinality-1, InvalidBlock cardinality-1, Attester non-empty intersection + parity with helper, disjoint empty, determinism across all 3 variants, strictly-ascending invariant."
 
   - id: DSL-011
     section: "Verification"
