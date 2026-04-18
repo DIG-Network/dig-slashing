@@ -56,11 +56,12 @@ items:
   - id: DSL-099
     section: "Tip Reconciliation"
     summary: "reconcile_with_chain_tip rewinds both"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/protection/specs/DSL-099.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-099"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_099_protection_reconcile_with_tip_test
+    notes: "Adds pub fn reconcile_with_chain_tip(&mut self, tip_slot: u64, tip_epoch: u64) composing DSL-156 rewind_proposal_to_slot + DSL-098 rewind_attestation_to_epoch. DSL-156 rewind_proposal_to_slot shipped as method preview (strict `>` cap, never raises); DSL-156 dedicated test file lands in Phase 10. Idempotent by construction: both legs are caps. Called on validator boot + DSL-130 global reorg. 4-test suite: both watermarks lowered + hash cleared, PartialEq idempotence across back-to-back calls, surround (4,8)-vs-(5,7) pre-reorg rejected then post-reconcile accepted, already-below-tip state preserved (hash still clears per DSL-098 unconditional leg)."
 
   - id: DSL-100
     section: "Persistence"

@@ -225,6 +225,62 @@ impl SlashingProtection {
         self.last_attested_block_hash = Some(to_hex_lower(block_hash.as_ref()));
     }
 
+    /// Rewind the proposal watermark on fork-choice reorg.
+    ///
+    /// Previews [DSL-156](../docs/requirements/domains/protection/specs/DSL-156.md)
+    /// — DSL-099 composes this fn alongside [`rewind_attestation_to_epoch`]
+    /// (DSL-098) inside [`reconcile_with_chain_tip`]. The DSL-156
+    /// dedicated test file lands in Phase 10.
+    ///
+    /// # Semantics
+    ///
+    /// Caps `last_proposed_slot` at `new_tip_slot` using strict `>`
+    /// so the boundary (stored == tip) is a no-op and already-lower
+    /// slots remain untouched. Reconcile must never RAISE a
+    /// watermark — doing so would weaken slashing protection.
+    ///
+    /// No hash-equivalent to clear on the proposal side: DSL-094
+    /// only tracks the slot, not a block binding.
+    pub fn rewind_proposal_to_slot(&mut self, new_tip_slot: u64) {
+        if self.last_proposed_slot > new_tip_slot {
+            self.last_proposed_slot = new_tip_slot;
+        }
+    }
+
+    /// Reconcile local slashing-protection state with the canonical
+    /// chain tip on validator startup or after a reorg.
+    ///
+    /// Implements [DSL-099](../docs/requirements/domains/protection/specs/DSL-099.md).
+    /// Traces to SPEC §14.3.
+    ///
+    /// # Semantics
+    ///
+    /// Composes [`rewind_proposal_to_slot`] (DSL-156) with
+    /// [`rewind_attestation_to_epoch`] (DSL-098) under a single
+    /// entry point. Net effect:
+    ///
+    ///   - `last_proposed_slot` capped at `tip_slot` (never raised).
+    ///   - `last_attested_source_epoch` / `last_attested_target_epoch`
+    ///     capped at `tip_epoch` (never raised).
+    ///   - `last_attested_block_hash` cleared unconditionally —
+    ///     the hash binds to a specific block that the reorg
+    ///     invalidates.
+    ///
+    /// Idempotent by construction: both legs are caps, and a second
+    /// call with the same `(tip_slot, tip_epoch)` finds the state
+    /// already satisfying both caps.
+    ///
+    /// Called by:
+    ///
+    ///   - validator boot sequence (rejoin canonical chain after
+    ///     downtime),
+    ///   - [DSL-130](../../docs/requirements/domains/orchestration/specs/DSL-130.md)
+    ///     global-reorg orchestration.
+    pub fn reconcile_with_chain_tip(&mut self, tip_slot: u64, tip_epoch: u64) {
+        self.rewind_proposal_to_slot(tip_slot);
+        self.rewind_attestation_to_epoch(tip_epoch);
+    }
+
     /// Rewind attestation state on fork-choice reorg or chain-tip
     /// refresh.
     ///
