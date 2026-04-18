@@ -206,11 +206,12 @@ items:
   - id: DSL-054
     section: "InvalidBlock Appeal"
     summary: "InvalidBlockAppeal rejected on genuine invalid block"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-054.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-054"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_054_invalid_block_appeal_rejected_test
+    notes: "Negative-control sweep closing the invalid-block appeal section. Test-only (no src/ changes). Single fixture: honestly-signed header (proposer_index=7, epoch=5), InvalidOracle returns Invalid(BadStateRoot) matching evidence.failure_reason, envelope epoch = header.epoch = 5. Each of the 4 invalid-block verifiers (DSL-049/050/051/052) returns Rejected{GroundDoesNotHold}. Mirrors DSL-040 (proposer) + DSL-048 (attester) patterns."
 
   - id: DSL-055
     section: "Submission Preconditions"
