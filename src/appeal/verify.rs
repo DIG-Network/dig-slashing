@@ -27,9 +27,10 @@ use crate::appeal::ground::ProposerAppealGround;
 use crate::appeal::verdict::{AppealRejectReason, AppealSustainReason, AppealVerdict};
 use crate::constants::BLS_SIGNATURE_SIZE;
 use crate::evidence::attester_slashing::AttesterSlashing;
+use crate::evidence::indexed_attestation::IndexedAttestation;
 use crate::evidence::proposer_slashing::ProposerSlashing;
 use crate::evidence::verify::block_signing_message;
-use crate::traits::ValidatorView;
+use crate::traits::{PublicKeyLookup, ValidatorView};
 
 /// Verify `ProposerAppealGround::HeadersIdentical`.
 ///
@@ -346,6 +347,67 @@ pub fn verify_attester_appeal_empty_intersection(evidence: &AttesterSlashing) ->
     if evidence.slashable_indices().is_empty() {
         AppealVerdict::Sustained {
             reason: AppealSustainReason::EmptyIntersection,
+        }
+    } else {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    }
+}
+
+/// Verify `AttesterAppealGround::AttesterSignatureAInvalid`.
+///
+/// Implements [DSL-044](../../../docs/requirements/domains/appeal/specs/DSL-044.md).
+/// Traces to SPEC §6.3, §15.2.
+///
+/// # Predicate
+///
+/// Re-runs `IndexedAttestation::verify_signature` (DSL-006) over
+/// `evidence.attestation_a`. Any failure leg — malformed bytes,
+/// bad G2 point, unknown attester index, cryptographic reject —
+/// collapses to `Sustained{ AttesterSignatureAInvalid }`. This
+/// matches the coarse DSL-006 handling of `BlsVerifyFailed` (SPEC
+/// §15.2 does not distinguish "unknown validator" from "bad sig").
+///
+/// # Verdict
+///
+/// - `Sustained { AttesterSignatureAInvalid }` iff re-check fails.
+/// - `Rejected { GroundDoesNotHold }` iff sig genuinely verifies.
+///
+/// # Determinism
+///
+/// `chia_bls::aggregate_verify` is deterministic; the same
+/// (sig, pubkey-set, msg) triple always produces the same verdict.
+#[must_use]
+pub fn verify_attester_appeal_signature_a_invalid(
+    evidence: &AttesterSlashing,
+    pks: &dyn PublicKeyLookup,
+    network_id: &Bytes32,
+) -> AppealVerdict {
+    verify_attester_appeal_signature_side(
+        &evidence.attestation_a,
+        pks,
+        network_id,
+        AppealSustainReason::AttesterSignatureAInvalid,
+    )
+}
+
+/// Shared helper: re-check one `IndexedAttestation`'s aggregate
+/// signature. Returns `Sustained { sustain_reason }` on any
+/// verify failure (DSL-006 returns a single coarse `Err`
+/// variant), `Rejected { GroundDoesNotHold }` on success.
+///
+/// Will be reused by DSL-045 (`AttesterSignatureBInvalid`) — same
+/// shape, different side.
+fn verify_attester_appeal_signature_side(
+    attestation: &IndexedAttestation,
+    pks: &dyn PublicKeyLookup,
+    network_id: &Bytes32,
+    sustain_reason: AppealSustainReason,
+) -> AppealVerdict {
+    if attestation.verify_signature(pks, network_id).is_err() {
+        AppealVerdict::Sustained {
+            reason: sustain_reason,
         }
     } else {
         AppealVerdict::Rejected {
