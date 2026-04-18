@@ -31,9 +31,13 @@ use serde::{Deserialize, Serialize};
 use crate::appeal::envelope::{SlashAppeal, SlashAppealPayload};
 use crate::appeal::ground::AttesterAppealGround;
 use crate::appeal::verdict::{AppealSustainReason, AppealVerdict};
-use crate::constants::{PROPOSER_REWARD_QUOTIENT, WHISTLEBLOWER_REWARD_QUOTIENT};
+use crate::bonds::{BondError, BondEscrow, BondTag};
+use crate::constants::{
+    BOND_AWARD_TO_WINNER_BPS, BPS_DENOMINATOR, PROPOSER_REWARD_QUOTIENT, REPORTER_BOND_MOJOS,
+    WHISTLEBLOWER_REWARD_QUOTIENT,
+};
 use crate::pending::PendingSlash;
-use crate::traits::{CollateralSlasher, RewardClawback, ValidatorView};
+use crate::traits::{CollateralSlasher, RewardClawback, RewardPayout, ValidatorView};
 
 /// Outcome of a reward clawback pass.
 ///
@@ -273,6 +277,106 @@ pub fn adjudicate_sustained_revert_collateral(
         credited.push(slash.validator_index);
     }
     credited
+}
+
+/// Outcome of a forfeited-bond 50/50 split.
+///
+/// Traces to [SPEC §6.5](../../../docs/resources/SPEC.md). Produced by
+/// DSL-068 (sustained → reporter's bond forfeited to appellant +
+/// burn) and will be reused by DSL-071 (rejected → appellant's
+/// bond forfeited to reporter + burn) with different field
+/// interpretations.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct BondSplitResult {
+    /// Mojos actually forfeited from escrow (return value of
+    /// `BondEscrow::forfeit`). May be less than the requested
+    /// amount if the escrow's ledger disagrees — treat as the
+    /// authoritative value for the split math.
+    pub forfeited: u64,
+    /// Award routed to the winning party's puzzle hash. For
+    /// DSL-068 sustained appeals this is the appellant's share.
+    /// Computed as `forfeited * BOND_AWARD_TO_WINNER_BPS /
+    /// BPS_DENOMINATOR` with integer division (truncation).
+    pub winner_award: u64,
+    /// Burn amount = `forfeited - winner_award`. Rounding slips
+    /// flow here so the split is always exactly equal to the
+    /// forfeited total (no mojo accounting drift).
+    pub burn: u64,
+}
+
+/// Forfeit the reporter's bond on a sustained appeal and split
+/// the proceeds 50/50 between the appellant and the burn bucket.
+///
+/// Implements [DSL-068](../../../docs/requirements/domains/appeal/specs/DSL-068.md).
+/// Traces to SPEC §6.5, §2.6.
+///
+/// # Pipeline
+///
+/// 1. `bond_escrow.forfeit(reporter_idx, REPORTER_BOND_MOJOS,
+///    Reporter(evidence_hash))` — authoritative forfeit amount.
+/// 2. `winner_award = forfeited * BOND_AWARD_TO_WINNER_BPS /
+///    BPS_DENOMINATOR` (integer division — odd mojos round toward
+///    the burn bucket).
+/// 3. `burn = forfeited - winner_award` — conservation by
+///    construction.
+/// 4. `reward_payout.pay(appellant_puzzle_hash, winner_award)` —
+///    unconditional (emit even on zero award for auditability).
+///
+/// # Rejected branch
+///
+/// No-op, returns a zero-filled `BondSplitResult`. Rejected
+/// appeals forfeit the APPELLANT's bond (DSL-071) via a mirror
+/// function, not this one.
+///
+/// # Integer-division rounding
+///
+/// - `forfeited = 1` → `award = 0, burn = 1`
+/// - `forfeited = 2` → `award = 1, burn = 1`
+/// - `forfeited = 3` → `award = 1, burn = 2`
+///
+/// Floor rounding on the winner's side; burn absorbs the
+/// remainder. Matches the SPEC §2.6 reference.
+///
+/// # Errors
+///
+/// Propagates `BondError` from the escrow's `forfeit` call. The
+/// caller (top-level adjudicator) MUST decide whether to abort
+/// or continue — adjudication is transactional at the manager
+/// boundary, so partial application on an escrow failure would
+/// leave inconsistent state.
+pub fn adjudicate_sustained_forfeit_reporter_bond(
+    pending: &PendingSlash,
+    appeal: &SlashAppeal,
+    verdict: &AppealVerdict,
+    bond_escrow: &mut dyn BondEscrow,
+    reward_payout: &mut dyn RewardPayout,
+) -> Result<BondSplitResult, BondError> {
+    if matches!(verdict, AppealVerdict::Rejected { .. }) {
+        return Ok(BondSplitResult {
+            forfeited: 0,
+            winner_award: 0,
+            burn: 0,
+        });
+    }
+
+    let forfeited = bond_escrow.forfeit(
+        pending.evidence.reporter_validator_index,
+        REPORTER_BOND_MOJOS,
+        BondTag::Reporter(pending.evidence_hash),
+    )?;
+    let winner_award = forfeited * BOND_AWARD_TO_WINNER_BPS / BPS_DENOMINATOR;
+    let burn = forfeited - winner_award;
+
+    // Audit-visible two-call shape: the pay() always fires, even
+    // on zero award — mirrors the admission-side pay() pattern
+    // from DSL-025.
+    reward_payout.pay(appeal.appellant_puzzle_hash, winner_award);
+
+    Ok(BondSplitResult {
+        forfeited,
+        winner_award,
+        burn,
+    })
 }
 
 /// Claw back the whistleblower + proposer rewards paid at
