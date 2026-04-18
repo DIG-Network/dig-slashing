@@ -336,11 +336,12 @@ items:
   - id: DSL-067
     section: "Adjudicator"
     summary: "Adjudicate Sustained clawback wb + prop rewards"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-067.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-067"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_067_adjudicate_sustained_clawback_rewards_test
+    notes: "adjudicate_sustained_clawback_rewards(pending, verdict, reward_clawback, proposer_puzzle_hash) -> ClawbackResult. Recomputes wb_amount = total_eff_bal / WHISTLEBLOWER_REWARD_QUOTIENT and prop_amount = wb_amount / PROPOSER_REWARD_QUOTIENT from pending.base_slash_per_validator (self-contained — no SlashingResult dep). Two unconditional claw_back calls (reporter + proposer). Shortfall = (wb+prop) - (wb_clawed+prop_clawed) for DSL-073. Full clawback on any Sustained (including ValidatorNotInIntersection). Rejected → zero-filled result. 4-test suite: wb call, prop call, full no-shortfall, half → shortfall = wb+prop - got."
 
   - id: DSL-068
     section: "Adjudicator"
