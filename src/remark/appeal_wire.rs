@@ -22,8 +22,13 @@
 //! wrong-schema payloads. See that module's rationale — same
 //! argument applies here.
 
+use clvmr::Allocator;
+use clvmr::serde::node_to_bytes;
+use dig_protocol::Bytes32;
+
 use crate::SLASH_APPEAL_REMARK_MAGIC_V1;
 use crate::appeal::envelope::SlashAppeal;
+use crate::error::SlashingError;
 
 /// Encode a `SlashAppeal` as a REMARK payload.
 ///
@@ -68,4 +73,71 @@ where
         }
     }
     out
+}
+
+/// CLVM puzzle reveal emitting exactly one `REMARK` condition
+/// carrying the DSL-110 encoded appeal payload.
+///
+/// Implements [DSL-111](../../docs/requirements/domains/remark/specs/DSL-111.md).
+/// Appeal-side analogue of
+/// [`slashing_evidence_remark_puzzle_reveal_v1`] — same
+/// constant-returning quote shape `(q . ((1 payload)))`, same
+/// commit-at-creation-time semantics, different payload source.
+///
+/// # Errors
+///
+/// - [`SlashingError::InvalidSlashingEvidence`] wrapping the
+///   serde / CLVM allocator failure. Kept unified with the
+///   evidence-side error for caller simplicity — the distinction
+///   between "evidence encode failure" and "appeal encode
+///   failure" is diagnostic-only.
+pub fn slash_appeal_remark_puzzle_reveal_v1(ap: &SlashAppeal) -> Result<Vec<u8>, SlashingError> {
+    let wire = encode_slash_appeal_remark_payload_v1(ap)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("encode: {e}")))?;
+
+    let mut allocator = Allocator::new();
+
+    let payload_atom = allocator
+        .new_atom(&wire)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_atom: {e}")))?;
+
+    let nil = allocator.nil();
+
+    let tail = allocator
+        .new_pair(payload_atom, nil)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_pair tail: {e}")))?;
+
+    let opcode = allocator
+        .new_small_number(1)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_small_number: {e}")))?;
+
+    let condition = allocator
+        .new_pair(opcode, tail)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_pair cond: {e}")))?;
+
+    let condition_list = allocator
+        .new_pair(condition, nil)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_pair list: {e}")))?;
+
+    let puzzle = allocator
+        .new_pair(opcode, condition_list)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_pair puzzle: {e}")))?;
+
+    node_to_bytes(&allocator, puzzle)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("node_to_bytes: {e}")))
+}
+
+/// `tree_hash` of the appeal REMARK puzzle reveal.
+///
+/// Implements [DSL-111](../../docs/requirements/domains/remark/specs/DSL-111.md).
+/// Returned `Bytes32` is the coin's `puzzle_hash` for the
+/// appellant spend admitted on-chain (DSL-112).
+///
+/// Deterministic for the same reasons as DSL-103 (serde_json on
+/// non-HashMap fields + fixed CLVM structure).
+pub fn slash_appeal_remark_puzzle_hash_v1(ap: &SlashAppeal) -> Result<Bytes32, SlashingError> {
+    let reveal = slash_appeal_remark_puzzle_reveal_v1(ap)?;
+    let hash = clvm_utils::tree_hash_from_bytes(&reveal)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("tree_hash: {e}")))?;
+    Ok(hash.into())
 }

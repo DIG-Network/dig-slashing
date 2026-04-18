@@ -35,7 +35,10 @@ pub mod appeal_wire;
 pub mod evidence_wire;
 pub mod policy;
 
-pub use appeal_wire::{encode_slash_appeal_remark_payload_v1, parse_slash_appeals_from_conditions};
+pub use appeal_wire::{
+    encode_slash_appeal_remark_payload_v1, parse_slash_appeals_from_conditions,
+    slash_appeal_remark_puzzle_hash_v1, slash_appeal_remark_puzzle_reveal_v1,
+};
 pub use evidence_wire::{
     encode_slashing_evidence_remark_payload_v1, parse_slashing_evidence_from_conditions,
     slashing_evidence_remark_puzzle_hash_v1, slashing_evidence_remark_puzzle_reveal_v1,
