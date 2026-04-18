@@ -16,6 +16,7 @@ pub mod indexed_attestation;
 pub mod invalid_block;
 pub mod offense;
 pub mod proposer_slashing;
+pub mod verify;
 
 pub use attestation_data::AttestationData;
 pub use attester_slashing::AttesterSlashing;
@@ -25,3 +26,4 @@ pub use indexed_attestation::IndexedAttestation;
 pub use invalid_block::{InvalidBlockProof, InvalidBlockReason};
 pub use offense::OffenseType;
 pub use proposer_slashing::{ProposerSlashing, SignedBlockHeader};
+pub use verify::{VerifiedEvidence, verify_evidence};

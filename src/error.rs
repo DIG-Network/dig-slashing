@@ -41,4 +41,22 @@ pub enum SlashingError {
     /// evidence and callers MUST reject the envelope uniformly.
     #[error("BLS signature verification failed")]
     BlsVerifyFailed,
+
+    /// Offense epoch is older than `SLASH_LOOKBACK_EPOCHS` relative to
+    /// the current epoch.
+    ///
+    /// Raised by `verify_evidence` (DSL-011) as the very first check —
+    /// cheap filter BEFORE any BLS or validator-view work. The check
+    /// is `evidence.epoch + SLASH_LOOKBACK_EPOCHS < current_epoch`,
+    /// phrased with addition on the LHS to avoid underflow when
+    /// `current_epoch < SLASH_LOOKBACK_EPOCHS` (e.g., at network boot).
+    /// Carries both epochs so adjudicators can diagnose the exact
+    /// delta without re-deriving it.
+    #[error("offense too old: offense_epoch={offense_epoch}, current_epoch={current_epoch}")]
+    OffenseTooOld {
+        /// Epoch the evidence claims the offense occurred at.
+        offense_epoch: u64,
+        /// Current epoch as seen by the verifier.
+        current_epoch: u64,
+    },
 }

@@ -22,7 +22,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-010 — SlashingEvidence::slashable_validators
 
 ### Verification
-- [ ] DSL-011 — verify_evidence OffenseTooOld enforcement
+- [x] DSL-011 — verify_evidence OffenseTooOld enforcement
 - [ ] DSL-012 — verify_evidence ReporterIsAccused rejection
 - [ ] DSL-013 — verify_proposer_slashing preconditions
 - [ ] DSL-014 — verify_attester_slashing double-vote predicate
