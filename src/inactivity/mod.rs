@@ -24,5 +24,7 @@
 //!   - DSL-093: post-stall zero penalties
 
 pub mod penalty;
+pub mod score;
 
 pub use penalty::in_finality_stall;
+pub use score::InactivityScoreTracker;

@@ -86,7 +86,7 @@ pub use evidence::{
     SlashingEvidencePayload, VerifiedEvidence, block_signing_message, verify_attester_slashing,
     verify_evidence, verify_evidence_for_inclusion, verify_invalid_block, verify_proposer_slashing,
 };
-pub use inactivity::in_finality_stall;
+pub use inactivity::{InactivityScoreTracker, in_finality_stall};
 pub use manager::{FinalisationResult, PerValidatorSlash, SlashingManager, SlashingResult};
 pub use participation::{
     FlagDelta, ParticipationError, ParticipationFlags, ParticipationTracker, base_reward,

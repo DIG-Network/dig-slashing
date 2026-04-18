@@ -15,11 +15,11 @@ items:
   - id: DSL-088
     section: "Score Update"
     summary: "InactivityScoreTracker::update_for_epoch decrements score by 1 (saturating) on target-timely hit"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/inactivity/specs/DSL-088.md"
     tests:
       - dsl_088_inactivity_score_hit_decrement_test
-    notes: "Decrement applies independently of in_finality_stall; saturating at 0."
+    notes: "Adds InactivityScoreTracker (Vec<u64> indexed by validator). Constructor new(validator_count), accessors score/set_score/validator_count. update_for_epoch(participation, in_finality_stall) reads previous_flags, decrements 1 saturating at 0 per TIMELY_TARGET hit. _in_finality_stall pre-wired for DSL-089/090. 3-test suite: hit decrement, zero saturates, stall does not gate decrement."
 
   - id: DSL-089
     section: "Score Update"
