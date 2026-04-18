@@ -38,6 +38,7 @@ use dig_epoch::SLASH_LOOKBACK_EPOCHS;
 use crate::appeal::envelope::SlashAppeal;
 use crate::error::SlashingError;
 use crate::evidence::SlashingEvidence;
+use crate::pending::PendingSlashStatus;
 use crate::remark::appeal_wire::{
     parse_slash_appeals_from_conditions, slash_appeal_remark_puzzle_hash_v1,
 };
@@ -388,6 +389,44 @@ pub fn enforce_slash_appeal_window_policy(
                 window: SLASH_APPEAL_WINDOW_EPOCHS,
                 current: ap.filed_epoch,
             });
+        }
+    }
+    Ok(())
+}
+
+/// Enforce the DSL-116 appeal terminal-status mempool policy.
+///
+/// Rejects any appeal whose target pending slash is in a terminal
+/// status (`Finalised` or `Reverted`). Non-terminal statuses
+/// (`Accepted`, `ChallengeOpen`) admit. Appeals whose hash is not
+/// in the status lookup skip — DSL-114 owns that rejection.
+///
+/// # Errors
+///
+/// - [`SlashingError::SlashAlreadyFinalised`] (DSL-061 variant)
+///   for `Finalised` targets.
+/// - [`SlashingError::SlashAlreadyReverted`] (DSL-060 variant)
+///   for `Reverted` targets.
+///
+/// Reuses the manager-layer variants rather than introducing a
+/// combined `AppealForFinalisedSlash(hex)` — keeps the error
+/// surface narrow and lets callers distinguish the two cases
+/// downstream without string-matching.
+pub fn enforce_slash_appeal_terminal_status_policy(
+    appeals: &[SlashAppeal],
+    status_by_hash: &HashMap<Bytes32, PendingSlashStatus>,
+) -> Result<(), SlashingError> {
+    for ap in appeals {
+        match status_by_hash.get(&ap.evidence_hash) {
+            Some(PendingSlashStatus::Finalised { .. }) => {
+                return Err(SlashingError::SlashAlreadyFinalised);
+            }
+            Some(PendingSlashStatus::Reverted { .. }) => {
+                return Err(SlashingError::SlashAlreadyReverted);
+            }
+            // Accepted / ChallengeOpen are still open for appeal;
+            // absent entries are out of scope (DSL-114 handles).
+            _ => {}
         }
     }
     Ok(())

@@ -157,7 +157,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-113 — Appeal admission mismatch rejected
 - [x] DSL-114 — Appeal mempool AppealForUnknownSlash
 - [x] DSL-115 — Appeal mempool AppealWindowExpired
-- [ ] DSL-116 — Appeal mempool AppealForFinalisedSlash
+- [x] DSL-116 — Appeal mempool AppealForFinalisedSlash
 - [ ] DSL-117 — Appeal mempool AppealVariantMismatch
 - [ ] DSL-118 — Appeal mempool duplicate rejected
 - [ ] DSL-119 — Appeal block cap
