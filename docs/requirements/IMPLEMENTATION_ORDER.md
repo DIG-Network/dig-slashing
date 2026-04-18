@@ -11,13 +11,13 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 ### Types
 - [x] DSL-001 — OffenseType BPS mapping (500/300/100/100)
-- [ ] DSL-002 — SlashingEvidence::hash deterministic + sensitive
+- [x] DSL-002 — SlashingEvidence::hash deterministic + sensitive
 - [x] DSL-003 — Checkpoint roundtrip
 - [x] DSL-004 — AttestationData::signing_root domain-prefixed
 - [x] DSL-005 — IndexedAttestation::validate_structure
 - [ ] DSL-006 — IndexedAttestation::verify_signature (aggregate BLS)
 - [x] DSL-007 — AttesterSlashing::slashable_indices (intersection)
-- [ ] DSL-008 — InvalidBlockProof + InvalidBlockReason roundtrip
+- [x] DSL-008 — InvalidBlockProof + InvalidBlockReason roundtrip
 - [x] DSL-009 — SignedBlockHeader roundtrip
 - [ ] DSL-010 — SlashingEvidence::slashable_validators
 
