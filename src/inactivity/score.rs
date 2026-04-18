@@ -207,6 +207,27 @@ impl InactivityScoreTracker {
     /// - Same size: no-op.
     ///
     /// Existing scores in the preserved range are unchanged.
+    /// Rewind the tracker on fork-choice reorg.
+    ///
+    /// Implements the inactivity leg of DSL-130
+    /// `rewind_all_on_reorg`. Zeroes every score — the same
+    /// conservative-choice rationale as
+    /// `ParticipationTracker::rewind_on_reorg`: no historical
+    /// snapshots to restore, so fresh accumulation on the new
+    /// canonical tip is safest (no ghost inactivity penalties).
+    ///
+    /// Returns the number of epochs dropped — computed by the
+    /// caller, not the tracker (the tracker does not carry an
+    /// epoch counter). Accepts the value as `depth` so the
+    /// DSL-130 `ReorgReport` can carry it uniformly with the
+    /// participation-side report.
+    pub fn rewind_on_reorg(&mut self, depth: u64) -> u64 {
+        for score in &mut self.scores {
+            *score = 0;
+        }
+        depth
+    }
+
     pub fn resize_for(&mut self, validator_count: usize) {
         self.scores.resize(validator_count, 0);
     }

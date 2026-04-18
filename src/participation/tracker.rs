@@ -141,6 +141,38 @@ impl ParticipationTracker {
         self.current_epoch_number = new_epoch;
     }
 
+    /// Rewind the tracker on fork-choice reorg.
+    ///
+    /// Implements the participation leg of DSL-130
+    /// `rewind_all_on_reorg`. Drops both flag vectors and
+    /// reinstates `new_tip_epoch` as the current epoch with
+    /// zero-initialised flags.
+    ///
+    /// Why zero-fill instead of restoring pre-reorg state: the
+    /// tracker does NOT retain historical snapshots (each
+    /// `rotate_epoch` overwrites in place). Post-rewind, flag
+    /// accumulation resumes fresh from the new canonical tip —
+    /// the reward-delta pass at the NEXT epoch boundary
+    /// observes no activity over the rewound span (conservative;
+    /// no false reward credits from a ghost chain). Also zero-
+    /// fills the `previous_epoch` slot so the first post-rewind
+    /// `compute_flag_deltas` cannot read ghost data.
+    ///
+    /// Returns the number of epochs dropped
+    /// (`old_current_epoch - new_tip_epoch`, saturating at 0
+    /// when the tip is already current or ahead).
+    pub fn rewind_on_reorg(&mut self, new_tip_epoch: u64, validator_count: usize) -> u64 {
+        let dropped = self.current_epoch_number.saturating_sub(new_tip_epoch);
+        // rotate_epoch zeroes the current slot; the swap in
+        // rotate_epoch would otherwise preserve ghost `previous`
+        // data from the reorged chain, so clear previous too.
+        self.rotate_epoch(new_tip_epoch, validator_count);
+        self.previous_epoch.clear();
+        self.previous_epoch
+            .resize(validator_count, ParticipationFlags::default());
+        dropped
+    }
+
     /// Record an attestation: apply `flags` to every entry in
     /// `attesting_indices` via bit-OR into the current epoch's
     /// per-validator bucket.

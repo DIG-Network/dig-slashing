@@ -36,11 +36,12 @@ items:
   - id: DSL-130
     section: "Global Reorg"
     summary: "rewind_all_on_reorg + ReorgTooDeep"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/orchestration/specs/DSL-130.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-130"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_130_rewind_all_on_reorg_test
+    notes: "Closes Phase 8 Orchestration. Adds pub fn rewind_all_on_reorg + ReorgReport in orchestration.rs. Supporting additions: SlashingError::ReorgTooDeep { depth, limit } variant; ParticipationTracker::rewind_on_reorg (zero-fills both flag vectors); InactivityScoreTracker::rewind_on_reorg (zero-fills all scores, depth passthrough). Fixed 4-step order: manager (DSL-129) → participation → inactivity → protection (DSL-099 reconcile). Strict `>` check vs CORRELATION_WINDOW_EPOCHS=36; on-error no state mutation. On success anchors manager.current_epoch = new_tip_epoch. 4-test suite: all-four-rewound outcomes, depth=37 rejects without mutation, boundary-36 admits, report populated with depth counters."
 
   - id: DSL-165
     section: "Serialization"
