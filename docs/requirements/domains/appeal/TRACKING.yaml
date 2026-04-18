@@ -66,11 +66,12 @@ items:
   - id: DSL-040
     section: "Proposer Appeal"
     summary: "ProposerAppeal rejected on false claim"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-040.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-040"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_040_proposer_appeal_rejected_on_false_claim_test
+    notes: "Closes the 6-ground proposer appeal surface (DSL-034..039) with a symmetric rejection matrix. Builds a single `genuine()` fixture with honest equivocation evidence + active validator, then asserts every verify_proposer_appeal_* function returns Rejected{GroundDoesNotHold}. 6 tests: HeadersIdentical-false-claim, ProposerIndexMismatch-false, SignatureAInvalid-false, SignatureBInvalid-false, SlotMismatch-false, ValidatorNotActiveAtEpoch-false."
 
   - id: DSL-041
     section: "Attester Appeal"
