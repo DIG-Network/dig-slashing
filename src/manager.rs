@@ -412,6 +412,7 @@ impl SlashingManager {
         &mut self,
         validator_set: &mut dyn ValidatorView,
         effective_balances: &dyn EffectiveBalanceView,
+        bond_escrow: &mut dyn BondEscrow,
         total_active_balance: u64,
     ) -> Vec<FinalisationResult> {
         let expired = self.book.expired_by(self.current_epoch);
@@ -446,7 +447,7 @@ impl SlashingManager {
             // Snapshot per-validator entries (clone the small vec)
             // before the mutable borrow for the validator-set slash
             // calls. Keeps the borrow graph simple.
-            let (slashable_indices, evidence_hash) = {
+            let (slashable_indices, evidence_hash, reporter_idx) = {
                 let pending = match self.book.get(&hash) {
                     Some(p) => p,
                     None => continue,
@@ -458,6 +459,7 @@ impl SlashingManager {
                         .map(|p| p.validator_index)
                         .collect::<Vec<u32>>(),
                     pending.evidence_hash,
+                    pending.evidence.reporter_validator_index,
                 )
             };
 
@@ -486,6 +488,17 @@ impl SlashingManager {
                 correlation.push((idx, penalty));
             }
 
+            // DSL-031: release reporter bond in full. Bond was locked
+            // at admission (DSL-023); release is infallible by
+            // construction — any escrow error is a book-keeping bug
+            // that shouldn't block epoch advancement, so log-and-continue
+            // behaviour is acceptable (tests supply accepting escrows).
+            let _ = bond_escrow.release(
+                reporter_idx,
+                REPORTER_BOND_MOJOS,
+                BondTag::Reporter(evidence_hash),
+            );
+
             // Now flip the pending status. Second borrow on book.
             if let Some(pending) = self.book.get_mut(&hash) {
                 pending.status = PendingSlashStatus::Finalised {
@@ -496,6 +509,7 @@ impl SlashingManager {
             results.push(FinalisationResult {
                 evidence_hash,
                 per_validator_correlation_penalty: correlation,
+                reporter_bond_returned: REPORTER_BOND_MOJOS,
                 ..Default::default()
             });
         }

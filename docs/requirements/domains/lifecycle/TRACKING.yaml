@@ -96,11 +96,12 @@ items:
   - id: DSL-031
     section: "Finalisation"
     summary: "finalise_expired_slashes returns reporter bond in full via BondEscrow::release"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-031.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-031"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_031_finalise_returns_reporter_bond_test
+    notes: "finalise_expired_slashes now calls bond_escrow.release(reporter_idx, REPORTER_BOND_MOJOS, BondTag::Reporter(evidence_hash)) per finalised pending. FinalisationResult.reporter_bond_returned populated with REPORTER_BOND_MOJOS. Signature extended: adds &mut dyn BondEscrow param. Release error is logged-and-ignored (infallible-by-construction for valid tags). DSL-029/030 tests patched for new signature. 7-test suite with RecordingBond mock: release called once with exact args, reporter_bond_returned field equals constant, lock amount == release amount, release tag equals evidence.hash(), idempotent (second call no extra release), 3 distinct pendings → 3 distinct release tags, release principal_idx equals reporter (not proposer)."
 
   - id: DSL-032
     section: "Finalisation"

@@ -260,6 +260,7 @@ fn test_dsl_029_accepted_transitions_to_finalised() {
             (9u32, MIN_EFFECTIVE_BALANCE),
             (0u32, MIN_EFFECTIVE_BALANCE),
         ])),
+        &mut AcceptingBond,
         MIN_EFFECTIVE_BALANCE * 1000,
     );
 
@@ -310,6 +311,7 @@ fn test_dsl_029_challenge_open_transitions_to_finalised() {
             (9u32, MIN_EFFECTIVE_BALANCE),
             (0u32, MIN_EFFECTIVE_BALANCE),
         ])),
+        &mut AcceptingBond,
         MIN_EFFECTIVE_BALANCE * 1000,
     );
     assert_eq!(results.len(), 1);
@@ -335,6 +337,7 @@ fn test_dsl_029_finalisation_result_emitted() {
             (9u32, MIN_EFFECTIVE_BALANCE),
             (0u32, MIN_EFFECTIVE_BALANCE),
         ])),
+        &mut AcceptingBond,
         MIN_EFFECTIVE_BALANCE * 1000,
     );
 
@@ -357,6 +360,7 @@ fn test_dsl_029_idempotent_second_call_no_op() {
             (9u32, MIN_EFFECTIVE_BALANCE),
             (0u32, MIN_EFFECTIVE_BALANCE),
         ])),
+        &mut AcceptingBond,
         MIN_EFFECTIVE_BALANCE * 1000,
     );
     assert_eq!(first.len(), 1);
@@ -367,6 +371,7 @@ fn test_dsl_029_idempotent_second_call_no_op() {
             (9u32, MIN_EFFECTIVE_BALANCE),
             (0u32, MIN_EFFECTIVE_BALANCE),
         ])),
+        &mut AcceptingBond,
         MIN_EFFECTIVE_BALANCE * 1000,
     );
     assert!(second.is_empty(), "second call must be a no-op");
@@ -379,8 +384,13 @@ fn test_dsl_029_empty_book_returns_empty_vec() {
     let mut view = MapView(HashMap::new());
     let balances = MapBalances(HashMap::new());
     assert!(
-        mgr.finalise_expired_slashes(&mut view, &balances, MIN_EFFECTIVE_BALANCE * 1000)
-            .is_empty(),
+        mgr.finalise_expired_slashes(
+            &mut view,
+            &balances,
+            &mut AcceptingBond,
+            MIN_EFFECTIVE_BALANCE * 1000
+        )
+        .is_empty(),
     );
 }
 
@@ -402,6 +412,7 @@ fn test_dsl_029_multiple_expired_deterministic_order() {
             (9u32, MIN_EFFECTIVE_BALANCE),
             (0u32, MIN_EFFECTIVE_BALANCE),
         ])),
+        &mut AcceptingBond,
         MIN_EFFECTIVE_BALANCE * 1000,
     );
     assert_eq!(results.len(), 3);
@@ -428,6 +439,7 @@ fn test_dsl_029_not_yet_expired_untouched() {
             (9u32, MIN_EFFECTIVE_BALANCE),
             (0u32, MIN_EFFECTIVE_BALANCE),
         ])),
+        &mut AcceptingBond,
         MIN_EFFECTIVE_BALANCE * 1000,
     );
     assert!(results.is_empty(), "not-yet-expired must NOT finalise");
