@@ -116,11 +116,12 @@ items:
   - id: DSL-142
     section: "Bonds + Rewards"
     summary: "RewardClawback::claw_back partial"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/traits/specs/DSL-142.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-142"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_142_reward_clawback_partial_test
+    notes: "Pins claw_back via reference MockClawback. Saturating at balance; returns actual clawed (not requested). Load-bearing: reward accounts spendable between admission and sustained-appeal, so partial clawback is the normal case; DSL-073 absorbs shortfall from forfeited reporter-bond burn leg. 5-test suite: full clawback, partial (balance<amount returns balance), empty balance 0, u64::MAX-5 + balance=5 with claw(u64::MAX) no panic, multiple clawbacks compose across three calls."
 
   - id: DSL-143
     section: "Fork-Choice Oracles"
