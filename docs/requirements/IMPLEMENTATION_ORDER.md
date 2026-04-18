@@ -83,7 +83,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-056 — submit_appeal WindowExpired
 - [x] DSL-057 — submit_appeal VariantMismatch
 - [x] DSL-058 — submit_appeal DuplicateAppeal
-- [ ] DSL-059 — submit_appeal TooManyAttempts
+- [x] DSL-059 — submit_appeal TooManyAttempts
 - [ ] DSL-060 — submit_appeal SlashAlreadyReverted
 - [ ] DSL-061 — submit_appeal SlashAlreadyFinalised
 - [ ] DSL-062 — submit_appeal escrows appellant bond

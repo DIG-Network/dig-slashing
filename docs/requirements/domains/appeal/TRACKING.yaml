@@ -256,11 +256,12 @@ items:
   - id: DSL-059
     section: "Submission Preconditions"
     summary: "submit_appeal TooManyAttempts"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-059.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-059"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_059_submit_appeal_too_many_attempts_test
+    notes: "Fifth submit_appeal precondition. Adds MAX_APPEAL_ATTEMPTS_PER_SLASH = 4 (SPEC §2.6) + SlashingError::TooManyAttempts{count,limit}. Rejects iff appeal_history.len() >= cap. Runs AFTER DuplicateAppeal, BEFORE bond lock. 2-test suite: 4 seeded priors + 5th → TooManyAttempts{4,4} + zero lock_calls, 3 priors + 4th → Ok."
 
   - id: DSL-060
     section: "Submission Preconditions"

@@ -155,6 +155,22 @@ pub enum SlashingError {
     #[error("reporter cannot accuse self (index {0})")]
     ReporterIsAccused(u32),
 
+    /// Appellant ran out of distinct attempts against this pending
+    /// slash.
+    ///
+    /// Raised by DSL-059. Caps adjudication cost at
+    /// `MAX_APPEAL_ATTEMPTS_PER_SLASH` (4). Only REJECTED attempts
+    /// accumulate — a sustained appeal transitions the slash to
+    /// `Reverted` and drains the book entry, so the counter can
+    /// never exceed the cap in practice.
+    #[error("too many appeal attempts: count={count}, limit={limit}")]
+    TooManyAttempts {
+        /// Attempts already recorded in `appeal_history`.
+        count: usize,
+        /// `MAX_APPEAL_ATTEMPTS_PER_SLASH` at the time of check.
+        limit: usize,
+    },
+
     /// Byte-equal appeal already present in
     /// `PendingSlash::appeal_history`.
     ///
