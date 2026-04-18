@@ -21,5 +21,7 @@
 //!   - DSL-081..086: reward / penalty deltas
 
 pub mod flags;
+pub mod timeliness;
 
 pub use flags::ParticipationFlags;
+pub use timeliness::classify_timeliness;
