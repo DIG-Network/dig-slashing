@@ -20,7 +20,7 @@ use thiserror::Error;
 ///
 /// Per SPEC §17.1. Variants carry the minimum context needed to diagnose
 /// the failure without leaking internal state.
-#[derive(Debug, Clone, PartialEq, Eq, Error)]
+#[derive(Debug, Clone, PartialEq, Eq, Error, serde::Serialize, serde::Deserialize)]
 pub enum SlashingError {
     /// `IndexedAttestation` failed its cheap structural check
     /// (DSL-005): empty indices, non-ascending/duplicate indices,

@@ -31,10 +31,12 @@
 //! `appeal_puzzle`, `admission`, `policy`) land with their
 //! DSL-NNN requirements.
 
+pub mod admissions;
 pub mod appeal_wire;
 pub mod evidence_wire;
 pub mod policy;
 
+pub use admissions::{BlockAdmissionReport, process_block_admissions};
 pub use appeal_wire::{
     encode_slash_appeal_remark_payload_v1, parse_slash_appeals_from_conditions,
     slash_appeal_remark_puzzle_hash_v1, slash_appeal_remark_puzzle_reveal_v1,

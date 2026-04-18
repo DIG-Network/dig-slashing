@@ -196,8 +196,9 @@ items:
   - id: DSL-168
     section: "Phase 12 Integration Closures"
     summary: "process_block_admissions block-level entry point"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-168.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-168"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_168_process_block_admissions_test
+    notes: "Adds src/remark/admissions.rs with pub fn process_block_admissions composing DSL-106/111/022/062 pipeline into one call + BlockAdmissionReport struct. Evidence processed before appeal for same-block references. Cap overflow truncates + counts. Adds `Serialize, Deserialize` derives to SlashingError so rejected_evidences vec serde-roundtrips. 6-test suite: empty, admits one BLS-signed evidence, mixed valid/malformed (parse silent-skips), cap overflow +5 drops, duplicate in-block → first admits + second AlreadySlashed, serde roundtrip."
