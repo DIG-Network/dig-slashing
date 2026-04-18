@@ -44,7 +44,9 @@ use crate::remark::appeal_wire::{
 use crate::remark::evidence_wire::{
     parse_slashing_evidence_from_conditions, slashing_evidence_remark_puzzle_hash_v1,
 };
-use crate::{MAX_SLASH_PROPOSAL_PAYLOAD_BYTES, MAX_SLASH_PROPOSALS_PER_BLOCK};
+use crate::{
+    MAX_SLASH_PROPOSAL_PAYLOAD_BYTES, MAX_SLASH_PROPOSALS_PER_BLOCK, SLASH_APPEAL_WINDOW_EPOCHS,
+};
 
 /// Enforce the DSL-104 admission predicate over every evidence
 /// parsed from a spend bundle's REMARK conditions.
@@ -342,6 +344,50 @@ pub fn enforce_slash_appeal_mempool_policy(
             return Err(SlashingError::UnknownEvidence(hex_encode_lower(
                 ap.evidence_hash.as_ref(),
             )));
+        }
+    }
+    Ok(())
+}
+
+/// Enforce the DSL-115 appeal-window mempool policy.
+///
+/// For each appeal, look up its target pending slash's
+/// `submitted_at_epoch` via `submitted_at` (map of `evidence_hash
+/// → submitted_at`). If the map does NOT contain the entry, the
+/// appeal is out of scope for this check — DSL-114
+/// `enforce_slash_appeal_mempool_policy` handles unknown-hash
+/// rejection separately.
+///
+/// Window predicate (inclusive on both ends):
+///
+/// ```text
+/// appeal.filed_epoch <= submitted_at + SLASH_APPEAL_WINDOW_EPOCHS
+/// ```
+///
+/// Strictly greater → reject. Matches DSL-056 manager-level
+/// check byte-for-byte so the mempool and manager agree on the
+/// boundary.
+///
+/// # Errors
+///
+/// - [`SlashingError::AppealWindowExpired`] carrying the
+///   `submitted_at` epoch, the `window` constant, and the
+///   appeal's `filed_epoch` as `current`. Mirrors the DSL-056
+///   variant for unified diagnostics. Short-circuits on first
+///   expired appeal.
+pub fn enforce_slash_appeal_window_policy(
+    appeals: &[SlashAppeal],
+    submitted_at: &HashMap<Bytes32, u64>,
+) -> Result<(), SlashingError> {
+    for ap in appeals {
+        if let Some(&submitted) = submitted_at.get(&ap.evidence_hash)
+            && ap.filed_epoch > submitted + SLASH_APPEAL_WINDOW_EPOCHS
+        {
+            return Err(SlashingError::AppealWindowExpired {
+                submitted_at: submitted,
+                window: SLASH_APPEAL_WINDOW_EPOCHS,
+                current: ap.filed_epoch,
+            });
         }
     }
     Ok(())

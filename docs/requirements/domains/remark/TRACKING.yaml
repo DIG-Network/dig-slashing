@@ -136,11 +136,12 @@ items:
   - id: DSL-115
     section: "Appeal Mempool Policy"
     summary: "AppealWindowExpired"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-115.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-115"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_115_appeal_mempool_window_expired_test
+    notes: "Adds pub fn enforce_slash_appeal_window_policy(appeals, submitted_at: &HashMap<Bytes32, u64>) -> Result<(), SlashingError>. Predicate `filed_epoch > submitted + SLASH_APPEAL_WINDOW_EPOCHS` (strict `>` so boundary admits). Reuses existing SlashingError::AppealWindowExpired (DSL-056 variant) for unified mempool+manager diagnostic. Unknown-hash appeals skip — responsibility split from DSL-114. Uses `if let ... && ...` 2024-edition chain for clean guard. 5-test suite: past-window with all three fields, boundary admits, within admits, unknown-hash skipped, first-expired short-circuits."
 
   - id: DSL-116
     section: "Appeal Mempool Policy"
