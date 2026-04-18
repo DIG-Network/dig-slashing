@@ -435,6 +435,51 @@ fn verify_attester_appeal_signature_side(
     }
 }
 
+/// Verify `AttesterAppealGround::InvalidIndexedAttestationStructure`.
+///
+/// Implements [DSL-046](../../../docs/requirements/domains/appeal/specs/DSL-046.md).
+/// Traces to SPEC §6.3.
+///
+/// # Predicate
+///
+/// Sustains when `validate_structure()` (DSL-005) fails on either
+/// attestation. Covers all five DSL-005 rejection legs:
+/// - empty `attesting_indices`
+/// - `attesting_indices.len() > MAX_VALIDATORS_PER_COMMITTEE`
+/// - `signature.len() != BLS_SIGNATURE_SIZE`
+/// - non-ascending indices (`w[0] > w[1]`)
+/// - duplicate indices (`w[0] == w[1]`)
+///
+/// # Verdict
+///
+/// - `Sustained { InvalidIndexedAttestationStructure }` iff either
+///   side fails structural validation.
+/// - `Rejected { GroundDoesNotHold }` iff both sides are well-formed.
+///
+/// # Short-circuit order
+///
+/// Checks side A first; if A fails, B is not evaluated. Either-side
+/// failure is sufficient to sustain, so the short-circuit is
+/// verdict-preserving — only cost order matters.
+///
+/// Evidence-only; witness ignored.
+#[must_use]
+pub fn verify_attester_appeal_invalid_indexed_attestation_structure(
+    evidence: &AttesterSlashing,
+) -> AppealVerdict {
+    if evidence.attestation_a.validate_structure().is_err()
+        || evidence.attestation_b.validate_structure().is_err()
+    {
+        AppealVerdict::Sustained {
+            reason: AppealSustainReason::InvalidIndexedAttestationStructure,
+        }
+    } else {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    }
+}
+
 /// Verify `AttesterAppealGround::AttestationsIdentical`.
 ///
 /// Implements [DSL-041](../../../docs/requirements/domains/appeal/specs/DSL-041.md).

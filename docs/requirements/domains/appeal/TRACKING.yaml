@@ -126,11 +126,12 @@ items:
   - id: DSL-046
     section: "Attester Appeal"
     summary: "AttesterAppeal InvalidIndexedAttestationStructure sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-046.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-046"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_046_attester_appeal_invalid_structure_test
+    notes: "verify_attester_appeal_invalid_indexed_attestation_structure inverts DSL-005; sustains when either side's validate_structure() returns Err. Evidence-only. 6-test suite covers every DSL-005 failure leg: non-ascending [3,2,1], duplicate [1,1,2], empty [], over-cap MAX_VALIDATORS_PER_COMMITTEE+1, bad sig width 95 bytes, plus well-formed determinism guard."
 
   - id: DSL-047
     section: "Attester Appeal"
