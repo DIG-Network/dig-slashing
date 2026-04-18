@@ -195,7 +195,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-142 — RewardClawback::claw_back partial
 - [x] DSL-143 — JustificationView contract
 - [x] DSL-144 — ProposerView::proposer_at_slot
-- [ ] DSL-145 — InvalidBlockOracle::re_execute determinism
+- [x] DSL-145 — InvalidBlockOracle::re_execute determinism
 
 ## Phase 10: Gap Fills (DSL-146..156)
 
