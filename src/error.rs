@@ -324,6 +324,30 @@ pub enum SlashingError {
     #[error("duplicate evidence in mempool policy")]
     DuplicateEvidence,
 
+    /// Reorg depth exceeds the retention window the trackers
+    /// can reconstruct.
+    ///
+    /// Raised by DSL-130 `rewind_all_on_reorg` when
+    /// `current_epoch - new_tip_epoch > CORRELATION_WINDOW_EPOCHS`.
+    /// The correlation window is the deepest per-validator state
+    /// we retain; anything older cannot be rewound correctly
+    /// because the `slashed_in_window` rows have been pruned
+    /// (DSL-127 step 8) and the participation / inactivity
+    /// trackers do not keep per-epoch snapshots.
+    ///
+    /// An embedder receiving this error must fall back to a
+    /// longer-range reconciliation path (full resync or
+    /// checkpoint restore); the slashing crate cannot handle
+    /// the rewind locally.
+    #[error("reorg depth {depth} exceeds retention limit {limit}")]
+    ReorgTooDeep {
+        /// `current_epoch - new_tip_epoch` — how far back the
+        /// reorg wants to move.
+        depth: u64,
+        /// `CORRELATION_WINDOW_EPOCHS` at the time of check.
+        limit: u64,
+    },
+
     /// REMARK admission found an evidence whose derived
     /// `slashing_evidence_remark_puzzle_hash_v1` does NOT match
     /// the spent coin's `puzzle_hash`.

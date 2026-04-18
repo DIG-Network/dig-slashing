@@ -48,11 +48,15 @@ use std::collections::BTreeMap;
 
 use dig_epoch::CORRELATION_WINDOW_EPOCHS;
 
+use dig_protocol::Bytes32;
+
 use crate::bonds::BondEscrow;
+use crate::error::SlashingError;
 use crate::inactivity::{InactivityScoreTracker, in_finality_stall};
 use crate::manager::{FinalisationResult, SlashingManager};
 use crate::participation::{FlagDelta, ParticipationTracker, compute_flag_deltas};
-use crate::traits::{EffectiveBalanceView, RewardPayout, ValidatorView};
+use crate::protection::SlashingProtection;
+use crate::traits::{CollateralSlasher, EffectiveBalanceView, RewardPayout, ValidatorView};
 
 /// Per-epoch finality view. Returns the epoch of the most
 /// recently FINALIZED Casper-FFG checkpoint. DSL-127 consults
@@ -193,3 +197,112 @@ pub fn run_epoch_boundary(
 // a no-op to avoid unused-import churn.
 #[allow(dead_code)]
 type _KeepBTreeMap<K, V> = BTreeMap<K, V>;
+
+/// Summary produced by [`rewind_all_on_reorg`]. Carries per-
+/// subsystem rewind outcomes so the caller (a chain-shell
+/// orchestrator) can log or emit metrics without re-deriving
+/// the rewind scope from internal tracker state.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ReorgReport {
+    /// Evidence hashes rewound by
+    /// [`SlashingManager::rewind_on_reorg`] (DSL-129).
+    pub rewound_pending_slashes: Vec<Bytes32>,
+    /// Epochs dropped from the participation tracker (= reorg
+    /// depth at the moment the tracker was rewound).
+    pub participation_epochs_dropped: u64,
+    /// Epochs dropped from the inactivity tracker (same depth —
+    /// the inactivity tracker does not carry an epoch counter,
+    /// so the caller's computed depth is carried through for
+    /// uniform metric reporting).
+    pub inactivity_epochs_dropped: u64,
+    /// Whether `SlashingProtection::reconcile_with_chain_tip`
+    /// was called. `true` in every successful rewind; exposed
+    /// as a field for symmetry / future branching.
+    pub protection_rewound: bool,
+}
+
+/// Global reorg orchestrator. Rewinds every slashing-state
+/// subsystem in a fixed order.
+///
+/// Implements [DSL-130](../docs/requirements/domains/orchestration/specs/DSL-130.md).
+/// Traces to SPEC §13.
+///
+/// # Step order
+///
+///   1. [`SlashingManager::rewind_on_reorg`] (DSL-129) — must
+///      run FIRST because it reads validator-set state that the
+///      other rewinds do not touch; running it after a
+///      participation rewind would confuse the `is_slashed`
+///      check inside `credit_stake` / `restore_status`.
+///   2. [`ParticipationTracker::rewind_on_reorg`] — zero-fills
+///      both flag vectors and anchors current_epoch at the
+///      new tip.
+///   3. [`InactivityScoreTracker::rewind_on_reorg`] — zero-
+///      fills every score.
+///   4. [`SlashingProtection::reconcile_with_chain_tip`]
+///      (DSL-099) — caps proposal + attestation watermarks at
+///      the new tip and clears the attested-block hash binding.
+///
+/// After success, `manager.current_epoch()` is reset to
+/// `new_tip_epoch` so the orchestration state carries the
+/// post-reorg epoch forward.
+///
+/// # Depth limit
+///
+/// `current - new_tip_epoch > CORRELATION_WINDOW_EPOCHS` ⇒
+/// `SlashingError::ReorgTooDeep`. The correlation window is
+/// the deepest state we can reconstruct — older `slashed_in_window`
+/// rows have been pruned (DSL-127 step 8) and no subsystem
+/// retains snapshots further back.
+///
+/// # Errors
+///
+/// - [`SlashingError::ReorgTooDeep`] — reorg depth exceeds
+///   retention. No state is mutated; caller must recover via a
+///   longer-range reconciliation path (checkpoint restore /
+///   full resync).
+#[allow(clippy::too_many_arguments)]
+pub fn rewind_all_on_reorg(
+    manager: &mut SlashingManager,
+    participation: &mut ParticipationTracker,
+    inactivity: &mut InactivityScoreTracker,
+    protection: &mut SlashingProtection,
+    validator_set: &mut dyn ValidatorView,
+    collateral: Option<&mut dyn CollateralSlasher>,
+    bond_escrow: &mut dyn BondEscrow,
+    new_tip_epoch: u64,
+    new_tip_slot: u64,
+    validator_count: usize,
+) -> Result<ReorgReport, SlashingError> {
+    let current_epoch = manager.current_epoch();
+    let depth = current_epoch.saturating_sub(new_tip_epoch);
+    let limit = u64::from(CORRELATION_WINDOW_EPOCHS);
+    if depth > limit {
+        return Err(SlashingError::ReorgTooDeep { depth, limit });
+    }
+
+    // ── Step 1: manager rewind ────────────────────────────
+    let rewound_pending_slashes =
+        manager.rewind_on_reorg(new_tip_epoch, validator_set, collateral, bond_escrow);
+
+    // ── Step 2: participation rewind ──────────────────────
+    let participation_epochs_dropped =
+        participation.rewind_on_reorg(new_tip_epoch, validator_count);
+
+    // ── Step 3: inactivity rewind ─────────────────────────
+    let inactivity_epochs_dropped = inactivity.rewind_on_reorg(depth);
+
+    // ── Step 4: protection reconcile ──────────────────────
+    protection.reconcile_with_chain_tip(new_tip_slot, new_tip_epoch);
+
+    // Anchor the manager's epoch at the new tip so future
+    // epoch-boundary passes compute correctly.
+    manager.set_epoch(new_tip_epoch);
+
+    Ok(ReorgReport {
+        rewound_pending_slashes,
+        participation_epochs_dropped,
+        inactivity_epochs_dropped,
+        protection_rewound: true,
+    })
+}
