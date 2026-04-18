@@ -201,7 +201,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 ### Lifecycle — Book + Queries + Short-Circuits
 - [x] DSL-146 — PendingSlashBook basic ops (new/insert/get/remove/len)
-- [ ] DSL-147 — PendingSlashBook::expired_by
+- [x] DSL-147 — PendingSlashBook::expired_by
 - [ ] DSL-148 — SlashingManager::new + set_epoch
 - [ ] DSL-149 — SlashingManager::is_slashed
 - [ ] DSL-150 — SlashingManager is_processed + pending + prune
