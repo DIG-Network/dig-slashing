@@ -904,6 +904,198 @@ pub fn adjudicate_sustained_status_reverted(
     };
 }
 
+/// Top-level appeal adjudication dispatcher.
+///
+/// Implements [DSL-167](../../../docs/requirements/domains/appeal/specs/DSL-167.md).
+/// Traces to SPEC §6.5.
+///
+/// # Role
+///
+/// Composes the 10 DSL-064..073 slice functions into one
+/// end-to-end adjudication pass. Embedders call this ONCE per
+/// verdict and receive a fully-populated `AppealAdjudicationResult`
+/// (DSL-164) with economic effects already applied to the
+/// injected trait impls. `pending.status` + `appeal_history` are
+/// mutated exactly once per call (append one `AppealAttempt`).
+///
+/// # Signatures
+///
+/// All trait-object arguments are `&mut dyn` / `&dyn`; scalar
+/// arguments are small by-value. `Option<&mut dyn CollateralSlasher>`
+/// mirrors the DSL-139 default contract — light-client embedders
+/// pass `None` and the dispatcher skips collateral-side work.
+///
+/// `slashed_in_window` is exposed explicitly because the DSL-069
+/// reporter-penalty slice records into it. Embedders typically
+/// pass `manager.slashed_in_window_mut()` (a future pub accessor);
+/// tests pass a local `BTreeMap` and inspect it post-call.
+///
+/// # Sustained branch (fixed order)
+///
+/// 1. Revert base slash (DSL-064) → `reverted_stake_mojos`
+/// 2. Revert collateral (DSL-065) → `reverted_collateral_mojos`
+/// 3. Restore status (DSL-066)
+/// 4. Clawback rewards (DSL-067) → `clawback_shortfall`
+/// 5. Forfeit reporter bond + winner award (DSL-068) →
+///    `reporter_bond_forfeited`, `appellant_award_mojos`,
+///    preliminary `burn_amount`
+/// 6. Absorb clawback shortfall (DSL-073) → final `burn_amount`
+/// 7. Reporter penalty (DSL-069) → `reporter_penalty_mojos`
+/// 8. Status transition to Reverted + history append (DSL-070)
+///
+/// # Rejected branch (fixed order)
+///
+/// 1. Forfeit appellant bond + reporter award (DSL-071) →
+///    `appellant_bond_forfeited`, `reporter_award_mojos`,
+///    `burn_amount`
+/// 2. ChallengeOpen transition + history append (DSL-072)
+///
+/// # Errors
+///
+/// Propagates `BondError` from the forfeit calls. On error,
+/// earlier side effects (stake credits, status restore) have
+/// already run — the caller is responsible for transactional
+/// rollback at the manager boundary. The dispatcher does NOT
+/// attempt recovery.
+///
+/// # Outcome
+///
+/// `result.outcome == verdict.to_appeal_outcome()` (DSL-171
+/// canonical mapping). Never `Pending`.
+#[allow(clippy::too_many_arguments)]
+pub fn adjudicate_appeal(
+    verdict: AppealVerdict,
+    pending: &mut PendingSlash,
+    appeal: &SlashAppeal,
+    validator_set: &mut dyn ValidatorView,
+    effective_balances: &dyn EffectiveBalanceView,
+    collateral: Option<&mut dyn CollateralSlasher>,
+    bond_escrow: &mut dyn BondEscrow,
+    reward_payout: &mut dyn RewardPayout,
+    reward_clawback: &mut dyn RewardClawback,
+    slashed_in_window: &mut BTreeMap<(u64, u32), u64>,
+    proposer_puzzle_hash: Bytes32,
+    reason_hash: Bytes32,
+    current_epoch: u64,
+) -> Result<crate::appeal::adjudicator::AppealAdjudicationResult, BondError> {
+    let outcome = verdict.to_appeal_outcome();
+    let appeal_hash = appeal.hash();
+    let evidence_hash = pending.evidence_hash;
+
+    match verdict {
+        AppealVerdict::Sustained { .. } => {
+            // Slice 1 — revert base slash. Returns reverted indices
+            // so we can project per-index amounts without re-scanning
+            // `pending.base_slash_per_validator`.
+            let reverted_idx =
+                adjudicate_sustained_revert_base_slash(pending, appeal, &verdict, validator_set);
+            let reverted_stake_mojos: Vec<(u32, u64)> = pending
+                .base_slash_per_validator
+                .iter()
+                .filter(|p| reverted_idx.contains(&p.validator_index))
+                .map(|p| (p.validator_index, p.base_slash_amount))
+                .collect();
+
+            // Slice 2 — revert collateral (optional slasher).
+            // Pass the Option by value; slice takes
+            // `Option<&mut dyn CollateralSlasher>` directly so the
+            // dispatcher hands over the borrow verbatim rather than
+            // reborrowing through `as_deref_mut` (which fails
+            // lifetime inference on trait-objects).
+            let collateral_idx =
+                adjudicate_sustained_revert_collateral(pending, appeal, &verdict, collateral);
+            let reverted_collateral_mojos: Vec<(u32, u64)> = pending
+                .base_slash_per_validator
+                .iter()
+                .filter(|p| collateral_idx.contains(&p.validator_index))
+                .map(|p| (p.validator_index, p.collateral_slashed))
+                .collect();
+
+            // Slice 3 — restore status (result vec intentionally
+            // discarded; presence of the call is the contract).
+            let _restored =
+                adjudicate_sustained_restore_status(pending, appeal, &verdict, validator_set);
+
+            // Slice 4 — clawback rewards.
+            let clawback = adjudicate_sustained_clawback_rewards(
+                pending,
+                &verdict,
+                reward_clawback,
+                proposer_puzzle_hash,
+            );
+
+            // Slice 5 — forfeit reporter bond (may fail).
+            let bond_split = adjudicate_sustained_forfeit_reporter_bond(
+                pending,
+                appeal,
+                &verdict,
+                bond_escrow,
+                reward_payout,
+            )?;
+
+            // Slice 6 — absorb shortfall into burn.
+            let absorb = adjudicate_absorb_clawback_shortfall(&clawback, &bond_split);
+
+            // Slice 7 — reporter penalty.
+            let rp = adjudicate_sustained_reporter_penalty(
+                pending,
+                &verdict,
+                validator_set,
+                effective_balances,
+                slashed_in_window,
+                current_epoch,
+            );
+            let reporter_penalty_mojos = rp.map(|r| r.penalty_mojos).unwrap_or(0);
+
+            // Slice 8 — status transition + history append.
+            adjudicate_sustained_status_reverted(pending, appeal, &verdict, current_epoch);
+
+            Ok(AppealAdjudicationResult {
+                appeal_hash,
+                evidence_hash,
+                outcome,
+                reverted_stake_mojos,
+                reverted_collateral_mojos,
+                clawback_shortfall: clawback.shortfall,
+                reporter_bond_forfeited: bond_split.forfeited,
+                appellant_award_mojos: bond_split.winner_award,
+                reporter_penalty_mojos,
+                appellant_bond_forfeited: 0,
+                reporter_award_mojos: 0,
+                burn_amount: absorb.final_burn,
+            })
+        }
+        AppealVerdict::Rejected { .. } => {
+            // Slice R1 — forfeit appellant bond (may fail).
+            let bond_split = adjudicate_rejected_forfeit_appellant_bond(
+                pending,
+                appeal,
+                &verdict,
+                bond_escrow,
+                reward_payout,
+            )?;
+
+            // Slice R2 — ChallengeOpen transition + history append.
+            adjudicate_rejected_challenge_open(pending, appeal, &verdict, reason_hash);
+
+            Ok(AppealAdjudicationResult {
+                appeal_hash,
+                evidence_hash,
+                outcome,
+                reverted_stake_mojos: Vec::new(),
+                reverted_collateral_mojos: Vec::new(),
+                clawback_shortfall: 0,
+                reporter_bond_forfeited: 0,
+                appellant_award_mojos: 0,
+                reporter_penalty_mojos: 0,
+                appellant_bond_forfeited: bond_split.forfeited,
+                reporter_award_mojos: bond_split.winner_award,
+                burn_amount: bond_split.burn,
+            })
+        }
+    }
+}
+
 /// Extract the named `validator_index` from an attester
 /// `ValidatorNotInIntersection` ground. Returns `None` if the
 /// appeal payload is not an attester ground (programmer error —

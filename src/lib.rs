@@ -50,7 +50,7 @@ pub use appeal::{
     AttesterAppealGround, AttesterSlashingAppeal, BondSplitResult, ClawbackResult,
     InvalidBlockAppeal, InvalidBlockAppealGround, ProposerAppealGround, ProposerSlashingAppeal,
     ReporterPenalty, ShortfallAbsorption, SlashAppeal, SlashAppealPayload,
-    adjudicate_absorb_clawback_shortfall, adjudicate_rejected_challenge_open,
+    adjudicate_absorb_clawback_shortfall, adjudicate_appeal, adjudicate_rejected_challenge_open,
     adjudicate_rejected_forfeit_appellant_bond, adjudicate_sustained_clawback_rewards,
     adjudicate_sustained_forfeit_reporter_bond, adjudicate_sustained_reporter_penalty,
     adjudicate_sustained_restore_status, adjudicate_sustained_revert_base_slash,

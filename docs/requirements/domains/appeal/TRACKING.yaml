@@ -446,11 +446,12 @@ items:
   - id: DSL-167
     section: "Phase 12 Integration Closures"
     summary: "adjudicate_appeal top-level dispatcher"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-167.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-167"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_167_adjudicate_appeal_dispatcher_test
+    notes: "Adds pub fn adjudicate_appeal in src/appeal/adjudicator.rs that composes DSL-064..073 slice functions end-to-end. Signature takes verdict + pending + appeal + validator_set + effective_balances + Option<collateral> + bond + reward + reward_clawback + slashed_in_window + proposer_puzzle_hash + reason_hash + current_epoch, returns Result<AppealAdjudicationResult, BondError>. 6-test suite exercises both verdict branches (Sustained + Rejected happy paths with spy mocks), slice order via partial clawback forcing shortfall > 0 (verifies final_burn = bond_burn + clawback_shortfall proving clawback ran BEFORE forfeit BEFORE absorption), shortfall absorption, outcome matches verdict.to_appeal_outcome(), appeal_history grows by exactly 1 per call regardless of branch."
 
   - id: DSL-171
     section: "Phase 12 Integration Closures"
