@@ -216,7 +216,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-155 — InactivityScoreTracker::rewind_on_reorg
 
 ### Protection — Proposal Rewind
-- [ ] DSL-156 — SlashingProtection::rewind_proposal_to_slot
+- [x] DSL-156 — SlashingProtection::rewind_proposal_to_slot
 
 ## Phase 11: Gap Fills 2 — Serde + Defensive + BondTag (DSL-157..166)
 
