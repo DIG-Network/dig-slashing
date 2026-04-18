@@ -158,6 +158,14 @@ impl SlashingProtection {
         target_epoch: u64,
         block_hash: &Bytes32,
     ) -> bool {
+        // DSL-096: surround-vote self-check. Runs BEFORE the
+        // DSL-095 same-coord check — a surround is slashable
+        // regardless of the stored hash, so we short-circuit
+        // cheaply. Mirrors the DSL-015 verify-side predicate.
+        if self.would_surround(source_epoch, target_epoch) {
+            return false;
+        }
+
         // DSL-095: exact (source, target) coordinate collision.
         // The stored hash must be present AND match the
         // candidate case-insensitively; anything else is a
@@ -173,8 +181,30 @@ impl SlashingProtection {
                 _ => return false,
             }
         }
-        // DSL-096 surround-vote self-check lands here later.
         true
+    }
+
+    /// Would the candidate attestation surround the stored
+    /// one?
+    ///
+    /// Implements [DSL-096](../docs/requirements/domains/protection/specs/DSL-096.md).
+    /// Traces to SPEC §14.2.
+    ///
+    /// # Predicate
+    ///
+    /// ```text
+    /// candidate_source < self.last_attested_source_epoch
+    ///   AND
+    /// candidate_target > self.last_attested_target_epoch
+    /// ```
+    ///
+    /// Both strict — a candidate matching either epoch exactly
+    /// is NOT a surround (it is either a same-coord case
+    /// (DSL-095) or a non-surround flank).
+    #[must_use]
+    fn would_surround(&self, candidate_source: u64, candidate_target: u64) -> bool {
+        candidate_source < self.last_attested_source_epoch
+            && candidate_target > self.last_attested_target_epoch
     }
 
     /// Record a successful attestation. Updates
