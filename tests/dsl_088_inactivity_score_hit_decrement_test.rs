@@ -65,14 +65,17 @@ fn test_dsl_088_hit_decrements() {
     scores.set_score(2, 0);
     scores.set_score(3, 7);
 
-    let participation = participation_with_target_hits(4, &[0u32]);
+    // All four hit TARGET so the DSL-089 miss+stall branch
+    // does NOT fire (would add INACTIVITY_SCORE_BIAS=4 to
+    // non-hitters). stall=true isolates from DSL-090 global
+    // recovery. Pure DSL-088 hit-decrement semantics.
+    let participation = participation_with_target_hits(4, &[0u32, 1, 2, 3]);
+    scores.update_for_epoch(&participation, true);
 
-    scores.update_for_epoch(&participation, false);
-
-    assert_eq!(scores.score(0), Some(4), "hit → -1");
-    assert_eq!(scores.score(1), Some(10), "no hit → unchanged");
-    assert_eq!(scores.score(2), Some(0), "no hit → unchanged");
-    assert_eq!(scores.score(3), Some(7), "no hit → unchanged");
+    assert_eq!(scores.score(0), Some(4), "hit → -1 (5 → 4)");
+    assert_eq!(scores.score(1), Some(9), "hit → -1 (10 → 9)");
+    assert_eq!(scores.score(2), Some(0), "hit but at 0 → saturates");
+    assert_eq!(scores.score(3), Some(6), "hit → -1 (7 → 6)");
 }
 
 /// DSL-088 row 2: score=0 + TARGET hit → 0 (saturating_sub).
@@ -82,7 +85,8 @@ fn test_dsl_088_zero_saturates() {
     scores.set_score(0, 0);
 
     let participation = participation_with_target_hits(2, &[0u32]);
-    scores.update_for_epoch(&participation, false);
+    // stall=true isolates DSL-088 (no DSL-090 global recovery).
+    scores.update_for_epoch(&participation, true);
 
     assert_eq!(scores.score(0), Some(0), "saturating_sub pins at 0");
 }
