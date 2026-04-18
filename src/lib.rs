@@ -44,8 +44,8 @@ pub use error::SlashingError;
 pub use evidence::{
     AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, InvalidBlockProof,
     InvalidBlockReason, OffenseType, ProposerSlashing, SignedBlockHeader, SlashingEvidence,
-    SlashingEvidencePayload, VerifiedEvidence, block_signing_message, verify_evidence,
-    verify_proposer_slashing,
+    SlashingEvidencePayload, VerifiedEvidence, block_signing_message, verify_attester_slashing,
+    verify_evidence, verify_proposer_slashing,
 };
 pub use traits::{PublicKeyLookup, ValidatorEntry, ValidatorView};
 

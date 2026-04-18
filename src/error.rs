@@ -42,6 +42,37 @@ pub enum SlashingError {
     #[error("BLS signature verification failed")]
     BlsVerifyFailed,
 
+    /// `AttesterSlashing` payload failed a structural / BLS
+    /// precondition in DSL-014..016: byte-identical attestations,
+    /// structural violation bubbled up from DSL-005, or BLS verify
+    /// failure on one of the two aggregates.
+    ///
+    /// Reason string names the specific violation. Predicate-failure
+    /// paths use the dedicated [`SlashingError::AttesterSlashingNotSlashable`]
+    /// and [`SlashingError::EmptySlashableIntersection`] variants so
+    /// appeals (DSL-042, DSL-043) can distinguish without string
+    /// matching.
+    #[error("invalid attester slashing: {0}")]
+    InvalidAttesterSlashing(String),
+
+    /// Neither the double-vote (DSL-014) nor the surround-vote (DSL-015)
+    /// predicate holds for the two `AttestationData`s.
+    ///
+    /// Raised by DSL-017. Mirrored at the appeal layer by
+    /// `AttesterAppealGround::NotSlashableByPredicate` (DSL-042).
+    #[error("attestations do not prove a slashable offense")]
+    AttesterSlashingNotSlashable,
+
+    /// The intersection of `attestation_a.attesting_indices` and
+    /// `attestation_b.attesting_indices` is empty — no validator
+    /// participated in both, so there is nobody to slash.
+    ///
+    /// Raised by DSL-016 after the slashable-predicate check succeeds
+    /// but the intersection yields zero indices. Mirrored at the appeal
+    /// layer by `AttesterAppealGround::EmptyIntersection` (DSL-043).
+    #[error("attester slashing intersecting indices empty")]
+    EmptySlashableIntersection,
+
     /// `ProposerSlashing` payload failed one of the preconditions in
     /// DSL-013: slot mismatch, proposer mismatch, identical headers,
     /// bad signature bytes, inactive validator, or BLS verify failure

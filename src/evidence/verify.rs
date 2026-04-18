@@ -27,15 +27,16 @@
 //! DSL row adds one conditional, never mutating the structure of the
 //! function.
 
-use chia_bls::Signature;
+use chia_bls::{PublicKey, Signature};
 use dig_protocol::Bytes32;
 
 use crate::constants::{BLS_SIGNATURE_SIZE, DOMAIN_BEACON_PROPOSER};
 use crate::error::SlashingError;
+use crate::evidence::attester_slashing::AttesterSlashing;
 use crate::evidence::envelope::{SlashingEvidence, SlashingEvidencePayload};
 use crate::evidence::offense::OffenseType;
 use crate::evidence::proposer_slashing::{ProposerSlashing, SignedBlockHeader};
-use crate::traits::ValidatorView;
+use crate::traits::{PublicKeyLookup, ValidatorView};
 
 /// Successful-verification return shape.
 ///
@@ -137,17 +138,19 @@ pub fn verify_evidence(
     // The dispatcher never reclassifies offense_type — it either
     // returns the same `VerifiedEvidence { offense_type, slashable }`
     // or a payload-specific error variant.
+    let _ = slashable;
     match &evidence.payload {
         SlashingEvidencePayload::Proposer(p) => {
             verify_proposer_slashing(evidence, p, validator_view, network_id)
         }
-        // Placeholder for DSL-014..020. Not yet soundness-complete.
-        SlashingEvidencePayload::Attester(_) | SlashingEvidencePayload::InvalidBlock(_) => {
-            Ok(VerifiedEvidence {
-                offense_type: evidence.offense_type,
-                slashable_validator_indices: slashable,
-            })
+        SlashingEvidencePayload::Attester(a) => {
+            verify_attester_slashing(evidence, a, validator_view, network_id)
         }
+        // Placeholder for DSL-018..020. Not yet soundness-complete.
+        SlashingEvidencePayload::InvalidBlock(_) => Ok(VerifiedEvidence {
+            offense_type: evidence.offense_type,
+            slashable_validator_indices: evidence.slashable_validators(),
+        }),
     }
 }
 
@@ -263,6 +266,125 @@ pub fn verify_proposer_slashing(
         offense_type: evidence.offense_type,
         slashable_validator_indices: vec![proposer_index],
     })
+}
+
+/// Attester-slashing verifier.
+///
+/// Implements [DSL-014](../../docs/requirements/domains/evidence/specs/DSL-014.md)
+/// (double-vote predicate + acceptance path). Also enforces the sibling
+/// preconditions that share the same control flow:
+/// [DSL-015](../../docs/requirements/domains/evidence/specs/DSL-015.md)
+/// (surround-vote), [DSL-016](../../docs/requirements/domains/evidence/specs/DSL-016.md)
+/// (empty-intersection rejection), and
+/// [DSL-017](../../docs/requirements/domains/evidence/specs/DSL-017.md)
+/// (neither-predicate rejection).
+///
+/// Traces to SPEC §5.3.
+///
+/// # Preconditions (checked in order)
+///
+/// 1. `attestation_a.validate_structure()` AND
+///    `attestation_b.validate_structure()` (DSL-005).
+/// 2. `attestation_a != attestation_b` (byte-wise) — byte-identical
+///    pairs are `InvalidAttesterSlashing("identical")`; they are NOT a
+///    slashable offense and the appeal ground `AttestationsIdentical`
+///    (DSL-041) mirrors this.
+/// 3. Double-vote OR surround-vote predicate holds (DSL-014 /
+///    DSL-015). If neither →
+///    [`SlashingError::AttesterSlashingNotSlashable`] (DSL-017).
+/// 4. `slashable = payload.slashable_indices()` non-empty (DSL-016).
+///    If empty → [`SlashingError::EmptySlashableIntersection`].
+/// 5. Both `IndexedAttestation::verify_signature` succeed (DSL-006) —
+///    aggregate BLS verify against each `AttestationData::signing_root`.
+///    Pubkeys are looked up through `validator_view`.
+///
+/// # Ordering rationale
+///
+/// Structure + identical + predicate + intersection are all byte
+/// comparisons — cheapest first. BLS verify is last because a
+/// failed aggregate pairing is the most expensive check. This
+/// ordering is protocol (appeal adjudication in DSL-042..048 walks
+/// the same sequence) and MUST NOT be reordered.
+///
+/// # Returns
+///
+/// `Ok(VerifiedEvidence { slashable_validator_indices: intersection })`
+/// where the intersection is the sorted set `{i : i ∈ a.indices ∧ i ∈
+/// b.indices}` (DSL-007).
+pub fn verify_attester_slashing(
+    evidence: &SlashingEvidence,
+    payload: &AttesterSlashing,
+    validator_view: &dyn ValidatorView,
+    network_id: &Bytes32,
+) -> Result<VerifiedEvidence, SlashingError> {
+    // 1. Structure. `validate_structure` returns a reason-bearing
+    // `InvalidIndexedAttestation`; bubble it up. Consumers (e.g.
+    // DSL-046 appeal ground) need the sub-variant intact.
+    payload.attestation_a.validate_structure()?;
+    payload.attestation_b.validate_structure()?;
+
+    // 2. Byte-identical pair → not equivocation.
+    if payload.attestation_a == payload.attestation_b {
+        return Err(SlashingError::InvalidAttesterSlashing(
+            "attestations are byte-identical (no offense)".into(),
+        ));
+    }
+
+    // 3. Predicate decision. A slashing is valid iff EITHER predicate
+    // holds. DSL-014: same target epoch + different data. DSL-015:
+    // one window strictly surrounds the other (checked both ways).
+    let a_data = &payload.attestation_a.data;
+    let b_data = &payload.attestation_b.data;
+    let is_double_vote = a_data.target.epoch == b_data.target.epoch && a_data != b_data;
+    let is_surround_vote = (a_data.source.epoch < b_data.source.epoch
+        && a_data.target.epoch > b_data.target.epoch)
+        || (b_data.source.epoch < a_data.source.epoch && b_data.target.epoch > a_data.target.epoch);
+    if !(is_double_vote || is_surround_vote) {
+        return Err(SlashingError::AttesterSlashingNotSlashable);
+    }
+
+    // 4. Intersection must be non-empty (DSL-016). Run BEFORE the BLS
+    // verify so honest nodes don't pay pairing cost on adversarial
+    // disjoint-committee evidence.
+    let slashable = payload.slashable_indices();
+    if slashable.is_empty() {
+        return Err(SlashingError::EmptySlashableIntersection);
+    }
+
+    // 5. BLS aggregate verify on BOTH attestations (DSL-006). Pubkeys
+    // come from the validator view via the `PublicKeyLookup` adapter.
+    // A missing index for any committee member collapses to
+    // `BlsVerifyFailed` — same coarse channel as DSL-006.
+    let pks = ValidatorViewPubkeys(validator_view);
+    payload.attestation_a.verify_signature(&pks, network_id)?;
+    payload.attestation_b.verify_signature(&pks, network_id)?;
+
+    // Classification: the verifier does NOT reclassify offense_type.
+    // The envelope already declares AttesterDoubleVote or AttesterSurroundVote;
+    // the predicate test above only confirms that at least one predicate
+    // holds. An honest reporter MAY file a double-vote evidence under
+    // the AttesterDoubleVote offense_type; correlation-penalty math
+    // (DSL-030) treats both variants identically.
+    Ok(VerifiedEvidence {
+        offense_type: evidence.offense_type,
+        slashable_validator_indices: slashable,
+    })
+}
+
+/// Zero-cost adapter that lets `verify_attester_slashing` reuse
+/// `IndexedAttestation::verify_signature` (DSL-006) against a
+/// `ValidatorView`.
+///
+/// `ValidatorView` and `PublicKeyLookup` are separate traits by design
+/// (SPEC §15) — the view owns mutating state, the lookup is read-only.
+/// Bridging inline here avoids forcing downstream callers to implement
+/// both traits on the same struct.
+struct ValidatorViewPubkeys<'a>(&'a dyn ValidatorView);
+
+impl<'a> PublicKeyLookup for ValidatorViewPubkeys<'a> {
+    fn pubkey_of(&self, index: u32) -> Option<&PublicKey> {
+        self.0.get(index).map(|e| e.public_key())
+    }
 }
 
 /// Parse a 96-byte BLS G2 signature from a `SignedBlockHeader`.

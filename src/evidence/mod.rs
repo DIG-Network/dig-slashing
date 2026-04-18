@@ -27,5 +27,6 @@ pub use invalid_block::{InvalidBlockProof, InvalidBlockReason};
 pub use offense::OffenseType;
 pub use proposer_slashing::{ProposerSlashing, SignedBlockHeader};
 pub use verify::{
-    VerifiedEvidence, block_signing_message, verify_evidence, verify_proposer_slashing,
+    VerifiedEvidence, block_signing_message, verify_attester_slashing, verify_evidence,
+    verify_proposer_slashing,
 };
