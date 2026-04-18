@@ -48,3 +48,13 @@ The function MUST return `EpochBoundaryReport { flag_deltas, inactivity_penaltie
 
 <a id="DSL-165"></a>**DSL-165** `EpochBoundaryReport`, `ReorgReport`, and `FlagDelta` MUST round-trip byte-exactly via `bincode` + `serde_json`. Empty-vec cases preserved; `in_finality_stall` true/false both round-trip.
 > **Spec:** [`DSL-165.md`](specs/DSL-165.md)
+
+---
+
+## &sect;6 Phase 12 — Integration Closures
+
+<a id="DSL-169"></a>**DSL-169** `run_epoch_boundary` MUST route rewards + inactivity penalties through the injected trait impls: for every `FlagDelta { validator_index, reward, .. }` with `reward > 0`, call `RewardPayout::pay(entry.puzzle_hash(), reward)`; for every `(idx, penalty)` in `inactivity_penalties`, call `ValidatorEntry::slash_absolute(idx, penalty, current_epoch_ending)`. Wiring happens in-line with steps 1 (flag deltas) and 3 (inactivity penalties) of the DSL-127 fixed order — no new top-level step is introduced. Validators missing from the view are silently skipped for both calls.
+> **Spec:** [`DSL-169.md`](specs/DSL-169.md)
+
+<a id="DSL-170"></a>**DSL-170** `SlashingSystem` MUST carry a private `network_id: Bytes32` field populated from `GenesisParameters::network_id` at construction, exposed via `pub fn network_id(&self) -> &Bytes32`. Field is stored verbatim; accessor returns a reference with lifetime tied to `&self`. `GenesisParameters` shape is unchanged; `SlashingManager::submit_evidence` signature is unchanged.
+> **Spec:** [`DSL-170.md`](specs/DSL-170.md)

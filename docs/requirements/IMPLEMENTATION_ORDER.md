@@ -240,6 +240,21 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 ### Bonds — Variant Distinction
 - [x] DSL-166 — BondTag::Reporter vs Appellant distinguishable
 
+## Phase 12: Integration Closures (DSL-167..171)
+
+Public-API coherence gaps identified in audit of shipped catalogue. Each closes a wiring gap where previously-shipped primitives required hand-composition by embedders.
+
+### Appeal — Top-Level Dispatcher
+- [ ] DSL-167 — adjudicate_appeal top-level dispatcher
+- [ ] DSL-171 — AppealVerdict::to_appeal_outcome conversion
+
+### REMARK — Block-Level Admission
+- [ ] DSL-168 — process_block_admissions block-level entry point
+
+### Orchestration — Wire Unused Traits + Fields
+- [ ] DSL-169 — run_epoch_boundary wires reward_payout + inactivity penalty slashes
+- [ ] DSL-170 — SlashingSystem carries network_id
+
 ---
 
 ## Summary
@@ -258,6 +273,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 | Phase 9: Traits | 131..145 | 15 | gap |
 | Phase 10: Gap Fills | 146..156 | 11 | gap |
 | Phase 11: Gap Fills 2 | 157..166 | 10 | gap |
-| **Total** | | **166** | |
+| Phase 12: Integration Closures | 167..171 | 5 | gap |
+| **Total** | | **171** | |
 
 Every DSL-NNN has a dedicated test file at `tests/dsl_NNN_<short_name>_test.rs` per SPEC §22.16.
