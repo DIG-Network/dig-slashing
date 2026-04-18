@@ -35,9 +35,9 @@ use dig_protocol::Bytes32;
 
 use dig_epoch::SLASH_LOOKBACK_EPOCHS;
 
-use crate::appeal::envelope::SlashAppeal;
+use crate::appeal::envelope::{SlashAppeal, SlashAppealPayload};
 use crate::error::SlashingError;
-use crate::evidence::SlashingEvidence;
+use crate::evidence::{SlashingEvidence, SlashingEvidencePayload};
 use crate::pending::PendingSlashStatus;
 use crate::remark::appeal_wire::{
     parse_slash_appeals_from_conditions, slash_appeal_remark_puzzle_hash_v1,
@@ -427,6 +427,52 @@ pub fn enforce_slash_appeal_terminal_status_policy(
             // Accepted / ChallengeOpen are still open for appeal;
             // absent entries are out of scope (DSL-114 handles).
             _ => {}
+        }
+    }
+    Ok(())
+}
+
+/// Enforce the DSL-117 appeal-variant mempool policy.
+///
+/// Rejects any appeal whose payload variant disagrees with the
+/// pending evidence's payload variant:
+///
+///   - Appeal::Proposer     ↔ Evidence::Proposer
+///   - Appeal::Attester     ↔ Evidence::Attester
+///   - Appeal::InvalidBlock ↔ Evidence::InvalidBlock
+///
+/// Any cross-variant pairing is an `AppealVariantMismatch` per
+/// DSL-057 manager parity. Appeals whose hash is absent from the
+/// evidence-variant lookup skip — DSL-114 owns that rejection.
+///
+/// # Errors
+///
+/// - [`SlashingError::AppealVariantMismatch`] — first mismatch
+///   encountered. Short-circuits.
+pub fn enforce_slash_appeal_variant_policy(
+    appeals: &[SlashAppeal],
+    evidence_payload_by_hash: &HashMap<Bytes32, SlashingEvidencePayload>,
+) -> Result<(), SlashingError> {
+    for ap in appeals {
+        let Some(ev_payload) = evidence_payload_by_hash.get(&ap.evidence_hash) else {
+            // Unknown hash: not this function's job. Skip.
+            continue;
+        };
+        let ok = matches!(
+            (&ap.payload, ev_payload),
+            (
+                SlashAppealPayload::Proposer(_),
+                SlashingEvidencePayload::Proposer(_),
+            ) | (
+                SlashAppealPayload::Attester(_),
+                SlashingEvidencePayload::Attester(_),
+            ) | (
+                SlashAppealPayload::InvalidBlock(_),
+                SlashingEvidencePayload::InvalidBlock(_),
+            )
+        );
+        if !ok {
+            return Err(SlashingError::AppealVariantMismatch);
         }
     }
     Ok(())
