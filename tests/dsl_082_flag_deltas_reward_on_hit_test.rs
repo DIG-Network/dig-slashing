@@ -89,7 +89,7 @@ fn expected_base() -> u64 {
 #[test]
 fn test_dsl_082_source_only_reward() {
     let t = tracker_with_prev_flags(&[TIMELY_SOURCE_FLAG_INDEX]);
-    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE);
+    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE, false);
 
     let base = expected_base();
     let expected = base * TIMELY_SOURCE_WEIGHT / WEIGHT_DENOMINATOR;
@@ -107,7 +107,7 @@ fn test_dsl_082_source_only_reward() {
 #[test]
 fn test_dsl_082_target_only_reward() {
     let t = tracker_with_prev_flags(&[TIMELY_TARGET_FLAG_INDEX]);
-    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE);
+    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE, false);
 
     let base = expected_base();
     let expected = base * TIMELY_TARGET_WEIGHT / WEIGHT_DENOMINATOR;
@@ -119,7 +119,7 @@ fn test_dsl_082_target_only_reward() {
 #[test]
 fn test_dsl_082_head_only_reward() {
     let t = tracker_with_prev_flags(&[TIMELY_HEAD_FLAG_INDEX]);
-    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE);
+    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE, false);
 
     let base = expected_base();
     let expected = base * TIMELY_HEAD_WEIGHT / WEIGHT_DENOMINATOR;
@@ -137,7 +137,7 @@ fn test_dsl_082_all_three_reward() {
         TIMELY_TARGET_FLAG_INDEX,
         TIMELY_HEAD_FLAG_INDEX,
     ]);
-    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE);
+    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE, false);
 
     let base = expected_base();
     let source = base * TIMELY_SOURCE_WEIGHT / WEIGHT_DENOMINATOR;

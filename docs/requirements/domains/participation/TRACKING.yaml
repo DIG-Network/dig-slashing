@@ -106,11 +106,12 @@ items:
   - id: DSL-084
     section: "Flag Deltas"
     summary: "compute_flag_deltas zeroes rewards in finality stall"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-084.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-084"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_084_flag_deltas_stall_zero_rewards_test
+    notes: "Adds in_finality_stall: bool arg to compute_flag_deltas signature (breaks prior DSL-082/083 tests — all fixed with false pass-through). When true, post-computed reward is clamped to 0; penalty untouched. Matches Ethereum inactivity-leak: honest attesters stop being paid but missed attestations continue to debit. 3-test suite: all-hit+stall → (0,0), all-miss+stall → (0, base*40/64), all-hit+no-stall → (base*54/64, 0)."
 
   - id: DSL-085
     section: "Proposer Reward"

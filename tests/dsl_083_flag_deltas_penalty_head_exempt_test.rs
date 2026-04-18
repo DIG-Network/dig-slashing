@@ -94,7 +94,7 @@ fn expected_base() -> u64 {
 #[test]
 fn test_dsl_083_source_miss_penalty() {
     let t = tracker_with_prev_flags(&[TIMELY_TARGET_FLAG_INDEX, TIMELY_HEAD_FLAG_INDEX]);
-    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE);
+    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE, false);
 
     let base = expected_base();
     let expected = base * TIMELY_SOURCE_WEIGHT / WEIGHT_DENOMINATOR;
@@ -105,7 +105,7 @@ fn test_dsl_083_source_miss_penalty() {
 #[test]
 fn test_dsl_083_target_miss_penalty() {
     let t = tracker_with_prev_flags(&[TIMELY_SOURCE_FLAG_INDEX, TIMELY_HEAD_FLAG_INDEX]);
-    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE);
+    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE, false);
 
     let base = expected_base();
     let expected = base * TIMELY_TARGET_WEIGHT / WEIGHT_DENOMINATOR;
@@ -117,7 +117,7 @@ fn test_dsl_083_target_miss_penalty() {
 #[test]
 fn test_dsl_083_head_miss_no_penalty() {
     let t = tracker_with_prev_flags(&[TIMELY_SOURCE_FLAG_INDEX, TIMELY_TARGET_FLAG_INDEX]);
-    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE);
+    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE, false);
 
     assert_eq!(
         deltas[0].penalty, 0,
@@ -131,7 +131,7 @@ fn test_dsl_083_head_miss_no_penalty() {
 #[test]
 fn test_dsl_083_all_miss_composite() {
     let t = tracker_with_prev_flags(&[]);
-    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE);
+    let deltas = compute_flag_deltas(&t, &FlatBalances, TOTAL_ACTIVE, false);
 
     let base = expected_base();
     let source_pen = base * TIMELY_SOURCE_WEIGHT / WEIGHT_DENOMINATOR;
