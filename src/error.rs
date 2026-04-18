@@ -104,6 +104,15 @@ pub enum SlashingError {
     #[error("validator not registered: {0}")]
     ValidatorNotRegistered(u32),
 
+    /// `PendingSlashBook` at capacity; new slashes cannot be admitted
+    /// until existing ones finalise or revert.
+    ///
+    /// Raised by DSL-027. `MAX_PENDING_SLASHES = 4_096` caps memory +
+    /// pruning cost. Admission attempt at capacity performs no bond
+    /// lock or validator mutation.
+    #[error("pending slash book full")]
+    PendingBookFull,
+
     /// Reporter bond lock failed — principal lacks collateral or the
     /// escrow rejected the tag.
     ///

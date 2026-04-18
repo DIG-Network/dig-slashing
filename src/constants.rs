@@ -97,6 +97,21 @@ pub const REPORTER_BOND_MOJOS: u64 = MIN_EFFECTIVE_BALANCE / 64;
 /// reporter and appellant face equal grief-vector costs.
 pub const APPELLANT_BOND_MOJOS: u64 = MIN_EFFECTIVE_BALANCE / 64;
 
+/// Appeal window length in epochs — `8`.
+///
+/// Traces to SPEC §2.6. A submitted `PendingSlash` can be appealed
+/// any time in `[submitted_at_epoch, submitted_at_epoch +
+/// SLASH_APPEAL_WINDOW_EPOCHS]`; after that the slash finalises
+/// (DSL-029). Ethereum parity: 2 epochs of ~6.4 min ≈ 12 min; DIG
+/// uses 8 epochs to match L2 block cadence.
+pub const SLASH_APPEAL_WINDOW_EPOCHS: u64 = 8;
+
+/// Maximum number of pending slashes the manager will track.
+///
+/// Traces to SPEC §2.6. Bounds memory + pruning cost. Admission at
+/// full capacity returns `SlashingError::PendingBookFull` (DSL-027).
+pub const MAX_PENDING_SLASHES: usize = 4_096;
+
 // ── Domain separation tags (SPEC §2.10) ─────────────────────────────────────
 //
 // Byte-string tags prefixed into every SHA-256 digest so a hash produced for

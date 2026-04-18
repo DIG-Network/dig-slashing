@@ -22,14 +22,20 @@
 //! in `SlashingResult`; the DSL-022 surface remains byte-stable across
 //! commits.
 
+use std::collections::HashMap;
+
 use dig_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::bonds::{BondEscrow, BondTag};
-use crate::constants::{BPS_DENOMINATOR, MIN_SLASHING_PENALTY_QUOTIENT, REPORTER_BOND_MOJOS};
+use crate::constants::{
+    BPS_DENOMINATOR, MAX_PENDING_SLASHES, MIN_SLASHING_PENALTY_QUOTIENT, REPORTER_BOND_MOJOS,
+    SLASH_APPEAL_WINDOW_EPOCHS,
+};
 use crate::error::SlashingError;
 use crate::evidence::envelope::SlashingEvidence;
 use crate::evidence::verify::verify_evidence;
+use crate::pending::{PendingSlash, PendingSlashBook, PendingSlashStatus};
 use crate::traits::{EffectiveBalanceView, ValidatorView};
 
 /// Per-validator record produced by `submit_evidence`.
@@ -82,27 +88,73 @@ pub struct SlashingResult {
 /// window counters — all of which land in subsequent DSL commits. For
 /// DSL-022 the manager holds only the `current_epoch` field, which is
 /// consumed when calling `ValidatorEntry::slash_absolute`.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct SlashingManager {
     /// Current epoch the manager is running in. Used as the `epoch`
     /// argument to `slash_absolute` so debits are timestamped with the
     /// admission epoch, not the offense epoch (the two may differ by
     /// up to `SLASH_LOOKBACK_EPOCHS`).
     current_epoch: u64,
+    /// Pending-slash book (SPEC §7.1). Keyed by evidence hash;
+    /// populated on admission (DSL-024), drained on finalisation
+    /// (DSL-029) or reversal (DSL-070).
+    book: PendingSlashBook,
+    /// Processed-evidence dedup map. Value = admission epoch; used
+    /// by DSL-026 (`AlreadySlashed` short-circuit) and by pruning
+    /// (SPEC §8, `prune(lower_bound_epoch)`).
+    processed: HashMap<Bytes32, u64>,
+}
+
+impl Default for SlashingManager {
+    fn default() -> Self {
+        Self::new(0)
+    }
 }
 
 impl SlashingManager {
-    /// New manager at `current_epoch`. Further state (processed map,
-    /// pending book) lands in DSL-148.
+    /// New manager at `current_epoch` with the default
+    /// `MAX_PENDING_SLASHES` book capacity. Further fields (pending
+    /// book, processed map) start empty.
     #[must_use]
     pub fn new(current_epoch: u64) -> Self {
-        Self { current_epoch }
+        Self::with_book_capacity(current_epoch, MAX_PENDING_SLASHES)
+    }
+
+    /// New manager with a caller-specified book capacity. Used by
+    /// DSL-027 tests to exercise the `PendingBookFull` rejection.
+    #[must_use]
+    pub fn with_book_capacity(current_epoch: u64, book_capacity: usize) -> Self {
+        Self {
+            current_epoch,
+            book: PendingSlashBook::new(book_capacity),
+            processed: HashMap::new(),
+        }
     }
 
     /// Current epoch accessor.
     #[must_use]
     pub fn current_epoch(&self) -> u64 {
         self.current_epoch
+    }
+
+    /// Immutable view of the pending-slash book.
+    #[must_use]
+    pub fn book(&self) -> &PendingSlashBook {
+        &self.book
+    }
+
+    /// `true` iff the evidence hash has been admitted. Used by
+    /// DSL-026 (`AlreadySlashed` short-circuit) + tests.
+    #[must_use]
+    pub fn is_processed(&self, hash: &Bytes32) -> bool {
+        self.processed.contains_key(hash)
+    }
+
+    /// Admission epoch recorded for a processed hash. `None` when the
+    /// hash is not in the map.
+    #[must_use]
+    pub fn processed_epoch(&self, hash: &Bytes32) -> Option<u64> {
+        self.processed.get(hash).copied()
     }
 
     /// Optimistic-admission entry point for validator slashing evidence.
@@ -207,9 +259,27 @@ impl SlashingManager {
             });
         }
 
+        // DSL-024: insert the PendingSlash record + register the hash
+        // in processed. Ordering: book insert first so a capacity
+        // failure bubbles up WITHOUT polluting processed.
+        let record = PendingSlash {
+            evidence_hash,
+            evidence: evidence.clone(),
+            verified: verified.clone(),
+            status: PendingSlashStatus::Accepted,
+            submitted_at_epoch: self.current_epoch,
+            window_expires_at_epoch: self.current_epoch + SLASH_APPEAL_WINDOW_EPOCHS,
+            base_slash_per_validator: per_validator.clone(),
+            reporter_bond_mojos: REPORTER_BOND_MOJOS,
+            appeal_history: Vec::new(),
+        };
+        self.book.insert(record)?;
+        self.processed.insert(evidence_hash, self.current_epoch);
+
         Ok(SlashingResult {
             per_validator,
             reporter_bond_escrowed: REPORTER_BOND_MOJOS,
+            pending_slash_hash: evidence_hash,
             ..Default::default()
         })
     }

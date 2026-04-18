@@ -26,11 +26,12 @@ items:
   - id: DSL-024
     section: "Optimistic Admission"
     summary: "submit_evidence creates PendingSlash { status: Accepted, window_expires_at_epoch }"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-024.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-024"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_024_submit_evidence_creates_pending_accepted_test
+    notes: "New src/pending.rs with PendingSlash, PendingSlashStatus (4 variants), AppealAttempt, AppealOutcome (3 variants), PendingSlashBook (new/insert/get/get_mut/remove/len/capacity/expired_by — the last two support future DSL-146/147). Manager gains book + processed fields + with_book_capacity constructor + is_processed/processed_epoch accessors. submit_evidence final step inserts PendingSlash { status: Accepted, submitted_at_epoch: current_epoch, window_expires_at_epoch: current_epoch + SLASH_APPEAL_WINDOW_EPOCHS (8), base_slash_per_validator clone, reporter_bond_mojos: REPORTER_BOND_MOJOS, appeal_history: [] } AND registers evidence.hash() in processed. SlashingResult.pending_slash_hash populated. New constants: SLASH_APPEAL_WINDOW_EPOCHS=8, MAX_PENDING_SLASHES=4_096. New SlashingError variant: PendingBookFull (DSL-027 uses it next). 9-test suite: status Accepted, window epochs (100+8=108), per_validator vec cardinality + equality with result, reporter_bond_mojos constant, appeal_history empty, processed map updated (is_processed/processed_epoch), result.pending_slash_hash==evidence.hash(), determinism across two managers, book.len grows by 1."
 
   - id: DSL-025
     section: "Optimistic Admission"
