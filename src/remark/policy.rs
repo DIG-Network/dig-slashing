@@ -35,6 +35,7 @@ use dig_protocol::Bytes32;
 
 use dig_epoch::SLASH_LOOKBACK_EPOCHS;
 
+use crate::MAX_SLASH_PROPOSALS_PER_BLOCK;
 use crate::error::SlashingError;
 use crate::evidence::SlashingEvidence;
 use crate::remark::evidence_wire::{
@@ -198,6 +199,40 @@ pub fn enforce_slashing_evidence_mempool_dedup_policy(
         if !seen.insert(fp) {
             return Err(SlashingError::DuplicateEvidence);
         }
+    }
+    Ok(())
+}
+
+/// Enforce the DSL-108 block-level cap on evidence admissions.
+///
+/// Rejects when `evidences.len() > MAX_SLASH_PROPOSALS_PER_BLOCK`.
+/// Boundary case (`== MAX`) admits — the cap is inclusive of
+/// exactly-at-limit blocks.
+///
+/// # Why a hard cap
+///
+/// Each admitted evidence triggers DSL-103 puzzle-hash
+/// derivation at admission time and the full verifier pipeline
+/// (BLS + state lookup) at the slashing-manager layer
+/// downstream. An unbounded REMARK list would let a single
+/// block blow up validation time to DoS the chain. SPEC §2.8
+/// fixes the cap at 64 so per-block cost stays predictable
+/// regardless of mempool pressure.
+///
+/// # Errors
+///
+/// - [`SlashingError::BlockCapExceeded`] — carries the observed
+///   `actual` count and the `MAX_SLASH_PROPOSALS_PER_BLOCK`
+///   `limit`. Mirrored by DSL-119 on the appeal side with the
+///   same variant but `MAX_APPEALS_PER_BLOCK` as the limit.
+pub fn enforce_block_level_slashing_caps(
+    evidences: &[SlashingEvidence],
+) -> Result<(), SlashingError> {
+    if evidences.len() > MAX_SLASH_PROPOSALS_PER_BLOCK {
+        return Err(SlashingError::BlockCapExceeded {
+            actual: evidences.len(),
+            limit: MAX_SLASH_PROPOSALS_PER_BLOCK,
+        });
     }
     Ok(())
 }

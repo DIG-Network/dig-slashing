@@ -66,11 +66,12 @@ items:
   - id: DSL-108
     section: "Evidence Mempool Policy"
     summary: "Block cap"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-108.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-108"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_108_evidence_block_cap_test
+    notes: "Adds pub fn enforce_block_level_slashing_caps(evidences: &[SlashingEvidence]) -> Result<(), SlashingError>. Strict `>` check, returns new SlashingError::BlockCapExceeded { actual, limit } variant (shared with DSL-119 appeal-cap). Adds MAX_SLASH_PROPOSALS_PER_BLOCK = 64 + MAX_APPEALS_PER_BLOCK = 64 constants (appeal cap shipped early for DSL-119 reuse, per SPEC §2.8). 3-test suite: MAX+1=65 rejects with both fields, exactly-MAX admits + regression guard MAX-1, empty admits vacuously."
 
   - id: DSL-109
     section: "Evidence Mempool Policy"

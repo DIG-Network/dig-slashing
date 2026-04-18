@@ -270,6 +270,28 @@ pub enum SlashingError {
     #[error("unknown evidence: {0}")]
     UnknownEvidence(String),
 
+    /// Block-level evidence cap exceeded
+    /// (`evidence_count > MAX_SLASH_PROPOSALS_PER_BLOCK`) or
+    /// appeal cap exceeded
+    /// (`appeal_count > MAX_APPEALS_PER_BLOCK`).
+    ///
+    /// Raised by DSL-108 `enforce_block_level_slashing_caps` and
+    /// DSL-119 `enforce_block_level_appeal_caps`. Caps bound
+    /// per-block admission cost — each evidence triggers DSL-103
+    /// puzzle-hash derivation + BLS verification downstream, so
+    /// a hard cap keeps block-validation time predictable.
+    /// Carries both the `actual` count and the `limit` so
+    /// operators can tell whether they are hitting the proposal
+    /// or the appeal ceiling without re-deriving constants.
+    #[error("block cap exceeded: actual={actual}, limit={limit}")]
+    BlockCapExceeded {
+        /// Number of REMARK items observed in the block.
+        actual: usize,
+        /// `MAX_SLASH_PROPOSALS_PER_BLOCK` or
+        /// `MAX_APPEALS_PER_BLOCK` at the time of check.
+        limit: usize,
+    },
+
     /// Mempool policy caught a byte-identical evidence between
     /// `pending_evidence` and `incoming_evidence`, or a duplicate
     /// within `incoming_evidence` itself.

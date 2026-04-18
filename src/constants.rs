@@ -272,6 +272,25 @@ pub const MAX_APPEAL_ATTEMPTS_PER_SLASH: usize = 4;
 /// full capacity returns `SlashingError::PendingBookFull` (DSL-027).
 pub const MAX_PENDING_SLASHES: usize = 4_096;
 
+/// Block-level cap on evidence REMARKs — `64`.
+///
+/// Traces to SPEC §2.8 + §16.3. Evidence admitted in excess of
+/// this cap for a single block is rejected by
+/// [`crate::enforce_block_level_slashing_caps`] (DSL-108). Bounds
+/// per-block admission cost — each evidence triggers DSL-103
+/// puzzle-hash derivation + BLS verification downstream, so a
+/// hard cap keeps block-validation time predictable.
+pub const MAX_SLASH_PROPOSALS_PER_BLOCK: usize = 64;
+
+/// Block-level cap on appeal REMARKs — `64`.
+///
+/// Traces to SPEC §2.8 + §16.3. Symmetric to
+/// `MAX_SLASH_PROPOSALS_PER_BLOCK` but for appeal admission
+/// (DSL-119). Separate cap because appeal arrival is spiky
+/// (clustered at window expiry) and the two should not crowd
+/// each other out of a block's admission budget.
+pub const MAX_APPEALS_PER_BLOCK: usize = 64;
+
 /// Whistleblower reward divisor — `512`.
 ///
 /// Traces to SPEC §2.3, §4. `wb_reward = total_eff_bal / 512`.
