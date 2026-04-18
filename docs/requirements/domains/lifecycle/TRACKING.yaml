@@ -186,11 +186,12 @@ items:
   - id: DSL-152
     section: "submit_evidence Short-Circuits"
     summary: "submit_evidence ReporterIsAccused short-circuit"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-152.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-152"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_152_submit_evidence_reporter_is_accused_short_circuit_test
+    notes: "Existing submit_evidence already calls verify_evidence first (src/manager.rs:276), which runs DSL-012 ReporterIsAccused check before bond.lock. 4-test suite pins manager-level invariant: proposer self-accuse + attester self-accuse (intersection) both surface ReporterIsAccused via submit_evidence with exact idx carried, no state mutation (lock_calls=0, pay_calls=0, book empty, is_processed false — prevents griefer dedup-map poisoning), distinct-reporter control admits successfully. Requires adding validator at idx=0 to view for control test because DSL-025 reward routing resolves block proposer via proposer_at_slot which returns Some(0) from FixedProposer mock."
 
   - id: DSL-162
     section: "submit_evidence Short-Circuits"
