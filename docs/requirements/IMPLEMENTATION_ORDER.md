@@ -19,7 +19,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-007 — AttesterSlashing::slashable_indices (intersection)
 - [x] DSL-008 — InvalidBlockProof + InvalidBlockReason roundtrip
 - [x] DSL-009 — SignedBlockHeader roundtrip
-- [ ] DSL-010 — SlashingEvidence::slashable_validators
+- [x] DSL-010 — SlashingEvidence::slashable_validators
 
 ### Verification
 - [ ] DSL-011 — verify_evidence OffenseTooOld enforcement
