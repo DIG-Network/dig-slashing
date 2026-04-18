@@ -56,11 +56,12 @@ items:
   - id: DSL-169
     section: "Phase 12 Integration Closures"
     summary: "run_epoch_boundary wires reward_payout + inactivity penalty slashes"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/orchestration/specs/DSL-169.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-169"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_169_epoch_boundary_reward_payout_wiring_test
+    notes: "Replaces the `let _ = &reward_payout;` placeholder in src/orchestration.rs:191 with two in-line loops inside the DSL-127 fixed 8-step order: step 1b (post flag-delta compute) routes every FlagDelta {reward>0} through RewardPayout::pay(ph, reward); step 3b (post inactivity penalty compute) applies every (idx, penalty) via ValidatorEntry::slash_absolute(penalty, current_epoch_ending). Missing validators silently skipped on both paths. 5-test suite via RecordingPayout + RecordingValidator mocks: reward paid + zero-reward skipped + inactivity penalty slashes + out-of-view defensive skip + DSL-127 invariants preserved."
 
   - id: DSL-170
     section: "Phase 12 Integration Closures"

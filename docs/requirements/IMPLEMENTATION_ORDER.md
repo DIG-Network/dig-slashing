@@ -252,7 +252,7 @@ Public-API coherence gaps identified in audit of shipped catalogue. Each closes 
 - [ ] DSL-168 — process_block_admissions block-level entry point
 
 ### Orchestration — Wire Unused Traits + Fields
-- [ ] DSL-169 — run_epoch_boundary wires reward_payout + inactivity penalty slashes
+- [x] DSL-169 — run_epoch_boundary wires reward_payout + inactivity penalty slashes
 - [x] DSL-170 — SlashingSystem carries network_id
 
 ---
