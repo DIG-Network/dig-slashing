@@ -115,6 +115,17 @@ pub const SLASH_LOCK_EPOCHS: u64 = 100;
 /// uses 8 epochs to match L2 block cadence.
 pub const SLASH_APPEAL_WINDOW_EPOCHS: u64 = 8;
 
+/// 50/50 winner-award / burn split in basis points applied to a
+/// forfeited bond.
+///
+/// Traces to SPEC §2.6, §6.5. Consumed by DSL-068 (sustained →
+/// reporter bond forfeited, 50% routed to appellant, 50% burned)
+/// and DSL-071 (rejected → appellant bond forfeited, 50% to
+/// reporter, 50% burned). Expressed in basis points so future
+/// governance can tune it without changing the integer-division
+/// structure of the split.
+pub const BOND_AWARD_TO_WINNER_BPS: u64 = 5_000;
+
 /// Maximum serialized-bytes length of a `SlashAppeal` envelope.
 ///
 /// Traces to SPEC §2.6, §6.1. Caps memory + DoS cost for

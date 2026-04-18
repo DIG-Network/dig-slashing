@@ -41,9 +41,10 @@ pub mod traits;
 
 pub use appeal::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, AttesterAppealGround,
-    AttesterSlashingAppeal, ClawbackResult, InvalidBlockAppeal, InvalidBlockAppealGround,
-    ProposerAppealGround, ProposerSlashingAppeal, SlashAppeal, SlashAppealPayload,
-    adjudicate_sustained_clawback_rewards, adjudicate_sustained_restore_status,
+    AttesterSlashingAppeal, BondSplitResult, ClawbackResult, InvalidBlockAppeal,
+    InvalidBlockAppealGround, ProposerAppealGround, ProposerSlashingAppeal, SlashAppeal,
+    SlashAppealPayload, adjudicate_sustained_clawback_rewards,
+    adjudicate_sustained_forfeit_reporter_bond, adjudicate_sustained_restore_status,
     adjudicate_sustained_revert_base_slash, adjudicate_sustained_revert_collateral,
     verify_attester_appeal_attestations_identical, verify_attester_appeal_empty_intersection,
     verify_attester_appeal_invalid_indexed_attestation_structure,
@@ -61,8 +62,8 @@ pub use appeal::{
 pub use bonds::{BondError, BondEscrow, BondTag};
 pub use constants::{
     APPELLANT_BOND_MOJOS, ATTESTATION_BASE_BPS, BLS_PUBLIC_KEY_SIZE, BLS_SIGNATURE_SIZE,
-    BPS_DENOMINATOR, DOMAIN_BEACON_ATTESTER, DOMAIN_BEACON_PROPOSER, DOMAIN_SLASH_APPEAL,
-    DOMAIN_SLASHING_EVIDENCE, EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS,
+    BOND_AWARD_TO_WINNER_BPS, BPS_DENOMINATOR, DOMAIN_BEACON_ATTESTER, DOMAIN_BEACON_PROPOSER,
+    DOMAIN_SLASH_APPEAL, DOMAIN_SLASHING_EVIDENCE, EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS,
     MAX_APPEAL_ATTEMPTS_PER_SLASH, MAX_APPEAL_PAYLOAD_BYTES, MAX_PENALTY_BPS, MAX_PENDING_SLASHES,
     MAX_SLASH_PROPOSAL_PAYLOAD_BYTES, MAX_VALIDATORS_PER_COMMITTEE, MIN_EFFECTIVE_BALANCE,
     MIN_SLASHING_PENALTY_QUOTIENT, PROPORTIONAL_SLASHING_MULTIPLIER, PROPOSER_REWARD_QUOTIENT,

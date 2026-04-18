@@ -346,11 +346,12 @@ items:
   - id: DSL-068
     section: "Adjudicator"
     summary: "Adjudicate Sustained reporter-bond 50/50 split"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-068.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-068"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_068_adjudicate_sustained_bond_split_test
+    notes: "Adds BOND_AWARD_TO_WINNER_BPS = 5_000 (SPEC §2.6) + BondSplitResult{forfeited, winner_award, burn}. adjudicate_sustained_forfeit_reporter_bond(pending, appeal, verdict, bond_escrow, reward_payout) -> Result<BondSplitResult, BondError>. Forfeits reporter via bond_escrow.forfeit(reporter_idx, REPORTER_BOND_MOJOS, Reporter(hash)); splits forfeited integer-divided by BPS (floor toward appellant, remainder to burn); pays appellant_puzzle_hash unconditionally. Rejected → zero-filled result. 4-test suite: forfeit call shape, 1000 → (500,500), pay recorded, rounding table 1→(0,1)/2→(1,1)/3→(1,2)."
 
   - id: DSL-069
     section: "Adjudicator"
