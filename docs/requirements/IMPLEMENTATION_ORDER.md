@@ -26,7 +26,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-012 — verify_evidence ReporterIsAccused rejection
 - [x] DSL-013 — verify_proposer_slashing preconditions
 - [x] DSL-014 — verify_attester_slashing double-vote predicate
-- [ ] DSL-015 — verify_attester_slashing surround-vote predicate
+- [x] DSL-015 — verify_attester_slashing surround-vote predicate
 - [ ] DSL-016 — verify_attester_slashing EmptySlashableIntersection
 - [ ] DSL-017 — verify_attester_slashing NotSlashableByPredicate
 - [ ] DSL-018 — verify_invalid_block signature over block_signing_message

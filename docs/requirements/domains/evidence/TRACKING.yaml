@@ -146,11 +146,12 @@ items:
   - id: DSL-015
     section: "Verification"
     summary: "verify_attester_slashing accepts surround-vote (a.src < b.src AND a.tgt > b.tgt)"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-015.md"
     catalogue_ref: "docs/resources/SPEC.md#22.2"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_015_verify_attester_surround_vote_predicate_test
+    notes: "Surround-vote predicate enforced in verify_attester_slashing (landed with DSL-014 commit). Strict inequalities: (a.src < b.src AND a.tgt > b.tgt) OR mirror. 7-test suite: a surrounds b, b surrounds a (mirror), non-overlapping → AttesterSlashingNotSlashable, equal source → not surround (rejected when no double-vote either), equal target → still accepted via double-vote (documents strictness), adjacent shared target → same, slashable-set matches DSL-007 intersection."
 
   - id: DSL-016
     section: "Verification"
