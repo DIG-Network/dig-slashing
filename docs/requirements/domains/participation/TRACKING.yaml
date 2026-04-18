@@ -146,8 +146,9 @@ items:
   - id: DSL-154
     section: "Serde"
     summary: "ParticipationFlags serde roundtrip"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-154.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-154"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_154_participation_flags_serde_roundtrip_test
+    notes: "No src/ changes — existing `#[derive(Serialize, Deserialize)]` on `ParticipationFlags(pub u8)` already satisfies the contract. 4-test suite pins: bincode single (wire=1 byte, value preserved), serde_json single (bare int `\"7\"`, not object), Vec roundtrip (`[0,1,3,7,42,255]`), all 256 u8 values loop under both codecs + cross-codec json-of-bincode (reserved bits 3..=7 not masked; future upgrades may claim them). Load-bearing for EpochBoundaryReport / ReorgReport serialisation + on-disk tracker snapshots."
