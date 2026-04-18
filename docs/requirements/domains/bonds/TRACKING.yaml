@@ -26,11 +26,12 @@ items:
   - id: DSL-123
     section: "BondEscrow Trait"
     summary: "BondEscrow::release full"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/bonds/specs/DSL-123.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-123"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_123_bond_release_full_on_finalise_test
+    notes: "Pins release contract via reference MockBondEscrow with explicit free-balance tracking. Full-release semantics symmetric with DSL-122 forfeit: returns ENTIRE escrowed amount to free stake regardless of `amount` parameter. 4-test suite: lock+release restores free balance, tag zeroed post-release, unknown-tag TagNotFound, double-release TagNotFound + NO double-credit. Called by DSL-031 finalise_expired_slashes when challenge window closes with no winning appeal."
 
   - id: DSL-124
     section: "Bond Sizes"
