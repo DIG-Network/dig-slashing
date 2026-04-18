@@ -206,8 +206,9 @@ items:
   - id: DSL-163
     section: "Serialization"
     summary: "SlashingResult + PerValidatorSlash + FinalisationResult serde"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-163.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-163"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_163_slashing_result_serde_roundtrip_test
+    notes: "No src/ changes — existing `#[derive(Serialize, Deserialize, Default)]` on SlashingResult + FinalisationResult + `#[derive(Serialize, Deserialize)]` on PerValidatorSlash already satisfy the contract. 5-test suite: populated SlashingResult bincode (3-entry per_validator + Bytes32 spot-check), standalone PerValidatorSlash bincode (u32::MAX + u64::MAX extremes), FinalisationResult bincode (correlation vec contains zero-penalty pair (5, 0) — pins tuple encoding preserves zero u64), all three under serde_json (RPC/telemetry wire), Default::default() zero-preserved under both codecs (empty vecs + Bytes32([0;32]) + zero-filled PerValidatorSlash)."
