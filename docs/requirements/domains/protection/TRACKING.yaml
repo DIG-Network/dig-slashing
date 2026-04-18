@@ -66,11 +66,12 @@ items:
   - id: DSL-100
     section: "Persistence"
     summary: "Legacy JSON loads with hash=None"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/protection/specs/DSL-100.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-100"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_100_protection_legacy_json_test
+    notes: "Adds #[serde(default)] to last_attested_block_hash so legacy on-disk JSON from the pre-hash schema deserialises with the missing field defaulting to None instead of raising `missing field` errors (serde's derived Deserialize otherwise rejects missing Option fields absent this attribute, despite serde_json's tolerant appearance). Preserves monotonic slashing-protection guarantees across upgrades without a schema-migration tool. 3-test suite: raw legacy JSON string deserialises (numeric fields preserved, hash=None); post-record_attestation re-serialisation emits new field, no null left in output; legacy-loaded treats itself as fresh except the documented (0,0)+None edge case where DSL-095 coord-match rejects until validator re-attests at non-zero epochs."
 
   - id: DSL-101
     section: "Persistence"

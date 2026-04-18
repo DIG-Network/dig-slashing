@@ -64,6 +64,15 @@ pub struct SlashingProtection {
     /// has been recorded. Stored as a `String` so persistence
     /// (DSL-101) can round-trip via JSON without binary-blob
     /// plumbing.
+    ///
+    /// `#[serde(default)]` pins
+    /// [DSL-100](../docs/requirements/domains/protection/specs/DSL-100.md)
+    /// backwards compatibility: legacy on-disk JSON from the pre-
+    /// hash schema deserialises with `last_attested_block_hash =
+    /// None` instead of a hard "missing field" error, avoiding a
+    /// "delete your state" migration step that would strip
+    /// monotonic slashing-protection guarantees.
+    #[serde(default)]
     last_attested_block_hash: Option<String>,
 }
 
