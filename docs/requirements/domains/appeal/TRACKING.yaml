@@ -146,11 +146,12 @@ items:
   - id: DSL-048
     section: "Attester Appeal"
     summary: "AttesterAppeal rejected on genuine slash"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-048.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-048"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_048_attester_appeal_rejected_genuine_test
+    notes: "Negative-control sweep across all 7 attester-appeal verifiers (DSL-041..047). Single fixture: well-formed, honestly-signed double-vote with attesting_indices_a=[1,2,3] + attesting_indices_b=[2,3,4] (intersection {2,3}), both sides signed under a shared index→(sk,pk) BTreeMap so MapLookup verifies both aggregates. Each verifier returns Rejected{GroundDoesNotHold}. Test-only (no src/ changes) — mirrors DSL-040 on the attester side."
 
   - id: DSL-049
     section: "InvalidBlock Appeal"
