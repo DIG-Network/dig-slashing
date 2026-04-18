@@ -19,9 +19,16 @@
 //! each; the dispatcher `verify_appeal` lands once enough grounds
 //! exist to exercise it.
 
+use chia_bls::Signature;
+use dig_block::L2BlockHeader;
+use dig_protocol::Bytes32;
+
 use crate::appeal::ground::ProposerAppealGround;
 use crate::appeal::verdict::{AppealRejectReason, AppealSustainReason, AppealVerdict};
+use crate::constants::BLS_SIGNATURE_SIZE;
 use crate::evidence::proposer_slashing::ProposerSlashing;
+use crate::evidence::verify::block_signing_message;
+use crate::traits::ValidatorView;
 
 /// Verify `ProposerAppealGround::HeadersIdentical`.
 ///
@@ -90,6 +97,91 @@ pub fn verify_proposer_appeal_proposer_index_mismatch(
     }
 }
 
+/// Verify `ProposerAppealGround::SignatureAInvalid`.
+///
+/// Implements [DSL-036](../../../docs/requirements/domains/appeal/specs/DSL-036.md).
+/// Traces to SPEC §6.2.
+///
+/// # Predicate
+///
+/// Re-runs `chia_bls::verify(sig_a, proposer_pubkey,
+/// block_signing_message(...))` against header A. Sustains when the
+/// verify returns `false` OR the signature bytes cannot be decoded
+/// OR the proposer is not registered.
+///
+/// # Verdict
+///
+/// - `Sustained { SignatureAInvalid }` iff re-check fails.
+/// - `Rejected { GroundDoesNotHold }` iff signature genuinely verifies.
+///
+/// # Determinism
+///
+/// `chia_bls::verify` is deterministic; the same (sig, pk, msg)
+/// triple always produces the same verdict.
+#[must_use]
+pub fn verify_proposer_appeal_signature_a_invalid(
+    evidence: &ProposerSlashing,
+    validator_view: &dyn ValidatorView,
+    network_id: &Bytes32,
+) -> AppealVerdict {
+    verify_proposer_appeal_signature_side(
+        &evidence.signed_header_a.message,
+        &evidence.signed_header_a.signature,
+        validator_view,
+        network_id,
+        AppealSustainReason::SignatureAInvalid,
+    )
+}
+
+/// Shared helper: re-check one header's BLS signature. Returns
+/// `Sustained { sustain_reason }` on verify-failure / decode-failure
+/// / missing-pubkey, `Rejected { GroundDoesNotHold }` on successful
+/// verify.
+///
+/// Reused by DSL-037 (`SignatureBInvalid`) — same shape, different
+/// side.
+fn verify_proposer_appeal_signature_side(
+    header: &L2BlockHeader,
+    sig_bytes: &[u8],
+    validator_view: &dyn ValidatorView,
+    network_id: &Bytes32,
+    sustain_reason: AppealSustainReason,
+) -> AppealVerdict {
+    let sustain = AppealVerdict::Sustained {
+        reason: sustain_reason,
+    };
+
+    // Decode sig bytes — wrong width or non-curve-point bytes both
+    // collapse to sustain (the signature is not a valid BLS G2).
+    let Ok(sig_arr) = <&[u8; BLS_SIGNATURE_SIZE]>::try_from(sig_bytes) else {
+        return sustain;
+    };
+    let Ok(sig) = Signature::from_bytes(sig_arr) else {
+        return sustain;
+    };
+
+    // Look up the proposer's pubkey. Absent validator → sustain: the
+    // appeal proves the manager slashed a non-existent/unknown key.
+    let Some(entry) = validator_view.get(header.proposer_index) else {
+        return sustain;
+    };
+    let pk = entry.public_key();
+
+    let msg = block_signing_message(
+        network_id,
+        header.epoch,
+        &header.hash(),
+        header.proposer_index,
+    );
+    if chia_bls::verify(&sig, pk, &msg) {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    } else {
+        sustain
+    }
+}
+
 // Compile-time sanity: keep `ProposerAppealGround::HeadersIdentical`
 // referenced from the verify module so the variant-to-verifier
 // mapping remains visible in cross-references.
@@ -98,3 +190,5 @@ const _HEADERS_IDENTICAL_GROUND: ProposerAppealGround = ProposerAppealGround::He
 #[allow(dead_code)]
 const _PROPOSER_INDEX_MISMATCH_GROUND: ProposerAppealGround =
     ProposerAppealGround::ProposerIndexMismatch;
+#[allow(dead_code)]
+const _SIGNATURE_A_INVALID_GROUND: ProposerAppealGround = ProposerAppealGround::SignatureAInvalid;
