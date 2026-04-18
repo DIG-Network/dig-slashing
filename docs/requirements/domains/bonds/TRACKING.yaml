@@ -16,11 +16,12 @@ items:
   - id: DSL-122
     section: "BondEscrow Trait"
     summary: "BondEscrow::forfeit returns mojos"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/bonds/specs/DSL-122.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-122"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_122_bond_forfeit_returns_mojos_test
+    notes: "Pins forfeit contract via reference MockBondEscrow. Return value = full escrowed amount (critical — only channel carrying forfeited mojos to DSL-068/071 winner-award + burn split). Tag zeroed post-forfeit; unknown-tag + double-forfeit both return BondError::TagNotFound { tag }. 4-test suite includes a pin that `amount` parameter is currently ignored for return value (future partial-forfeit extensions must not silently regress DSL-068/071 callsites)."
 
   - id: DSL-123
     section: "BondEscrow Trait"
