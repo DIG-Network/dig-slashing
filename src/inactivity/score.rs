@@ -222,6 +222,15 @@ impl InactivityScoreTracker {
     /// DSL-130 `ReorgReport` can carry it uniformly with the
     /// participation-side report.
     pub fn rewind_on_reorg(&mut self, depth: u64) -> u64 {
+        // DSL-155 acceptance: `depth == 0` is a no-op. Orchestrator
+        // occasionally fires rewind_all_on_reorg defensively with
+        // `new_tip_epoch == current_epoch` after a recovery restart;
+        // those callers must observe zero mutation. Vec length
+        // preserved either way (DSL-093 resize_for is the only path
+        // that shrinks/grows the scores vector).
+        if depth == 0 {
+            return 0;
+        }
         for score in &mut self.scores {
             *score = 0;
         }
