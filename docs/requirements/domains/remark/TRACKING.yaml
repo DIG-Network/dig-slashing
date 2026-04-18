@@ -16,11 +16,12 @@ items:
   - id: DSL-103
     section: "Evidence Wire"
     summary: "Evidence puzzle_reveal emits one REMARK"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-103.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-103"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_103_evidence_puzzle_reveal_emits_one_remark_test
+    notes: "Adds pub fn slashing_evidence_remark_puzzle_reveal_v1 + slashing_evidence_remark_puzzle_hash_v1 in src/remark/evidence_wire.rs. Puzzle is a quoted-constant `(q . ((1 payload)))` built via clvmr Allocator (new_small_number for opcode 1, new_atom for payload, new_pair for list construction, serde::node_to_bytes for output). No solution inputs by design — coin-commitment invariant requires the reveal to be byte-identical to what tree-hashed at creation. Hash via clvm_utils::tree_hash_from_bytes(reveal). Errors wrapped as SlashingError::InvalidSlashingEvidence for uniform propagation. 4-test suite runs the puzzle through chia_sdk_types::run_puzzle + ChiaDialect(0): exactly one Condition::Remark, REMARK payload walked via allocator.sexp pair decomposition + DSL-102 parser round-trip equals original evidence, hash deterministic + binds reporter_validator_index mutations, hash equals tree_hash_from_bytes(reveal). Adds clvmr + clvm-utils main deps; chia-sdk-types + clvm-traits dev-deps."
 
   - id: DSL-104
     section: "Evidence Admission"

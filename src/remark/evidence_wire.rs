@@ -31,7 +31,12 @@
 //! unusable in production: a single foreign REMARK in a block
 //! would poison every valid slashing submission alongside it.
 
+use clvmr::Allocator;
+use clvmr::serde::node_to_bytes;
+use dig_protocol::Bytes32;
+
 use crate::SLASH_EVIDENCE_REMARK_MAGIC_V1;
+use crate::error::SlashingError;
 use crate::evidence::SlashingEvidence;
 
 /// Encode a `SlashingEvidence` as a REMARK payload.
@@ -101,4 +106,105 @@ where
     }
 
     out
+}
+
+/// CLVM puzzle reveal that, when evaluated with an empty solution,
+/// emits exactly one `REMARK` condition carrying the DSL-102
+/// encoded wire payload.
+///
+/// Implements [DSL-103](../../docs/requirements/domains/remark/specs/DSL-103.md).
+///
+/// # Shape
+///
+/// The puzzle is a constant-returning quote:
+///
+/// ```text
+/// (q . ((1 . (<wire_bytes> . nil))))
+/// ```
+///
+/// In CLVM the quote opcode is also atom `1`; context disambiguates
+/// the outer quote (puzzle head) from the inner REMARK opcode
+/// (condition head). Executing the puzzle returns the inner list
+/// `((1 <wire>))` — one REMARK condition in canonical proper-list
+/// form `(opcode arg)`.
+///
+/// Why a constant-return puzzle instead of something solution-driven:
+/// the reporter MUST commit to the exact payload at coin-creation
+/// time so that the `puzzle_hash` (= tree-hash of the reveal) binds
+/// the evidence inseparably to the coin. If the solution could
+/// influence the emitted payload, an attacker could substitute a
+/// different payload after coin creation and break DSL-104
+/// admission.
+///
+/// # Errors
+///
+/// - `SlashingError::InvalidSlashingEvidence` wrapping the
+///   underlying serde / CLVM error, if encoding or serialisation
+///   fails. In practice serialisation is infallible; the error
+///   path exists only to propagate allocator limits deterministically.
+pub fn slashing_evidence_remark_puzzle_reveal_v1(
+    ev: &SlashingEvidence,
+) -> Result<Vec<u8>, SlashingError> {
+    let wire = encode_slashing_evidence_remark_payload_v1(ev)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("encode: {e}")))?;
+
+    let mut allocator = Allocator::new();
+
+    let payload_atom = allocator
+        .new_atom(&wire)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_atom: {e}")))?;
+
+    let nil = allocator.nil();
+
+    // (payload . nil) — the REMARK arg list after the opcode, so
+    // the full condition reads as the canonical proper list
+    // `(1 payload)`.
+    let tail = allocator
+        .new_pair(payload_atom, nil)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_pair tail: {e}")))?;
+
+    let opcode = allocator
+        .new_small_number(1)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_small_number: {e}")))?;
+
+    // (1 . (payload . nil)) = (1 payload) — the REMARK condition.
+    let condition = allocator
+        .new_pair(opcode, tail)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_pair cond: {e}")))?;
+
+    // ((1 payload) . nil) — the condition list with one element.
+    let condition_list = allocator
+        .new_pair(condition, nil)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_pair list: {e}")))?;
+
+    // Reuse the opcode atom as the outer quote (both are atom `1`).
+    // (1 . ((1 payload))) evaluates to ((1 payload)).
+    let puzzle = allocator
+        .new_pair(opcode, condition_list)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("new_pair puzzle: {e}")))?;
+
+    node_to_bytes(&allocator, puzzle)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("node_to_bytes: {e}")))
+}
+
+/// `tree_hash` of the evidence REMARK puzzle reveal.
+///
+/// Implements [DSL-103](../../docs/requirements/domains/remark/specs/DSL-103.md).
+/// The returned `Bytes32` is the coin's `puzzle_hash` for the
+/// reporter spend admitted on-chain (DSL-104).
+///
+/// # Determinism
+///
+/// `clvm_utils::tree_hash_from_bytes` is purely a function of the
+/// serialised CLVM bytes, and `slashing_evidence_remark_puzzle_reveal_v1`
+/// itself is deterministic (serde_json with no HashMap fields +
+/// a fixed CLVM structure), so the returned hash is stable across
+/// processes and platforms.
+pub fn slashing_evidence_remark_puzzle_hash_v1(
+    ev: &SlashingEvidence,
+) -> Result<Bytes32, SlashingError> {
+    let reveal = slashing_evidence_remark_puzzle_reveal_v1(ev)?;
+    let hash = clvm_utils::tree_hash_from_bytes(&reveal)
+        .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("tree_hash: {e}")))?;
+    Ok(hash.into())
 }
