@@ -57,8 +57,44 @@ pub fn verify_proposer_appeal_headers_identical(evidence: &ProposerSlashing) -> 
     }
 }
 
+/// Verify `ProposerAppealGround::ProposerIndexMismatch`.
+///
+/// Implements [DSL-035](../../../docs/requirements/domains/appeal/specs/DSL-035.md).
+/// Traces to SPEC §6.2.
+///
+/// # Predicate
+///
+/// `evidence.signed_header_a.message.proposer_index !=
+/// evidence.signed_header_b.message.proposer_index`
+///
+/// # Verdict
+///
+/// - `Sustained { ProposerIndexMismatch }` iff the indices differ.
+/// - `Rejected { GroundDoesNotHold }` otherwise.
+///
+/// Evidence-only check; witness ignored.
+#[must_use]
+pub fn verify_proposer_appeal_proposer_index_mismatch(
+    evidence: &ProposerSlashing,
+) -> AppealVerdict {
+    let a = evidence.signed_header_a.message.proposer_index;
+    let b = evidence.signed_header_b.message.proposer_index;
+    if a != b {
+        AppealVerdict::Sustained {
+            reason: AppealSustainReason::ProposerIndexMismatch,
+        }
+    } else {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    }
+}
+
 // Compile-time sanity: keep `ProposerAppealGround::HeadersIdentical`
 // referenced from the verify module so the variant-to-verifier
 // mapping remains visible in cross-references.
 #[allow(dead_code)]
 const _HEADERS_IDENTICAL_GROUND: ProposerAppealGround = ProposerAppealGround::HeadersIdentical;
+#[allow(dead_code)]
+const _PROPOSER_INDEX_MISMATCH_GROUND: ProposerAppealGround =
+    ProposerAppealGround::ProposerIndexMismatch;
