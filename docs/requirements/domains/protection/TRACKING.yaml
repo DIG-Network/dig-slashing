@@ -76,11 +76,12 @@ items:
   - id: DSL-101
     section: "Persistence"
     summary: "Save/load roundtrip"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/protection/specs/DSL-101.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-101"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_101_protection_save_load_roundtrip_test
+    notes: "Adds pub fn save(&self, &PathBuf) + pub fn load(&PathBuf) -> std::io::Result<Self>. Moves serde_json from dev-dep to main dep. Format is to_vec_pretty JSON (operator debuggability). load on non-existent path returns Ok(Self::default()) — first-boot convenience. Serde errors wrapped as std::io::Error(InvalidData). 4-test suite with RAII TmpFile cleanup: whole-struct PartialEq roundtrip, raw-bytes hex-format substring check, external-tooling uppercase rewrite + DSL-095 case-insensitive reload compare, missing-path default. Closes Phase 5 Protection."
 
   - id: DSL-156
     section: "Proposal Rewind"
