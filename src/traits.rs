@@ -48,6 +48,69 @@ pub trait PublicKeyLookup {
     fn pubkey_of(&self, index: u32) -> Option<&PublicKey>;
 }
 
+/// Reward-payout routing surface.
+///
+/// Traces to [SPEC §12.1](../../docs/resources/SPEC.md), catalogue row
+/// [DSL-141](../../docs/requirements/domains/).
+///
+/// # Consumers
+///
+/// - `SlashingManager::submit_evidence` (DSL-025) routes the
+///   whistleblower + proposer rewards through this trait.
+/// - Appeal adjudication (DSL-067 / DSL-068 / DSL-071) credits the
+///   winning party's reward account.
+///
+/// # Semantics
+///
+/// `pay(ph, amount)` creates-or-credits a pay-to-puzzle-hash account
+/// at the consensus layer. `amount == 0` is legal and MUST still be
+/// recorded — the call pattern is the protocol-observable side
+/// effect (auditors rely on the two-call pattern per admission).
+pub trait RewardPayout {
+    /// Create or credit the reward account for `principal_ph` by
+    /// `amount_mojos`. Idempotent w.r.t. the account's running
+    /// balance — consensus aggregates repeated credits.
+    fn pay(&mut self, principal_ph: Bytes32, amount_mojos: u64);
+}
+
+/// Reward clawback surface — reverses a previous `RewardPayout::pay`.
+///
+/// Traces to [SPEC §12.2](../../docs/resources/SPEC.md), catalogue row
+/// [DSL-142](../../docs/requirements/domains/).
+///
+/// # Consumer
+///
+/// Sustained-appeal adjudication (DSL-067) pulls the paid rewards
+/// back from the reporter + proposer accounts when the base slash is
+/// reverted.
+pub trait RewardClawback {
+    /// Deduct up to `amount` mojos from `principal_ph`'s reward
+    /// account. Returns the mojos ACTUALLY clawed back — may be less
+    /// than `amount` if the principal already withdrew (partial
+    /// clawback is DSL-142's defined semantics).
+    fn claw_back(&mut self, principal_ph: Bytes32, amount: u64) -> u64;
+}
+
+/// Block-proposer lookup surface.
+///
+/// Traces to [SPEC §15.3](../../docs/resources/SPEC.md), catalogue row
+/// [DSL-144](../../docs/requirements/domains/).
+///
+/// # Consumer
+///
+/// `SlashingManager::submit_evidence` (DSL-025) queries
+/// `proposer_at_slot(current_slot())` to identify the proposer whose
+/// block includes the evidence, then routes the proposer-inclusion
+/// reward to that validator's puzzle hash.
+pub trait ProposerView {
+    /// Validator index of the proposer at `slot`. `None` when the
+    /// slot is outside the known range.
+    fn proposer_at_slot(&self, slot: u64) -> Option<u32>;
+    /// Current chain-tip slot — drives the "who proposed the block
+    /// that includes this evidence" lookup.
+    fn current_slot(&self) -> u64;
+}
+
 /// Per-validator effective-balance read surface.
 ///
 /// Traces to [SPEC §15.2](../../docs/resources/SPEC.md), catalogue row

@@ -39,7 +39,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-022 — submit_evidence base_slash = max(bps, quotient)
 - [x] DSL-023 — submit_evidence escrows reporter bond
 - [x] DSL-024 — submit_evidence creates PendingSlash Accepted
-- [ ] DSL-025 — submit_evidence reward routing (wb + proposer)
+- [x] DSL-025 — submit_evidence reward routing (wb + proposer)
 - [ ] DSL-026 — submit_evidence AlreadySlashed on duplicate
 - [ ] DSL-027 — submit_evidence PendingBookFull at capacity
 - [ ] DSL-028 — submit_evidence BondLockFailed on insufficient stake

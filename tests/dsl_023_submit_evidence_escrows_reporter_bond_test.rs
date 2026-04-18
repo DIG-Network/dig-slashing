@@ -39,10 +39,33 @@ use dig_block::L2BlockHeader;
 use dig_protocol::Bytes32;
 use dig_slashing::{
     BondError, BondEscrow, BondTag, EffectiveBalanceView, InvalidBlockProof, InvalidBlockReason,
-    MIN_EFFECTIVE_BALANCE, OffenseType, ProposerSlashing, REPORTER_BOND_MOJOS,
-    SLASH_LOOKBACK_EPOCHS, SignedBlockHeader, SlashingError, SlashingEvidence,
+    MIN_EFFECTIVE_BALANCE, OffenseType, ProposerSlashing, ProposerView, REPORTER_BOND_MOJOS,
+    RewardPayout, SLASH_LOOKBACK_EPOCHS, SignedBlockHeader, SlashingError, SlashingEvidence,
     SlashingEvidencePayload, SlashingManager, ValidatorEntry, ValidatorView, block_signing_message,
 };
+
+/// Reward-payout stub.
+struct NullReward;
+impl RewardPayout for NullReward {
+    fn pay(&mut self, _: Bytes32, _: u64) {}
+}
+
+/// Proposer stub — returns index 0.
+const PROPOSER_IDX: u32 = 0;
+struct FixedProposer;
+impl ProposerView for FixedProposer {
+    fn proposer_at_slot(&self, _: u64) -> Option<u32> {
+        Some(PROPOSER_IDX)
+    }
+    fn current_slot(&self) -> u64 {
+        0
+    }
+}
+
+fn inject_proposer(map: &mut HashMap<u32, OrderedValidator>, clock: std::rc::Rc<RefCell<u32>>) {
+    let sk = SecretKey::from_seed(&[0xFEu8; 32]);
+    map.insert(PROPOSER_IDX, OrderedValidator::new(sk.public_key(), clock));
+}
 
 // ── Bond-escrow mocks with call recording + failure injection ──────────
 
@@ -266,6 +289,7 @@ fn proposer_fixture(
             },
         }),
     };
+    inject_proposer(&mut map, std::rc::Rc::clone(&clock));
     (ev, MapView(map), clock)
 }
 
@@ -303,6 +327,7 @@ fn invalid_block_fixture(
             failure_reason: InvalidBlockReason::BadStateRoot,
         }),
     };
+    inject_proposer(&mut map, std::rc::Rc::clone(&clock));
     (ev, MapView(map), clock)
 }
 
@@ -319,8 +344,16 @@ fn test_dsl_023_bond_lock_invoked_with_correct_args() {
     let mut escrow = RecordingBondEscrow::accepting();
     let mut mgr = SlashingManager::new(3);
 
-    mgr.submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
-        .expect("submit must succeed");
+    mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut escrow,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .expect("submit must succeed");
 
     let calls = escrow.calls.borrow();
     assert_eq!(calls.len(), 1, "lock called exactly once");
@@ -350,8 +383,16 @@ fn test_dsl_023_bond_lock_precedes_validator_slash() {
     // completes before the validator is touched). Then
     // slash_absolute bumps to seq=2.
     *clock.borrow_mut() = 1;
-    mgr.submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
-        .expect("submit");
+    mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut escrow,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .expect("submit");
 
     let slash_seqs = &view.0.get(&9).unwrap().slash_seqs;
     // First validator slash must have happened AFTER lock (clock
@@ -376,7 +417,15 @@ fn test_dsl_023_reporter_bond_escrowed_field() {
     let mut mgr = SlashingManager::new(3);
 
     let result = mgr
-        .submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut escrow,
+            &mut NullReward,
+            &FixedProposer,
+            &network_id(),
+        )
         .expect("submit");
     assert_eq!(result.reporter_bond_escrowed, REPORTER_BOND_MOJOS);
 }
@@ -391,8 +440,16 @@ fn test_dsl_023_lock_tag_uses_evidence_hash() {
     let mut escrow = RecordingBondEscrow::accepting();
     let mut mgr = SlashingManager::new(3);
 
-    mgr.submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
-        .expect("submit");
+    mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut escrow,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .expect("submit");
     let tag = escrow.calls.borrow()[0].tag;
     match tag {
         BondTag::Reporter(h) => assert_eq!(h, hash_before),
@@ -414,7 +471,15 @@ fn test_dsl_023_lock_failure_no_mutation() {
     let mut mgr = SlashingManager::new(3);
 
     let err = mgr
-        .submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut escrow,
+            &mut NullReward,
+            &FixedProposer,
+            &network_id(),
+        )
         .expect_err("bond lock failure must reject");
     assert_eq!(err, SlashingError::BondLockFailed);
 
@@ -445,10 +510,26 @@ fn test_dsl_023_bond_lock_determinism() {
     let mut m1 = SlashingManager::new(3);
     let mut m2 = SlashingManager::new(3);
 
-    m1.submit_evidence(ev1, &mut view1, &balances, &mut e1, &network_id())
-        .unwrap();
-    m2.submit_evidence(ev2, &mut view2, &balances, &mut e2, &network_id())
-        .unwrap();
+    m1.submit_evidence(
+        ev1,
+        &mut view1,
+        &balances,
+        &mut e1,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .unwrap();
+    m2.submit_evidence(
+        ev2,
+        &mut view2,
+        &balances,
+        &mut e2,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .unwrap();
 
     let a = &e1.calls.borrow()[0];
     let b = &e2.calls.borrow()[0];
@@ -469,7 +550,15 @@ fn test_dsl_023_no_lock_on_verify_error() {
     let mut mgr = SlashingManager::new(current_epoch);
 
     let err = mgr
-        .submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut escrow,
+            &mut NullReward,
+            &FixedProposer,
+            &network_id(),
+        )
         .expect_err("too old must reject");
     assert!(matches!(err, SlashingError::OffenseTooOld { .. }));
 

@@ -112,6 +112,22 @@ pub const SLASH_APPEAL_WINDOW_EPOCHS: u64 = 8;
 /// full capacity returns `SlashingError::PendingBookFull` (DSL-027).
 pub const MAX_PENDING_SLASHES: usize = 4_096;
 
+/// Whistleblower reward divisor — `512`.
+///
+/// Traces to SPEC §2.3, §4. `wb_reward = total_eff_bal / 512`.
+/// Ethereum parity (equivalent role in consensus spec). Routed to the
+/// reporter's puzzle hash on admission (DSL-025), clawback-reversible
+/// on sustained appeal (DSL-067).
+pub const WHISTLEBLOWER_REWARD_QUOTIENT: u64 = 512;
+
+/// Proposer inclusion-reward divisor — `8`.
+///
+/// Traces to SPEC §2.3. `prop_reward = wb_reward / 8`. Paid to the
+/// block proposer at the slot that includes the evidence — incentive
+/// for proposers to actually include the REMARK bundle carrying the
+/// evidence in the next block. Clawback-reversible on sustained appeal.
+pub const PROPOSER_REWARD_QUOTIENT: u64 = 8;
+
 // ── Domain separation tags (SPEC §2.10) ─────────────────────────────────────
 //
 // Byte-string tags prefixed into every SHA-256 digest so a hash produced for
