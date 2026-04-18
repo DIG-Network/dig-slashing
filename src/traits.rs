@@ -48,6 +48,18 @@ pub trait PublicKeyLookup {
     fn pubkey_of(&self, index: u32) -> Option<&PublicKey>;
 }
 
+/// Blanket: any `ValidatorView` is a `PublicKeyLookup`. DSL-138.
+///
+/// Delegates `pubkey_of(idx)` to `self.get(idx).map(|e|
+/// e.public_key())`. Keeps the BLS-aggregate verify path in
+/// DSL-006 + DSL-013 from having to pass two trait-object
+/// pointers when one suffices.
+impl<T: ValidatorView + ?Sized> PublicKeyLookup for T {
+    fn pubkey_of(&self, index: u32) -> Option<&PublicKey> {
+        self.get(index).map(|entry| entry.public_key())
+    }
+}
+
 /// Reward-payout routing surface.
 ///
 /// Traces to [SPEC §12.1](../../docs/resources/SPEC.md), catalogue row
