@@ -136,7 +136,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-098 — rewind_attestation_to_epoch clears hash
 - [x] DSL-099 — reconcile_with_chain_tip rewinds both
 - [x] DSL-100 — Legacy JSON loads (no hash field → None)
-- [ ] DSL-101 — Save/load roundtrip
+- [x] DSL-101 — Save/load roundtrip
 
 ## Phase 6: REMARK Admission (DSL-102..120)
 

@@ -25,6 +25,8 @@
 //!   - DSL-098: `rewind_attestation_to_epoch`
 //!   - DSL-099/100/101: reorg, bootstrap, persistence details
 
+use std::path::PathBuf;
+
 use dig_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
@@ -254,6 +256,68 @@ impl SlashingProtection {
         if self.last_proposed_slot > new_tip_slot {
             self.last_proposed_slot = new_tip_slot;
         }
+    }
+
+    /// Persist slashing-protection state to disk as pretty-printed
+    /// JSON.
+    ///
+    /// Implements [DSL-101](../docs/requirements/domains/protection/specs/DSL-101.md).
+    /// Traces to SPEC §14.4.
+    ///
+    /// # On-disk format
+    ///
+    /// JSON, pretty-printed for operator debuggability. All fields
+    /// are primitive (`u64`) except `last_attested_block_hash`,
+    /// which is stored as the canonical `0x<lowercase-hex>` form
+    /// produced by [`record_attestation`]. External tooling that
+    /// rewrites the hash to uppercase is tolerated on reload via
+    /// [`check_attestation`]'s case-insensitive compare.
+    ///
+    /// # Errors
+    ///
+    /// Returns any I/O error raised by the underlying `std::fs`
+    /// write. Serialization is infallible (every field is
+    /// serde-safe by construction).
+    ///
+    /// # Companion [`load`](Self::load)
+    ///
+    /// The inverse of this call. `load` handles the missing-file
+    /// case by returning `Self::default()` so a first-boot
+    /// validator does not need a bootstrap branch.
+    pub fn save(&self, path: &PathBuf) -> std::io::Result<()> {
+        let json = serde_json::to_vec_pretty(self)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+        std::fs::write(path, json)
+    }
+
+    /// Load slashing-protection state from disk.
+    ///
+    /// Implements [DSL-101](../docs/requirements/domains/protection/specs/DSL-101.md).
+    ///
+    /// # Behaviour
+    ///
+    /// - Path exists: decode the file via `serde_json::from_slice`.
+    ///   Uses the same schema as `save`; DSL-100 handles legacy
+    ///   JSON lacking `last_attested_block_hash` via
+    ///   `#[serde(default)]` on that field.
+    /// - Path does NOT exist: return `Self::default()`. This is
+    ///   the intentional first-boot path — a validator with no
+    ///   prior state calls `load` and gets a clean instance,
+    ///   avoiding an explicit bootstrap branch at every call site.
+    ///
+    /// # Errors
+    ///
+    /// - `std::fs::read` errors (permission, I/O) propagate.
+    /// - Deserialization errors surface as `InvalidData` via
+    ///   `serde_json`. NOTE: a legitimate legacy file triggers
+    ///   `#[serde(default)]`, not an error.
+    pub fn load(path: &PathBuf) -> std::io::Result<Self> {
+        if !path.exists() {
+            return Ok(Self::default());
+        }
+        let bytes = std::fs::read(path)?;
+        serde_json::from_slice(&bytes)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
     }
 
     /// Reconcile local slashing-protection state with the canonical
