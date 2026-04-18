@@ -42,7 +42,7 @@ pub mod traits;
 pub use appeal::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, AttesterAppealGround,
     AttesterSlashingAppeal, InvalidBlockAppeal, InvalidBlockAppealGround, ProposerAppealGround,
-    ProposerSlashingAppeal, SlashAppeal, SlashAppealPayload,
+    ProposerSlashingAppeal, SlashAppeal, SlashAppealPayload, adjudicate_sustained_restore_status,
     adjudicate_sustained_revert_base_slash, adjudicate_sustained_revert_collateral,
     verify_attester_appeal_attestations_identical, verify_attester_appeal_empty_intersection,
     verify_attester_appeal_invalid_indexed_attestation_structure,

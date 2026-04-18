@@ -326,11 +326,12 @@ items:
   - id: DSL-066
     section: "Adjudicator"
     summary: "Adjudicate Sustained restores validator status"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-066.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-066"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_066_adjudicate_sustained_restores_status_test
+    notes: "adjudicate_sustained_restore_status(pending, appeal, verdict, validator_set) -> Vec<u32> calls ValidatorEntry::restore_status per reverted validator; returns indices whose call returned true (actually transitioned Slashed→Active). Idempotent on already-active (omitted from result vec). Same DSL-064 scope branching. 3-test suite: single Sustained → 1 call, pre is_slashed()=true + post is_slashed()=false, 3-validator multi → 3 calls."
 
   - id: DSL-067
     section: "Adjudicator"
