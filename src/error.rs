@@ -155,6 +155,17 @@ pub enum SlashingError {
     #[error("reporter cannot accuse self (index {0})")]
     ReporterIsAccused(u32),
 
+    /// Appeal's `evidence_hash` does not match any entry in the
+    /// `PendingSlashBook`.
+    ///
+    /// Raised by DSL-055 as the FIRST precondition in
+    /// `SlashingManager::submit_appeal` — checked BEFORE any bond
+    /// lock so callers can retry cheaply. The carried string is the
+    /// hex encoding of the 32-byte evidence hash for diagnostic
+    /// logging (the raw bytes remain available at the call site).
+    #[error("unknown evidence: {0}")]
+    UnknownEvidence(String),
+
     /// Offense epoch is older than `SLASH_LOOKBACK_EPOCHS` relative to
     /// the current epoch.
     ///
