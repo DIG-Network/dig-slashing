@@ -129,6 +129,18 @@ impl ParticipationTracker {
         attesting_indices: &[u32],
         flags: ParticipationFlags,
     ) -> Result<(), ParticipationError> {
+        // DSL-079: strict-ascending structural check runs BEFORE
+        // the bit-OR pass so a malformed attestation does not
+        // mutate any validator's flags.
+        for w in attesting_indices.windows(2) {
+            if w[0] == w[1] {
+                return Err(ParticipationError::DuplicateIndex(w[0]));
+            }
+            if w[0] > w[1] {
+                return Err(ParticipationError::NonAscendingIndices);
+            }
+        }
+
         for idx in attesting_indices {
             let i = *idx as usize;
             if i >= self.current_epoch.len() {

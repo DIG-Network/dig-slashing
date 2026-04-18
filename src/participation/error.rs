@@ -29,8 +29,7 @@ pub enum ParticipationError {
     #[error("validator index out of range: {0}")]
     IndexOutOfRange(u32),
 
-    /// `attesting_indices` is not strictly ascending (either
-    /// non-monotonic or contains duplicates).
+    /// `attesting_indices` is non-monotonic (some `w[0] > w[1]`).
     ///
     /// Raised by DSL-079 `record_attestation`. The evidence
     /// canonicalisation layer (DSL-005) guarantees ascending
@@ -38,4 +37,15 @@ pub enum ParticipationError {
     /// either a bug or a deliberately-malformed input.
     #[error("attesting indices not strictly ascending")]
     NonAscendingIndices,
+
+    /// `attesting_indices` contains a duplicate (some
+    /// `w[0] == w[1]`).
+    ///
+    /// Raised by DSL-079. Carries the duplicated index for
+    /// diagnostics. Distinct from `NonAscendingIndices` because
+    /// the two failure modes have different root causes (sort
+    /// bug vs dedup bug); keeping the variants separate lets
+    /// callers log accurately.
+    #[error("duplicate attesting index: {0}")]
+    DuplicateIndex(u32),
 }

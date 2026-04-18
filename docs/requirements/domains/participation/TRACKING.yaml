@@ -56,11 +56,12 @@ items:
   - id: DSL-079
     section: "Tracker"
     summary: "ParticipationTracker rejects non-ascending indices"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/participation/specs/DSL-079.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-079"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_079_participation_tracker_non_ascending_test
+    notes: "Strict-ascending check on attesting_indices via windows(2) loop BEFORE the bit-OR pass. w[0]==w[1] → DuplicateIndex(w[0]); w[0]>w[1] → NonAscendingIndices. Adds ParticipationError::DuplicateIndex(u32) variant (NonAscendingIndices pre-wired in DSL-078 commit). Mirrors IndexedAttestation::validate_structure (DSL-005). No state mutation on error. 4-test suite: [3,2,1] → NonAscendingIndices, [1,1,2] → DuplicateIndex(1), [1] → Ok, [1,2,3] → Ok."
 
   - id: DSL-080
     section: "Tracker"

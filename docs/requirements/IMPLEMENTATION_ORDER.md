@@ -108,7 +108,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-076 — classify_timeliness TIMELY_TARGET
 - [x] DSL-077 — classify_timeliness TIMELY_HEAD
 - [x] DSL-078 — ParticipationTracker::record_attestation
-- [ ] DSL-079 — ParticipationTracker non-ascending rejection
+- [x] DSL-079 — ParticipationTracker non-ascending rejection
 - [ ] DSL-080 — ParticipationTracker::rotate_epoch
 - [ ] DSL-081 — base_reward formula
 - [ ] DSL-082 — compute_flag_deltas reward on hit
