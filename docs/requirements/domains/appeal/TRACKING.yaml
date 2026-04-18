@@ -186,11 +186,12 @@ items:
   - id: DSL-052
     section: "InvalidBlock Appeal"
     summary: "InvalidBlockAppeal EvidenceEpochMismatch sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-052.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-052"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_052_invalid_block_appeal_epoch_mismatch_test
+    notes: "verify_invalid_block_appeal_evidence_epoch_mismatch(evidence, evidence_epoch: u64) returns Sustained{EvidenceEpochMismatch} iff evidence.signed_header.message.epoch != evidence_epoch. Pure local check, no oracle, no BLS. Verifier takes the envelope epoch as a top-level arg so the dispatcher forwards SlashingEvidence::epoch directly rather than re-embedding it in the appeal. 3-test suite: 5 vs 6 → Sustained, equal → Rejected, off-by-one either direction (4 vs 5; 5 vs 6) → Sustained (strict-inequality guard)."
 
   - id: DSL-053
     section: "InvalidBlock Appeal"
