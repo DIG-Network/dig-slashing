@@ -104,6 +104,16 @@ pub enum SlashingError {
     #[error("validator not registered: {0}")]
     ValidatorNotRegistered(u32),
 
+    /// Reporter bond lock failed — principal lacks collateral or the
+    /// escrow rejected the tag.
+    ///
+    /// Raised by DSL-023 in `SlashingManager::submit_evidence` when
+    /// `BondEscrow::lock(reporter_idx, REPORTER_BOND_MOJOS, Reporter(hash))`
+    /// returns `Err(_)`. No state mutation occurs — the manager has
+    /// not yet touched `ValidatorEntry::slash_absolute`.
+    #[error("bond lock failed")]
+    BondLockFailed,
+
     /// The evidence reporter named themselves among the slashable
     /// validators (self-accuse).
     ///

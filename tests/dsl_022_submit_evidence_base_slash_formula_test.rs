@@ -42,11 +42,31 @@ use chia_bls::{PublicKey, SecretKey, Signature};
 use dig_block::L2BlockHeader;
 use dig_protocol::Bytes32;
 use dig_slashing::{
-    AttestationData, AttesterSlashing, Checkpoint, EffectiveBalanceView, IndexedAttestation,
-    InvalidBlockProof, InvalidBlockReason, MIN_SLASHING_PENALTY_QUOTIENT, OffenseType,
-    ProposerSlashing, SignedBlockHeader, SlashingEvidence, SlashingEvidencePayload,
-    SlashingManager, ValidatorEntry, ValidatorView, block_signing_message,
+    AttestationData, AttesterSlashing, BondError, BondEscrow, BondTag, Checkpoint,
+    EffectiveBalanceView, IndexedAttestation, InvalidBlockProof, InvalidBlockReason,
+    MIN_SLASHING_PENALTY_QUOTIENT, OffenseType, ProposerSlashing, SignedBlockHeader,
+    SlashingEvidence, SlashingEvidencePayload, SlashingManager, ValidatorEntry, ValidatorView,
+    block_signing_message,
 };
+
+/// Bond-escrow mock that accepts every lock/release/forfeit. DSL-022
+/// scope is pre-bond; a future DSL-023 fixture records arguments.
+#[derive(Default)]
+struct AcceptingBondEscrow;
+impl BondEscrow for AcceptingBondEscrow {
+    fn lock(&mut self, _: u32, _: u64, _: BondTag) -> Result<(), BondError> {
+        Ok(())
+    }
+    fn release(&mut self, _: u32, _: u64, _: BondTag) -> Result<(), BondError> {
+        Ok(())
+    }
+    fn forfeit(&mut self, _: u32, _: u64, _: BondTag) -> Result<u64, BondError> {
+        Ok(0)
+    }
+    fn escrowed(&self, _: u32, _: BondTag) -> u64 {
+        0
+    }
+}
 
 // ── Validator fixtures with slash-call recording ────────────────────────
 
@@ -323,7 +343,13 @@ fn test_dsl_022_bps_dominates_proposer() {
     let mut mgr = SlashingManager::new(3);
 
     let result = mgr
-        .submit_evidence(ev, &mut view, &balances, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut AcceptingBondEscrow,
+            &network_id(),
+        )
         .expect("proposer slash must succeed");
 
     let expected = MIN_EFF * 500 / 10_000; // eff/20
@@ -349,7 +375,13 @@ fn test_dsl_022_floor_dominates_attester_double() {
     let mut mgr = SlashingManager::new(3);
 
     let result = mgr
-        .submit_evidence(ev, &mut view, &balances, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut AcceptingBondEscrow,
+            &network_id(),
+        )
         .expect("attester slash must succeed");
 
     let expected = MIN_EFF / MIN_SLASHING_PENALTY_QUOTIENT; // eff/32
@@ -371,7 +403,13 @@ fn test_dsl_022_floor_dominates_attester_surround() {
     let mut mgr = SlashingManager::new(3);
 
     let result = mgr
-        .submit_evidence(ev, &mut view, &balances, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut AcceptingBondEscrow,
+            &network_id(),
+        )
         .expect("attester surround slash must succeed");
 
     let expected = MIN_EFF / MIN_SLASHING_PENALTY_QUOTIENT;
@@ -391,7 +429,13 @@ fn test_dsl_022_invalid_block_floor_wins_one_mojo() {
     let mut mgr = SlashingManager::new(3);
 
     let result = mgr
-        .submit_evidence(ev, &mut view, &balances, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut AcceptingBondEscrow,
+            &network_id(),
+        )
         .expect("invalid-block slash must succeed");
 
     let bps_term = MIN_EFF * 300 / 10_000;
@@ -412,7 +456,13 @@ fn test_dsl_022_per_validator_vector_attester() {
     let mut mgr = SlashingManager::new(3);
 
     let result = mgr
-        .submit_evidence(ev, &mut view, &balances, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut AcceptingBondEscrow,
+            &network_id(),
+        )
         .expect("attester slash");
     assert_eq!(result.per_validator.len(), 5);
     let got: Vec<u32> = result
@@ -438,7 +488,13 @@ fn test_dsl_022_skips_already_slashed() {
     let mut mgr = SlashingManager::new(3);
 
     let result = mgr
-        .submit_evidence(ev, &mut view, &balances, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut AcceptingBondEscrow,
+            &network_id(),
+        )
         .expect("must succeed");
 
     assert_eq!(result.per_validator.len(), 2, "only 2 and 6 slashed");
@@ -475,7 +531,13 @@ fn test_dsl_022_skips_absent_validator() {
     // the current verifier exposes (they share the same view). So the
     // test instead asserts that when the verifier rejects due to the
     // missing pubkey, submit_evidence propagates the error cleanly.
-    let result = mgr.submit_evidence(ev, &mut view, &balances, &network_id());
+    let result = mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut AcceptingBondEscrow,
+        &network_id(),
+    );
     assert!(
         result.is_err(),
         "absent validator during verify must surface as SlashingError",
@@ -492,7 +554,13 @@ fn test_dsl_022_zero_effective_balance() {
     let mut mgr = SlashingManager::new(3);
 
     let result = mgr
-        .submit_evidence(ev, &mut view, &balances, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut AcceptingBondEscrow,
+            &network_id(),
+        )
         .expect("zero balance must succeed");
     assert_eq!(result.per_validator.len(), 1);
     assert_eq!(result.per_validator[0].base_slash_amount, 0);
@@ -515,10 +583,22 @@ fn test_dsl_022_determinism() {
     let mut mgr2 = SlashingManager::new(3);
 
     let a = mgr1
-        .submit_evidence(ev1, &mut view1, &balances, &network_id())
+        .submit_evidence(
+            ev1,
+            &mut view1,
+            &balances,
+            &mut AcceptingBondEscrow,
+            &network_id(),
+        )
         .unwrap();
     let b = mgr2
-        .submit_evidence(ev2, &mut view2, &balances, &network_id())
+        .submit_evidence(
+            ev2,
+            &mut view2,
+            &balances,
+            &mut AcceptingBondEscrow,
+            &network_id(),
+        )
         .unwrap();
     assert_eq!(a.per_validator, b.per_validator);
 }
@@ -534,8 +614,14 @@ fn test_dsl_022_slash_absolute_called_with_current_epoch() {
     let balances = MapBalances(HashMap::from([(9u32, MIN_EFF)]));
     let mut mgr = SlashingManager::new(100);
 
-    mgr.submit_evidence(ev, &mut view, &balances, &network_id())
-        .expect("submit");
+    mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut AcceptingBondEscrow,
+        &network_id(),
+    )
+    .expect("submit");
     let calls = view.0.get(&9).unwrap().slash_calls.borrow();
     assert_eq!(calls.len(), 1);
     assert_eq!(
