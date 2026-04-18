@@ -42,11 +42,11 @@ items:
   - id: DSL-091
     section: "Per-Epoch Penalty"
     summary: "InactivityScoreTracker::epoch_penalties returns empty vec when out of stall"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/inactivity/specs/DSL-091.md"
     tests:
       - dsl_091_inactivity_penalty_no_stall_empty_test
-    notes: "No inactivity penalty assessed outside of finality stall regardless of score values."
+    notes: "New epoch_penalties(&dyn EffectiveBalanceView, in_finality_stall: bool) -> Vec<(u32, u64)> method. Short-circuits to empty vec when !in_finality_stall. DSL-092 replaces the in-stall branch (currently also empty) with the formula eff_bal * score / INACTIVITY_PENALTY_QUOTIENT. 2-test suite: mixed scores + no-stall → empty, all-zero + no-stall → empty."
 
   - id: DSL-092
     section: "Per-Epoch Penalty"

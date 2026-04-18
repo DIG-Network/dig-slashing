@@ -20,6 +20,7 @@
 
 use crate::constants::{INACTIVITY_SCORE_BIAS, INACTIVITY_SCORE_RECOVERY_RATE};
 use crate::participation::ParticipationTracker;
+use crate::traits::EffectiveBalanceView;
 
 /// Per-validator inactivity-score store.
 ///
@@ -129,5 +130,41 @@ impl InactivityScoreTracker {
                 *score = score.saturating_sub(INACTIVITY_SCORE_RECOVERY_RATE);
             }
         }
+    }
+
+    /// Compute per-validator inactivity-leak debits for the
+    /// current epoch.
+    ///
+    /// Implements [DSL-091](../../../docs/requirements/domains/inactivity/specs/DSL-091.md).
+    /// DSL-092 lands the in-stall penalty formula; for now the
+    /// in-stall branch returns an empty vec, same as the
+    /// out-of-stall branch.
+    ///
+    /// # Out-of-stall (DSL-091)
+    ///
+    /// `!in_finality_stall` → empty `Vec<(u32, u64)>`. Inactivity
+    /// penalties NEVER charge validators outside a stall — DSL-090
+    /// global recovery handles score decay and that is the only
+    /// no-stall effect.
+    ///
+    /// # In-stall (DSL-092 — stub today)
+    ///
+    /// Returns empty until DSL-092 lands the formula
+    /// `penalty_mojos = eff_bal * score /
+    /// INACTIVITY_PENALTY_QUOTIENT`. Callers that iterate the
+    /// return see zero entries either way; once DSL-092 ships,
+    /// they'll receive one `(validator_index, penalty_mojos)`
+    /// pair per validator whose score contributes.
+    #[must_use]
+    pub fn epoch_penalties(
+        &self,
+        _effective_balances: &dyn EffectiveBalanceView,
+        in_finality_stall: bool,
+    ) -> Vec<(u32, u64)> {
+        if !in_finality_stall {
+            return Vec::new();
+        }
+        // DSL-092 replaces this with the in-stall formula.
+        Vec::new()
     }
 }
