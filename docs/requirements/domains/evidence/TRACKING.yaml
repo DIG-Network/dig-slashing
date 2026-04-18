@@ -216,11 +216,12 @@ items:
   - id: DSL-157
     section: "Serialization"
     summary: "SlashingEvidence + payload serde roundtrip"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-157.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-157"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_157_slashing_evidence_serde_roundtrip_test
+    notes: "No src/ changes — existing `#[derive(Serialize, Deserialize)]` + `#[serde(with = \"serde_bytes\")]` on signature + failure_witness fields already satisfy the contract. 7-test suite pins byte-exact roundtrip for envelope + all 3 payload variants under both bincode + serde_json, including hash stability post-decode (DSL-002 content-address must survive serde — otherwise DSL-026 dedup breaks on reserialised evidence). serde_bytes test greps for distinctive 96-byte raw signature runs in bincode wire to verify binary-tight encoding."
 
   - id: DSL-158
     section: "Serialization"
