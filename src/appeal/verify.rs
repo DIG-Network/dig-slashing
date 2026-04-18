@@ -133,6 +133,26 @@ pub fn verify_proposer_appeal_signature_a_invalid(
     )
 }
 
+/// Verify `ProposerAppealGround::SignatureBInvalid`.
+///
+/// Implements [DSL-037](../../../docs/requirements/domains/appeal/specs/DSL-037.md).
+/// Mirror of DSL-036 on `signed_header_b` — same shared helper,
+/// different sustain reason.
+#[must_use]
+pub fn verify_proposer_appeal_signature_b_invalid(
+    evidence: &ProposerSlashing,
+    validator_view: &dyn ValidatorView,
+    network_id: &Bytes32,
+) -> AppealVerdict {
+    verify_proposer_appeal_signature_side(
+        &evidence.signed_header_b.message,
+        &evidence.signed_header_b.signature,
+        validator_view,
+        network_id,
+        AppealSustainReason::SignatureBInvalid,
+    )
+}
+
 /// Shared helper: re-check one header's BLS signature. Returns
 /// `Sustained { sustain_reason }` on verify-failure / decode-failure
 /// / missing-pubkey, `Rejected { GroundDoesNotHold }` on successful
@@ -192,3 +212,5 @@ const _PROPOSER_INDEX_MISMATCH_GROUND: ProposerAppealGround =
     ProposerAppealGround::ProposerIndexMismatch;
 #[allow(dead_code)]
 const _SIGNATURE_A_INVALID_GROUND: ProposerAppealGround = ProposerAppealGround::SignatureAInvalid;
+#[allow(dead_code)]
+const _SIGNATURE_B_INVALID_GROUND: ProposerAppealGround = ProposerAppealGround::SignatureBInvalid;

@@ -44,7 +44,7 @@ pub use appeal::{
     AttesterSlashingAppeal, InvalidBlockAppeal, InvalidBlockAppealGround, ProposerAppealGround,
     ProposerSlashingAppeal, SlashAppeal, SlashAppealPayload,
     verify_proposer_appeal_headers_identical, verify_proposer_appeal_proposer_index_mismatch,
-    verify_proposer_appeal_signature_a_invalid,
+    verify_proposer_appeal_signature_a_invalid, verify_proposer_appeal_signature_b_invalid,
 };
 pub use bonds::{BondError, BondEscrow, BondTag};
 pub use constants::{
