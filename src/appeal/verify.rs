@@ -26,6 +26,7 @@ use dig_protocol::Bytes32;
 use crate::appeal::ground::ProposerAppealGround;
 use crate::appeal::verdict::{AppealRejectReason, AppealSustainReason, AppealVerdict};
 use crate::constants::BLS_SIGNATURE_SIZE;
+use crate::evidence::attester_slashing::AttesterSlashing;
 use crate::evidence::proposer_slashing::ProposerSlashing;
 use crate::evidence::verify::block_signing_message;
 use crate::traits::ValidatorView;
@@ -276,6 +277,36 @@ fn verify_proposer_appeal_signature_side(
         }
     } else {
         sustain
+    }
+}
+
+/// Verify `AttesterAppealGround::AttestationsIdentical`.
+///
+/// Implements [DSL-041](../../../docs/requirements/domains/appeal/specs/DSL-041.md).
+/// Traces to SPEC §6.3.
+///
+/// # Predicate
+///
+/// `evidence.attestation_a == evidence.attestation_b` (byte-wise
+/// `IndexedAttestation` equality — includes attesting_indices, data,
+/// signature).
+///
+/// # Verdict
+///
+/// - `Sustained { AttestationsIdentical }` iff byte-equal.
+/// - `Rejected { GroundDoesNotHold }` otherwise.
+///
+/// Evidence-only; witness ignored.
+#[must_use]
+pub fn verify_attester_appeal_attestations_identical(evidence: &AttesterSlashing) -> AppealVerdict {
+    if evidence.attestation_a == evidence.attestation_b {
+        AppealVerdict::Sustained {
+            reason: AppealSustainReason::AttestationsIdentical,
+        }
+    } else {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
     }
 }
 

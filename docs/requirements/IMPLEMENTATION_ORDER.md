@@ -61,7 +61,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-040 — ProposerAppeal rejected on false claim
 
 ### Attester Appeal Grounds
-- [ ] DSL-041 — AttesterAppeal AttestationsIdentical sustained
+- [x] DSL-041 — AttesterAppeal AttestationsIdentical sustained
 - [ ] DSL-042 — AttesterAppeal NotSlashableByPredicate sustained
 - [ ] DSL-043 — AttesterAppeal EmptyIntersection sustained
 - [ ] DSL-044 — AttesterAppeal SignatureAInvalid sustained
