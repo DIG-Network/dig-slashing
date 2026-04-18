@@ -160,7 +160,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-116 — Appeal mempool AppealForFinalisedSlash
 - [x] DSL-117 — Appeal mempool AppealVariantMismatch
 - [x] DSL-118 — Appeal mempool duplicate rejected
-- [ ] DSL-119 — Appeal block cap
+- [x] DSL-119 — Appeal block cap
 - [ ] DSL-120 — Appeal payload cap
 
 ## Phase 7: Bonds & Rewards Routing (DSL-121..126)
