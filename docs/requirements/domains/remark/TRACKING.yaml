@@ -192,3 +192,12 @@ items:
     tests:
       - dsl_120_appeal_payload_cap_test
     notes: "Adds pub fn enforce_slash_appeal_payload_cap(&[SlashAppeal]) in policy.rs. Appeal-side analogue of DSL-109. Strict `>` on serde_json::to_vec(ap).len() vs MAX_APPEAL_PAYLOAD_BYTES=131_072 (2x evidence cap — appeals carry full block bodies for invalid-block oracle re-execution). Reuses existing SlashingError::AppealPayloadTooLarge (DSL-063 variant). Short-circuits on first oversize. 3-test suite with InvalidBlockAppeal.witness binary-search tuner to hit at-limit boundary exactly. Closes Phase 6 REMARK Admission (DSL-102..120)."
+
+  - id: DSL-168
+    section: "Phase 12 Integration Closures"
+    summary: "process_block_admissions block-level entry point"
+    status: gap
+    spec_ref: "docs/requirements/domains/remark/specs/DSL-168.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-168"
+    tests: []
+    notes: ""

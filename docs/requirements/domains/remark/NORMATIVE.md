@@ -84,3 +84,10 @@ On-chain admission path for slashing evidence and slash appeals. Both travel as 
 
 <a id="DSL-120"></a>**DSL-120** Any appeal whose serialized JSON exceeds `MAX_APPEAL_PAYLOAD_BYTES` (131_072) MUST be rejected via `PayloadTooLarge`.
 > **Spec:** [`DSL-120.md`](specs/DSL-120.md)
+
+---
+
+## &sect;8 Phase 12 — Integration Closures
+
+<a id="DSL-168"></a>**DSL-168** A single public `process_block_admissions(conditions, manager, vs, balances, bond, reward, proposer, network_id, current_epoch) -> BlockAdmissionReport` MUST compose the DSL-106/111/119/120/022/062 pipeline into one call: parse evidence + appeal REMARKs, enforce block-level caps, enforce admission + mempool policies, and invoke `submit_evidence` / `submit_appeal` per envelope. Evidence REMARKs process before appeal REMARKs so a same-block appeal can reference a same-block evidence. Per-envelope failures populate `rejected_evidences` / `rejected_appeals` without aborting the block. Cap-exceeding envelopes are counted in `cap_dropped_evidences` / `cap_dropped_appeals` and NOT submitted. `BlockAdmissionReport` MUST `derive(Serialize, Deserialize, PartialEq, Eq, Default)`.
+> **Spec:** [`DSL-168.md`](specs/DSL-168.md)

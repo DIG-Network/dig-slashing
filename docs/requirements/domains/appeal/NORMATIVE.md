@@ -159,3 +159,13 @@ The appeal domain implements the fraud-proof challenge path that a validator may
 
 <a id="DSL-164"></a>**DSL-164** `AppealAdjudicationResult` MUST round-trip byte-exactly via `bincode` + `serde_json`. Sustained (reverted_* populated) and Rejected (reporter_award > 0) cases both preserved; `AppealOutcome` variants all preserved.
 > **Spec:** [`DSL-164.md`](specs/DSL-164.md)
+
+---
+
+## &sect;7 Phase 12 — Integration Closures
+
+<a id="DSL-167"></a>**DSL-167** A single public `adjudicate_appeal(verdict, pending, appeal, validator_set, collateral, bond, reward, reward_clawback, current_epoch) -> AppealAdjudicationResult` MUST compose the DSL-064..073 slice functions into one end-to-end adjudication pass. Sustained branch: revert-stake → revert-collateral → restore-status → clawback-rewards → forfeit-reporter-bond → absorb-shortfall → reporter-penalty → status-reverted (fixed order). Rejected branch: forfeit-appellant-bond → challenge-open (fixed order). Result `outcome` MUST equal `verdict.to_appeal_outcome()` (DSL-171). `pending.appeal_history` grows by exactly one entry per call.
+> **Spec:** [`DSL-167.md`](specs/DSL-167.md)
+
+<a id="DSL-171"></a>**DSL-171** `AppealVerdict::to_appeal_outcome() -> AppealOutcome` MUST map `Sustained { .. }` to `Won` and `Rejected { reason }` to `Lost { reason_hash: SHA-256(bincode(reason)) }`. Conversion MUST be deterministic and MUST never yield `AppealOutcome::Pending`. Distinct `AppealRejectReason` variants MUST produce distinct `reason_hash` values.
+> **Spec:** [`DSL-171.md`](specs/DSL-171.md)

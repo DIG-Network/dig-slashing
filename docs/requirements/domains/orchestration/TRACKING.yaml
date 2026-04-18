@@ -52,3 +52,21 @@ items:
     tests:
       - dsl_165_epoch_boundary_reorg_report_serde_test
     notes: "Adds `Serialize, Deserialize` derives to EpochBoundaryReport + ReorgReport in src/orchestration.rs (FlagDelta already had them). 6-test suite: populated EpochBoundaryReport bincode with nested FinalisationResult correlation_penalty vec spot-check, populated ReorgReport bincode with rewound_pending_slashes order-preservation, standalone FlagDelta bincode u32::MAX + u64::MAX + zero extremes, all three under serde_json + SlashingResult RPC-cross-check, empty-vec cases for both reports, in_finality_stall + protection_rewound true/false under both codecs."
+
+  - id: DSL-169
+    section: "Phase 12 Integration Closures"
+    summary: "run_epoch_boundary wires reward_payout + inactivity penalty slashes"
+    status: gap
+    spec_ref: "docs/requirements/domains/orchestration/specs/DSL-169.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-169"
+    tests: []
+    notes: ""
+
+  - id: DSL-170
+    section: "Phase 12 Integration Closures"
+    summary: "SlashingSystem carries network_id"
+    status: gap
+    spec_ref: "docs/requirements/domains/orchestration/specs/DSL-170.md"
+    catalogue_ref: "docs/resources/SPEC.md#dsl-170"
+    tests: []
+    notes: ""
