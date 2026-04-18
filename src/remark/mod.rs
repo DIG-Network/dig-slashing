@@ -38,4 +38,6 @@ pub use evidence_wire::{
     encode_slashing_evidence_remark_payload_v1, parse_slashing_evidence_from_conditions,
     slashing_evidence_remark_puzzle_hash_v1, slashing_evidence_remark_puzzle_reveal_v1,
 };
-pub use policy::enforce_slashing_evidence_remark_admission;
+pub use policy::{
+    enforce_slashing_evidence_mempool_policy, enforce_slashing_evidence_remark_admission,
+};

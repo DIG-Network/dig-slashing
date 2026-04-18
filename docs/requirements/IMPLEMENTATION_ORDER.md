@@ -145,7 +145,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-103 — Evidence puzzle_reveal emits one REMARK
 - [x] DSL-104 — Evidence admission matching coin
 - [x] DSL-105 — Evidence admission mismatch rejected
-- [ ] DSL-106 — Evidence mempool expired rejected
+- [x] DSL-106 — Evidence mempool expired rejected
 - [ ] DSL-107 — Evidence mempool duplicate rejected
 - [ ] DSL-108 — Evidence block cap (> MAX_SLASH_PROPOSALS_PER_BLOCK)
 - [ ] DSL-109 — Evidence payload cap
