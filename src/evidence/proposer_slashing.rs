@@ -1,8 +1,8 @@
-//! `SignedBlockHeader` — a block header plus its BLS signature, the atom
-//! of proposer-side evidence.
+//! `SignedBlockHeader` + `ProposerSlashing` — proposer-side evidence types.
 //!
-//! Traces to: [SPEC.md §3.4](../../docs/resources/SPEC.md), catalogue row
-//! [DSL-009](../../docs/requirements/domains/evidence/specs/DSL-009.md).
+//! Traces to: [SPEC.md §3.4](../../docs/resources/SPEC.md), catalogue rows
+//! [DSL-009](../../docs/requirements/domains/evidence/specs/DSL-009.md) +
+//! [DSL-013](../../docs/requirements/domains/evidence/specs/DSL-013.md).
 //!
 //! # Role
 //!
@@ -53,4 +53,28 @@ pub struct SignedBlockHeader {
     /// the verifiers (DSL-013, DSL-018).
     #[serde(with = "serde_bytes")]
     pub signature: Vec<u8>,
+}
+
+/// Proposer-equivocation evidence: two signed headers at the same slot
+/// from the same proposer with distinct content.
+///
+/// Per [SPEC §3.4](../../docs/resources/SPEC.md). Carried as
+/// `SlashingEvidencePayload::Proposer` in the envelope (DSL-002 / DSL-010).
+///
+/// # Scope
+///
+/// Passive wire carrier. The semantic equivocation predicate —
+/// `same_slot && same_proposer && signed_header_a != signed_header_b` —
+/// is enforced DOWNSTREAM by `verify_proposer_slashing` (DSL-013). This
+/// type will serde-roundtrip ANY pair of `SignedBlockHeader` values,
+/// including identical ones, empty signatures, or mismatched proposers.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct ProposerSlashing {
+    /// First signed header. By convention the one observed first in time,
+    /// but the predicate is symmetric so ordering does not affect slash.
+    pub signed_header_a: SignedBlockHeader,
+    /// Second signed header. MUST differ from `signed_header_a` in at
+    /// least one field for the slashing to be valid (DSL-013 rejects
+    /// `HeadersIdentical`).
+    pub signed_header_b: SignedBlockHeader,
 }

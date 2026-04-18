@@ -72,6 +72,16 @@ pub const MAX_PENALTY_BPS: u16 = 1_000;
 /// produced here cannot be replayed as a proposer signature (DSL-050).
 pub const DOMAIN_BEACON_ATTESTER: &[u8] = b"DIG_BEACON_ATTESTER_V1";
 
+/// Domain tag for `SlashingEvidence::hash` (DSL-002).
+///
+/// Traces to SPEC §2.10, §3.5. Prefixed into the SHA-256 digest of a
+/// bincode-serialized `SlashingEvidence` envelope so the resulting hash
+/// cannot collide with any other protocol digest (attester signing root,
+/// appeal hash, REMARK wire hash). Used as the processed-map key
+/// (DSL-026) and the `BondTag::Reporter` binding (DSL-023); collision
+/// under either structure would cause double-slashing or bond misrouting.
+pub const DOMAIN_SLASHING_EVIDENCE: &[u8] = b"DIG_SLASHING_EVIDENCE_V1";
+
 // ── BLS widths (SPEC §2.10) ─────────────────────────────────────────────────
 //
 // Canonical BLS12-381 byte widths used by `chia-bls`. Re-declared here so

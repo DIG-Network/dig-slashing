@@ -36,10 +36,12 @@ pub mod evidence;
 
 pub use constants::{
     ATTESTATION_BASE_BPS, BLS_PUBLIC_KEY_SIZE, BLS_SIGNATURE_SIZE, DOMAIN_BEACON_ATTESTER,
-    EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS, MAX_VALIDATORS_PER_COMMITTEE,
+    DOMAIN_SLASHING_EVIDENCE, EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS,
+    MAX_VALIDATORS_PER_COMMITTEE,
 };
 pub use error::SlashingError;
 pub use evidence::{
     AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, InvalidBlockProof,
-    InvalidBlockReason, OffenseType, SignedBlockHeader,
+    InvalidBlockReason, OffenseType, ProposerSlashing, SignedBlockHeader, SlashingEvidence,
+    SlashingEvidencePayload,
 };

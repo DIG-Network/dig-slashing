@@ -16,11 +16,12 @@ items:
   - id: DSL-002
     section: "Types"
     summary: "SlashingEvidence::hash deterministic; mutation of any field shifts hash"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-002.md"
     catalogue_ref: "docs/resources/SPEC.md#22.1"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_002_evidence_hash_determinism_test
+    notes: "SlashingEvidence + SlashingEvidencePayload in src/evidence/envelope.rs, ProposerSlashing added in src/evidence/proposer_slashing.rs, DOMAIN_SLASHING_EVIDENCE in src/constants.rs. hash = SHA-256(DOMAIN_SLASHING_EVIDENCE || bincode(self)) via chia_sha2::Sha256. 8-test suite: deterministic + mutation sensitivity on offense_type/reporter_index/puzzle_hash/epoch/payload + domain-prefix parity + cross-variant collision-freeness."
 
   - id: DSL-003
     section: "Types"

@@ -9,6 +9,7 @@ description = "Validator slashing, attestation participation, inactivity account
 # SpendBundle from chia-protocol plus DIG L2 extensions. We enable the
 # chia-protocol serde feature transitively via `chia-protocol` with
 # `serde` so Bytes32 derives Deserialize/Serialize.
+bincode = "1.3"
 chia-protocol = { version = "0.26", features = ["serde"] }
 chia-sha2 = "0.26"
 dig-block = "0.1"
@@ -18,7 +19,6 @@ serde_bytes = "0.11"
 thiserror = "2"
 
 [dev-dependencies]
-bincode = "1.3"
 chia-sha2 = "0.26"
 serde_json = "1"
 
