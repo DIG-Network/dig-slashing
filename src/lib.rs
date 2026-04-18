@@ -103,8 +103,9 @@ pub use protection::SlashingProtection;
 pub use remark::{
     encode_slashing_evidence_remark_payload_v1, enforce_block_level_slashing_caps,
     enforce_slashing_evidence_mempool_dedup_policy, enforce_slashing_evidence_mempool_policy,
-    enforce_slashing_evidence_remark_admission, parse_slashing_evidence_from_conditions,
-    slashing_evidence_remark_puzzle_hash_v1, slashing_evidence_remark_puzzle_reveal_v1,
+    enforce_slashing_evidence_payload_cap, enforce_slashing_evidence_remark_admission,
+    parse_slashing_evidence_from_conditions, slashing_evidence_remark_puzzle_hash_v1,
+    slashing_evidence_remark_puzzle_reveal_v1,
 };
 pub use traits::{
     CollateralSlasher, EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, ProposerView,

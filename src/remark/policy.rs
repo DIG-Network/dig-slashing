@@ -35,12 +35,12 @@ use dig_protocol::Bytes32;
 
 use dig_epoch::SLASH_LOOKBACK_EPOCHS;
 
-use crate::MAX_SLASH_PROPOSALS_PER_BLOCK;
 use crate::error::SlashingError;
 use crate::evidence::SlashingEvidence;
 use crate::remark::evidence_wire::{
     parse_slashing_evidence_from_conditions, slashing_evidence_remark_puzzle_hash_v1,
 };
+use crate::{MAX_SLASH_PROPOSAL_PAYLOAD_BYTES, MAX_SLASH_PROPOSALS_PER_BLOCK};
 
 /// Enforce the DSL-104 admission predicate over every evidence
 /// parsed from a spend bundle's REMARK conditions.
@@ -233,6 +233,44 @@ pub fn enforce_block_level_slashing_caps(
             actual: evidences.len(),
             limit: MAX_SLASH_PROPOSALS_PER_BLOCK,
         });
+    }
+    Ok(())
+}
+
+/// Enforce the DSL-109 per-payload size cap.
+///
+/// Rejects any evidence whose `serde_json::to_vec` length
+/// exceeds `MAX_SLASH_PROPOSAL_PAYLOAD_BYTES` (65_536).
+///
+/// Complements DSL-108 (count cap): DSL-108 bounds the NUMBER of
+/// evidences per block; DSL-109 bounds the BYTES of each one.
+/// Together they bound the total admission budget at
+/// `MAX_SLASH_PROPOSALS_PER_BLOCK × MAX_SLASH_PROPOSAL_PAYLOAD_BYTES`
+/// = 64 × 65_536 = 4 MiB worth of REMARK bytes per block,
+/// which is the hard upper envelope on slashing-payload
+/// bandwidth.
+///
+/// # Errors
+///
+/// - [`SlashingError::EvidencePayloadTooLarge`] — the first
+///   oversize evidence in iteration order. Short-circuits; later
+///   evidences in the batch are NOT checked.
+/// - [`SlashingError::InvalidSlashingEvidence`] wrapping the
+///   `serde_json` error if serialisation fails (infallible in
+///   practice).
+pub fn enforce_slashing_evidence_payload_cap(
+    evidences: &[SlashingEvidence],
+) -> Result<(), SlashingError> {
+    for ev in evidences {
+        let len = serde_json::to_vec(ev)
+            .map_err(|e| SlashingError::InvalidSlashingEvidence(format!("payload len: {e}")))?
+            .len();
+        if len > MAX_SLASH_PROPOSAL_PAYLOAD_BYTES {
+            return Err(SlashingError::EvidencePayloadTooLarge {
+                actual: len,
+                limit: MAX_SLASH_PROPOSAL_PAYLOAD_BYTES,
+            });
+        }
     }
     Ok(())
 }
