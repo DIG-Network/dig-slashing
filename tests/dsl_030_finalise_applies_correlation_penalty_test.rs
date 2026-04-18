@@ -271,7 +271,8 @@ fn test_dsl_030_isolated_slash_small_penalty() {
     mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS + 1);
     let balances = MapBalances(HashMap::from([(9u32, MIN_EFFECTIVE_BALANCE)]));
     let total_active = MIN_EFFECTIVE_BALANCE * 1000;
-    let results = mgr.finalise_expired_slashes(&mut view, &balances, total_active);
+    let results =
+        mgr.finalise_expired_slashes(&mut view, &balances, &mut AcceptingBond, total_active);
 
     // cohort_sum = MIN_EFFECTIVE_BALANCE (one slashed)
     // scaled = MIN_EFFECTIVE_BALANCE * 3
@@ -300,7 +301,8 @@ fn test_dsl_030_saturates_at_eff_bal() {
     // Configure total_active so `cohort_sum * 3 > total`: pick
     // total_active = MIN_EFFECTIVE_BALANCE (single slashed = whole chain).
     let total_active = MIN_EFFECTIVE_BALANCE;
-    let results = mgr.finalise_expired_slashes(&mut view, &balances, total_active);
+    let results =
+        mgr.finalise_expired_slashes(&mut view, &balances, &mut AcceptingBond, total_active);
 
     assert_eq!(
         results[0].per_validator_correlation_penalty,
@@ -327,7 +329,8 @@ fn test_dsl_030_window_bounds() {
     mgr.set_epoch(finalise_epoch);
     let balances = MapBalances(HashMap::from([(9u32, MIN_EFFECTIVE_BALANCE)]));
     let total_active = MIN_EFFECTIVE_BALANCE * 1000;
-    let results = mgr.finalise_expired_slashes(&mut view, &balances, total_active);
+    let results =
+        mgr.finalise_expired_slashes(&mut view, &balances, &mut AcceptingBond, total_active);
 
     // Both evidences expired (window ends at admit_epoch + 8).
     // Epoch 0 admission: finalised at 100; cohort_sum for its
@@ -380,7 +383,8 @@ fn test_dsl_030_multiplier_is_3() {
     .expect("admit");
 
     mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS + 1);
-    let results = mgr.finalise_expired_slashes(&mut view, &balances, total_active);
+    let results =
+        mgr.finalise_expired_slashes(&mut view, &balances, &mut AcceptingBond, total_active);
 
     // cohort_sum = 600; scaled = 1800; capped = min(1800, 3600) = 1800;
     // penalty = 600 * 1800 / 3600 = 300 = eff_bal / 2.
@@ -398,7 +402,8 @@ fn test_dsl_030_penalty_recorded_in_result() {
     mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS + 1);
     let balances = MapBalances(HashMap::from([(9u32, MIN_EFFECTIVE_BALANCE)]));
     let total_active = MIN_EFFECTIVE_BALANCE * 1000;
-    let results = mgr.finalise_expired_slashes(&mut view, &balances, total_active);
+    let results =
+        mgr.finalise_expired_slashes(&mut view, &balances, &mut AcceptingBond, total_active);
 
     assert_eq!(results[0].per_validator_correlation_penalty.len(), 1);
     let (idx, penalty) = results[0].per_validator_correlation_penalty[0];
@@ -439,7 +444,8 @@ fn test_dsl_030_zero_cohort_zero_penalty() {
     .expect("admit");
 
     mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS + 1);
-    let results = mgr.finalise_expired_slashes(&mut view, &balances_zero, 1_000_000);
+    let results =
+        mgr.finalise_expired_slashes(&mut view, &balances_zero, &mut AcceptingBond, 1_000_000);
     assert_eq!(results[0].per_validator_correlation_penalty, vec![(9, 0)]);
 }
 
@@ -453,7 +459,7 @@ fn test_dsl_030_zero_total_active_zero_penalty() {
 
     mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS + 1);
     let balances = MapBalances(HashMap::from([(9u32, MIN_EFFECTIVE_BALANCE)]));
-    let results = mgr.finalise_expired_slashes(&mut view, &balances, 0);
+    let results = mgr.finalise_expired_slashes(&mut view, &balances, &mut AcceptingBond, 0);
     assert_eq!(results[0].per_validator_correlation_penalty, vec![(9, 0)]);
 }
 
@@ -467,7 +473,12 @@ fn test_dsl_030_penalty_deterministic() {
         admit(&mut mgr, &mut view, 0, 0x00);
         mgr.set_epoch(SLASH_APPEAL_WINDOW_EPOCHS + 1);
         let balances = MapBalances(HashMap::from([(9u32, MIN_EFFECTIVE_BALANCE)]));
-        mgr.finalise_expired_slashes(&mut view, &balances, MIN_EFFECTIVE_BALANCE * 1000)
+        mgr.finalise_expired_slashes(
+            &mut view,
+            &balances,
+            &mut AcceptingBond,
+            MIN_EFFECTIVE_BALANCE * 1000,
+        )
     };
     assert_eq!(build(), build());
 }
