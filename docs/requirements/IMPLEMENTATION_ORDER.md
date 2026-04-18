@@ -80,7 +80,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 ### Appeal Submission Preconditions
 - [x] DSL-055 — submit_appeal UnknownEvidence
-- [ ] DSL-056 — submit_appeal WindowExpired
+- [x] DSL-056 — submit_appeal WindowExpired
 - [ ] DSL-057 — submit_appeal VariantMismatch
 - [ ] DSL-058 — submit_appeal DuplicateAppeal
 - [ ] DSL-059 — submit_appeal TooManyAttempts

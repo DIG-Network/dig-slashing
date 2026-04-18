@@ -155,6 +155,26 @@ pub enum SlashingError {
     #[error("reporter cannot accuse self (index {0})")]
     ReporterIsAccused(u32),
 
+    /// Appeal filed after the slash's appeal window closed.
+    ///
+    /// Raised by DSL-056. The window is `[submitted_at_epoch,
+    /// submitted_at_epoch + SLASH_APPEAL_WINDOW_EPOCHS]` — inclusive
+    /// on BOTH ends (the boundary epoch itself is still a valid
+    /// filing). Bond is NOT locked on this path; precondition order
+    /// guarantees this.
+    #[error(
+        "appeal window expired: submitted_at={submitted_at}, window={window}, current={current}"
+    )]
+    AppealWindowExpired {
+        /// Epoch the slash was admitted at.
+        submitted_at: u64,
+        /// `SLASH_APPEAL_WINDOW_EPOCHS` at the time of admission.
+        window: u64,
+        /// `appeal.filed_epoch` — the epoch the appeal claims it
+        /// was filed at.
+        current: u64,
+    },
+
     /// Appeal's `evidence_hash` does not match any entry in the
     /// `PendingSlashBook`.
     ///

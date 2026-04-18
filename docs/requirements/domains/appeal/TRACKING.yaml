@@ -226,11 +226,12 @@ items:
   - id: DSL-056
     section: "Submission Preconditions"
     summary: "submit_appeal WindowExpired"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-056.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-056"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_056_submit_appeal_window_expired_test
+    notes: "Second submit_appeal precondition. Adds SlashingError::AppealWindowExpired{submitted_at,window,current}. Rejects iff appeal.filed_epoch > pending.window_expires_at_epoch — closed-interval semantics: filed_epoch == submitted_at + SLASH_APPEAL_WINDOW_EPOCHS is still accepted. Runs AFTER UnknownEvidence (DSL-055) and BEFORE bond lock (DSL-062). 3-test suite with fabricated PendingSlash via book_mut().insert(): boundary → Ok, boundary+1 → AppealWindowExpired (+ zero lock_calls), in-window → Ok."
 
   - id: DSL-057
     section: "Submission Preconditions"

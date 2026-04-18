@@ -568,14 +568,29 @@ impl SlashingManager {
         appeal: &crate::appeal::SlashAppeal,
         _bond_escrow: &mut dyn BondEscrow,
     ) -> Result<(), SlashingError> {
-        if self.book.get(&appeal.evidence_hash).is_none() {
-            return Err(SlashingError::UnknownEvidence(hex_encode(
-                appeal.evidence_hash.as_ref(),
-            )));
+        // DSL-055: UnknownEvidence — must run BEFORE any bond
+        // operation or further state inspection.
+        let pending = self.book.get(&appeal.evidence_hash).ok_or_else(|| {
+            SlashingError::UnknownEvidence(hex_encode(appeal.evidence_hash.as_ref()))
+        })?;
+
+        // DSL-056: WindowExpired — reject when the appeal was
+        // filed strictly AFTER the window-close boundary. The
+        // boundary epoch itself (`filed_epoch ==
+        // window_expires_at_epoch`) is still a valid filing; only
+        // `filed_epoch > expires_at` trips. Bond lock happens in
+        // DSL-062 so this check still precedes any collateral
+        // touch.
+        if appeal.filed_epoch > pending.window_expires_at_epoch {
+            return Err(SlashingError::AppealWindowExpired {
+                submitted_at: pending.submitted_at_epoch,
+                window: SLASH_APPEAL_WINDOW_EPOCHS,
+                current: appeal.filed_epoch,
+            });
         }
-        // Subsequent DSLs add: WindowExpired, VariantMismatch,
-        // DuplicateAppeal, TooManyAttempts, bond lock, dispatch,
-        // adjudicate.
+
+        // Subsequent DSLs add: VariantMismatch, DuplicateAppeal,
+        // TooManyAttempts, bond lock, dispatch, adjudicate.
         Ok(())
     }
 
