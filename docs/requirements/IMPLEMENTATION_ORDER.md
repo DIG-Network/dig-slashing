@@ -213,7 +213,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 - [x] DSL-154 — ParticipationFlags serde roundtrip
 
 ### Inactivity — Reorg
-- [ ] DSL-155 — InactivityScoreTracker::rewind_on_reorg
+- [x] DSL-155 — InactivityScoreTracker::rewind_on_reorg
 
 ### Protection — Proposal Rewind
 - [ ] DSL-156 — SlashingProtection::rewind_proposal_to_slot

@@ -68,9 +68,10 @@ items:
 
   - id: DSL-155
     section: "Reorg"
-    summary: "InactivityScoreTracker::rewind_on_reorg ring-buffer restore"
-    status: gap
+    summary: "InactivityScoreTracker::rewind_on_reorg zero-fill restore"
+    status: verified
     spec_ref: "docs/requirements/domains/inactivity/specs/DSL-155.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-155"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_155_inactivity_tracker_rewind_on_reorg_test
+    notes: "rewind_on_reorg shipped as dependency of DSL-130; this cycle adds `if depth == 0 { return 0; }` short-circuit guard to satisfy DSL-155 depth-0 no-op acceptance. Adopted semantics: zero-fill all scores (no ring-buffer snapshots — same conservative design as ParticipationTracker::rewind_on_reorg) avoids ghost inactivity penalties because DSL-091 formula evaluates to 0 when score=0. Vec length preserved across rewind (DSL-093 resize_for owns resizing). 4-test suite: seed scores + rewind(3) → all zero + epoch_penalties empty (no ghost debits), rewind(0) → seeded scores untouched, rewind(36) at CORRELATION_WINDOW_EPOCHS ring limit succeeds + is idempotent, vec length unchanged across rewind depth=5 + depth=0."
