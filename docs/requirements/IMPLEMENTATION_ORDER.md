@@ -245,7 +245,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 Public-API coherence gaps identified in audit of shipped catalogue. Each closes a wiring gap where previously-shipped primitives required hand-composition by embedders.
 
 ### Appeal — Top-Level Dispatcher
-- [ ] DSL-167 — adjudicate_appeal top-level dispatcher
+- [x] DSL-167 — adjudicate_appeal top-level dispatcher
 - [x] DSL-171 — AppealVerdict::to_appeal_outcome conversion
 
 ### REMARK — Block-Level Admission
