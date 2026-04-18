@@ -455,8 +455,9 @@ items:
   - id: DSL-171
     section: "Phase 12 Integration Closures"
     summary: "AppealVerdict::to_appeal_outcome conversion"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-171.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-171"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_171_verdict_to_outcome_test
+    notes: "Adds `impl AppealVerdict { pub fn to_appeal_outcome(&self) -> AppealOutcome }` in src/appeal/verdict.rs. Sustained{..} → Won; Rejected{reason} → Lost{reason_hash: SHA-256(bincode(reason))} via chia_sha2::Sha256. 5-test suite: exhaustive sustained over 17 AppealSustainReason variants → Won, rejected over 3 AppealRejectReason variants → Lost with manual-reconstruction reason_hash check (non-tautological), 10-round determinism, pairwise-distinct reason_hash across all reject variants, exhaustive never-Pending."
