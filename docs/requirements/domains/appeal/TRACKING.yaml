@@ -6,20 +6,22 @@ items:
   - id: DSL-034
     section: "Proposer Appeal"
     summary: "ProposerAppeal HeadersIdentical sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-034.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-034"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_034_proposer_appeal_headers_identical_sustained_test
+    notes: "Opens Phase 2. New src/appeal/ module tree (ground.rs, envelope.rs, verdict.rs, verify.rs). Predicate: header_a.message == header_b.message. Evidence-only. 4-test suite: identical→Sustained, distinct→Rejected, signature-mutation-ignored, determinism."
 
   - id: DSL-035
     section: "Proposer Appeal"
     summary: "ProposerAppeal ProposerIndexMismatch sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-035.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-035"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_035_proposer_appeal_proposer_index_mismatch_test
+    notes: "verify_proposer_appeal_proposer_index_mismatch. Predicate: header_a.proposer_index != header_b.proposer_index. 4-test suite: different→Sustained, matching→Rejected, off-by-one→Sustained, determinism."
 
   - id: DSL-036
     section: "Proposer Appeal"
