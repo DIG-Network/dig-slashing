@@ -286,11 +286,12 @@ items:
   - id: DSL-062
     section: "Submission Preconditions"
     summary: "submit_appeal escrows appellant bond"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-062.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-062"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_062_submit_appeal_escrows_appellant_bond_test
+    notes: "Final admission step. Adds SlashingError::AppellantBondLockFailed(String) carrying BondError Display text. submit_appeal ends with bond_escrow.lock(appellant_index, APPELLANT_BOND_MOJOS, Appellant(appeal.hash())). Placed AFTER every structural check (DSL-055..061) so cheap rejections never touch collateral. 3-test suite with RecordingBond mock: lock success → exactly one (idx, APPELLANT_BOND_MOJOS, Appellant(hash)) record, InsufficientBalance → AppellantBondLockFailed (+ 1 lock call recorded proving escrow was reached), tag byte-equal to Appellant(appeal.hash())."
 
   - id: DSL-063
     section: "Submission Preconditions"
