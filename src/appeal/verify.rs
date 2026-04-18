@@ -133,6 +133,38 @@ pub fn verify_proposer_appeal_signature_a_invalid(
     )
 }
 
+/// Verify `ProposerAppealGround::SlotMismatch`.
+///
+/// Implements [DSL-038](../../../docs/requirements/domains/appeal/specs/DSL-038.md).
+/// Traces to SPEC §6.2.
+///
+/// # Predicate
+///
+/// `evidence.signed_header_a.message.height !=
+/// evidence.signed_header_b.message.height` — the L2 height field
+/// serves as the "slot" coordinate for proposer equivocation.
+///
+/// # Verdict
+///
+/// - `Sustained { SlotMismatch }` iff heights differ.
+/// - `Rejected { GroundDoesNotHold }` otherwise.
+///
+/// Evidence-only check; witness ignored.
+#[must_use]
+pub fn verify_proposer_appeal_slot_mismatch(evidence: &ProposerSlashing) -> AppealVerdict {
+    let a = evidence.signed_header_a.message.height;
+    let b = evidence.signed_header_b.message.height;
+    if a != b {
+        AppealVerdict::Sustained {
+            reason: AppealSustainReason::SlotMismatch,
+        }
+    } else {
+        AppealVerdict::Rejected {
+            reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    }
+}
+
 /// Verify `ProposerAppealGround::SignatureBInvalid`.
 ///
 /// Implements [DSL-037](../../../docs/requirements/domains/appeal/specs/DSL-037.md).
@@ -214,3 +246,5 @@ const _PROPOSER_INDEX_MISMATCH_GROUND: ProposerAppealGround =
 const _SIGNATURE_A_INVALID_GROUND: ProposerAppealGround = ProposerAppealGround::SignatureAInvalid;
 #[allow(dead_code)]
 const _SIGNATURE_B_INVALID_GROUND: ProposerAppealGround = ProposerAppealGround::SignatureBInvalid;
+#[allow(dead_code)]
+const _SLOT_MISMATCH_GROUND: ProposerAppealGround = ProposerAppealGround::SlotMismatch;

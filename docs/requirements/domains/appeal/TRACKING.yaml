@@ -46,11 +46,12 @@ items:
   - id: DSL-038
     section: "Proposer Appeal"
     summary: "ProposerAppeal SlotMismatch sustained"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-038.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-038"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_038_proposer_appeal_slot_mismatch_test
+    notes: "verify_proposer_appeal_slot_mismatch. Predicate: header_a.height != header_b.height. Evidence-only, witness ignored. 3-test suite: different heights → Sustained, same height → Rejected, adjacent off-by-one heights → Sustained."
 
   - id: DSL-039
     section: "Proposer Appeal"
