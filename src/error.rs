@@ -104,6 +104,15 @@ pub enum SlashingError {
     #[error("validator not registered: {0}")]
     ValidatorNotRegistered(u32),
 
+    /// `ProposerView::proposer_at_slot(current_slot)` returned `None`.
+    ///
+    /// Raised by DSL-025 reward routing. A `None` here is a
+    /// consensus-layer bug — the proposer at the current slot must
+    /// always exist at admission time. Surfaces as a hard error
+    /// rather than silently dropping the proposer reward.
+    #[error("proposer unavailable at current slot")]
+    ProposerUnavailable,
+
     /// `PendingSlashBook` at capacity; new slashes cannot be admitted
     /// until existing ones finalise or revert.
     ///

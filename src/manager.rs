@@ -29,14 +29,14 @@ use serde::{Deserialize, Serialize};
 
 use crate::bonds::{BondEscrow, BondTag};
 use crate::constants::{
-    BPS_DENOMINATOR, MAX_PENDING_SLASHES, MIN_SLASHING_PENALTY_QUOTIENT, REPORTER_BOND_MOJOS,
-    SLASH_APPEAL_WINDOW_EPOCHS,
+    BPS_DENOMINATOR, MAX_PENDING_SLASHES, MIN_SLASHING_PENALTY_QUOTIENT, PROPOSER_REWARD_QUOTIENT,
+    REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS, WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 use crate::error::SlashingError;
 use crate::evidence::envelope::SlashingEvidence;
 use crate::evidence::verify::verify_evidence;
 use crate::pending::{PendingSlash, PendingSlashBook, PendingSlashStatus};
-use crate::traits::{EffectiveBalanceView, ValidatorView};
+use crate::traits::{EffectiveBalanceView, ProposerView, RewardPayout, ValidatorView};
 
 /// Per-validator record produced by `submit_evidence`.
 ///
@@ -192,12 +192,15 @@ impl SlashingManager {
     /// `RewardPayout`, `ProposerView`) that are consumed by
     /// DSL-025. Signature grows incrementally — each future DSL adds
     /// the trait it needs.
+    #[allow(clippy::too_many_arguments)]
     pub fn submit_evidence(
         &mut self,
         evidence: SlashingEvidence,
         validator_set: &mut dyn ValidatorView,
         effective_balances: &dyn EffectiveBalanceView,
         bond_escrow: &mut dyn BondEscrow,
+        reward_payout: &mut dyn RewardPayout,
+        proposer: &dyn ProposerView,
         network_id: &Bytes32,
     ) -> Result<SlashingResult, SlashingError> {
         // Verify first — no state mutation on rejection.
@@ -259,6 +262,38 @@ impl SlashingManager {
             });
         }
 
+        // DSL-025: reward routing. Two optimistic payouts settled
+        // BEFORE the pending-book insert so the returned
+        // `SlashingResult` carries the paid amounts atomically with
+        // the admission. Rewards are clawed back on sustained appeal
+        // (DSL-067) via a separate `RewardClawback` path — the pay
+        // calls here are idempotent credits, not debits.
+        let total_eff_bal: u64 = per_validator
+            .iter()
+            .map(|p| p.effective_balance_at_slash)
+            .sum();
+        let total_base: u64 = per_validator.iter().map(|p| p.base_slash_amount).sum();
+        let wb_reward = total_eff_bal / WHISTLEBLOWER_REWARD_QUOTIENT;
+        let prop_reward = wb_reward / PROPOSER_REWARD_QUOTIENT;
+        let burn_amount = total_base.saturating_sub(wb_reward + prop_reward);
+
+        // Whistleblower payout — always emits the call (even on zero
+        // reward) so auditors see a deterministic two-call pattern.
+        reward_payout.pay(evidence.reporter_puzzle_hash, wb_reward);
+
+        // Proposer inclusion payout. `proposer_at_slot(current_slot)`
+        // returning `None` is a consensus-layer bug — surface as
+        // `ProposerUnavailable` rather than silently skipping.
+        let current_slot = proposer.current_slot();
+        let proposer_idx = proposer
+            .proposer_at_slot(current_slot)
+            .ok_or(SlashingError::ProposerUnavailable)?;
+        let proposer_ph = validator_set
+            .get(proposer_idx)
+            .ok_or(SlashingError::ValidatorNotRegistered(proposer_idx))?
+            .puzzle_hash();
+        reward_payout.pay(proposer_ph, prop_reward);
+
         // DSL-024: insert the PendingSlash record + register the hash
         // in processed. Ordering: book insert first so a capacity
         // failure bubbles up WITHOUT polluting processed.
@@ -278,9 +313,11 @@ impl SlashingManager {
 
         Ok(SlashingResult {
             per_validator,
+            whistleblower_reward: wb_reward,
+            proposer_reward: prop_reward,
+            burn_amount,
             reporter_bond_escrowed: REPORTER_BOND_MOJOS,
             pending_slash_hash: evidence_hash,
-            ..Default::default()
         })
     }
 }

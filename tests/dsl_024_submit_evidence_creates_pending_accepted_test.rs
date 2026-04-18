@@ -33,10 +33,38 @@ use dig_block::L2BlockHeader;
 use dig_protocol::Bytes32;
 use dig_slashing::{
     BondError, BondEscrow, BondTag, EffectiveBalanceView, MIN_EFFECTIVE_BALANCE, OffenseType,
-    PendingSlashStatus, ProposerSlashing, REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS,
-    SignedBlockHeader, SlashingEvidence, SlashingEvidencePayload, SlashingManager, ValidatorEntry,
-    ValidatorView, block_signing_message,
+    PendingSlashStatus, ProposerSlashing, ProposerView, REPORTER_BOND_MOJOS, RewardPayout,
+    SLASH_APPEAL_WINDOW_EPOCHS, SignedBlockHeader, SlashingEvidence, SlashingEvidencePayload,
+    SlashingManager, ValidatorEntry, ValidatorView, block_signing_message,
 };
+
+/// Reward-payout stub.
+struct NullReward;
+impl RewardPayout for NullReward {
+    fn pay(&mut self, _: Bytes32, _: u64) {}
+}
+
+/// Proposer stub — returns index 0.
+const PROPOSER_IDX: u32 = 0;
+struct FixedProposer;
+impl ProposerView for FixedProposer {
+    fn proposer_at_slot(&self, _: u64) -> Option<u32> {
+        Some(PROPOSER_IDX)
+    }
+    fn current_slot(&self) -> u64 {
+        0
+    }
+}
+
+fn inject_proposer(map: &mut HashMap<u32, TestValidator>) {
+    let sk = SecretKey::from_seed(&[0xFEu8; 32]);
+    map.insert(
+        PROPOSER_IDX,
+        TestValidator {
+            pk: sk.public_key(),
+        },
+    );
+}
 
 // ── Fixtures (simplified; no per-call recording needed) ────────────────
 
@@ -185,6 +213,7 @@ fn proposer_fixture(proposer_index: u32, reporter: u32, epoch: u64) -> (Slashing
             },
         }),
     };
+    inject_proposer(&mut map);
     (ev, MapView(map))
 }
 
@@ -199,8 +228,16 @@ fn test_dsl_024_pending_status_accepted_on_insert() {
     let mut escrow = AcceptingBondEscrow;
     let mut mgr = SlashingManager::new(3);
 
-    mgr.submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
-        .expect("submit");
+    mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut escrow,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .expect("submit");
 
     let record = mgr.book().get(&hash).expect("inserted");
     assert_eq!(record.status, PendingSlashStatus::Accepted);
@@ -217,8 +254,16 @@ fn test_dsl_024_pending_window_epochs() {
     let mut escrow = AcceptingBondEscrow;
     let mut mgr = SlashingManager::new(current_epoch);
 
-    mgr.submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
-        .expect("submit");
+    mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut escrow,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .expect("submit");
 
     let record = mgr.book().get(&hash).unwrap();
     assert_eq!(record.submitted_at_epoch, current_epoch);
@@ -241,7 +286,15 @@ fn test_dsl_024_pending_per_validator_vec() {
     let mut mgr = SlashingManager::new(3);
 
     let result = mgr
-        .submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut escrow,
+            &mut NullReward,
+            &FixedProposer,
+            &network_id(),
+        )
         .expect("submit");
     let record = mgr.book().get(&hash).unwrap();
     assert_eq!(record.base_slash_per_validator.len(), 1);
@@ -259,8 +312,16 @@ fn test_dsl_024_pending_reporter_bond_mojos() {
     let mut escrow = AcceptingBondEscrow;
     let mut mgr = SlashingManager::new(3);
 
-    mgr.submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
-        .expect("submit");
+    mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut escrow,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .expect("submit");
     let record = mgr.book().get(&hash).unwrap();
     assert_eq!(record.reporter_bond_mojos, REPORTER_BOND_MOJOS);
 }
@@ -274,8 +335,16 @@ fn test_dsl_024_pending_appeal_history_empty() {
     let mut escrow = AcceptingBondEscrow;
     let mut mgr = SlashingManager::new(3);
 
-    mgr.submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
-        .expect("submit");
+    mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut escrow,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .expect("submit");
     let record = mgr.book().get(&hash).unwrap();
     assert!(record.appeal_history.is_empty());
 }
@@ -292,8 +361,16 @@ fn test_dsl_024_processed_map_updated() {
     // Pre-submit: hash NOT processed.
     assert!(!mgr.is_processed(&hash));
 
-    mgr.submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
-        .expect("submit");
+    mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut escrow,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .expect("submit");
 
     assert!(mgr.is_processed(&hash));
     assert_eq!(mgr.processed_epoch(&hash), Some(3));
@@ -309,7 +386,15 @@ fn test_dsl_024_result_pending_slash_hash() {
     let mut mgr = SlashingManager::new(3);
 
     let result = mgr
-        .submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
+        .submit_evidence(
+            ev,
+            &mut view,
+            &balances,
+            &mut escrow,
+            &mut NullReward,
+            &FixedProposer,
+            &network_id(),
+        )
         .expect("submit");
     assert_eq!(result.pending_slash_hash, hash);
 }
@@ -327,10 +412,26 @@ fn test_dsl_024_pending_insert_deterministic() {
     let mut m1 = SlashingManager::new(3);
     let mut m2 = SlashingManager::new(3);
 
-    m1.submit_evidence(ev1, &mut view1, &balances, &mut e1, &network_id())
-        .unwrap();
-    m2.submit_evidence(ev2, &mut view2, &balances, &mut e2, &network_id())
-        .unwrap();
+    m1.submit_evidence(
+        ev1,
+        &mut view1,
+        &balances,
+        &mut e1,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .unwrap();
+    m2.submit_evidence(
+        ev2,
+        &mut view2,
+        &balances,
+        &mut e2,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .unwrap();
 
     let a = m1.book().get(&hash).unwrap();
     let b = m2.book().get(&hash).unwrap();
@@ -347,7 +448,15 @@ fn test_dsl_024_book_len_grows_by_one() {
     let mut mgr = SlashingManager::new(3);
     assert_eq!(mgr.book().len(), 0);
 
-    mgr.submit_evidence(ev, &mut view, &balances, &mut escrow, &network_id())
-        .expect("submit");
+    mgr.submit_evidence(
+        ev,
+        &mut view,
+        &balances,
+        &mut escrow,
+        &mut NullReward,
+        &FixedProposer,
+        &network_id(),
+    )
+    .expect("submit");
     assert_eq!(mgr.book().len(), 1);
 }

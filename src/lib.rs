@@ -44,7 +44,8 @@ pub use constants::{
     BPS_DENOMINATOR, DOMAIN_BEACON_ATTESTER, DOMAIN_BEACON_PROPOSER, DOMAIN_SLASHING_EVIDENCE,
     EQUIVOCATION_BASE_BPS, INVALID_BLOCK_BASE_BPS, MAX_PENALTY_BPS, MAX_PENDING_SLASHES,
     MAX_SLASH_PROPOSAL_PAYLOAD_BYTES, MAX_VALIDATORS_PER_COMMITTEE, MIN_EFFECTIVE_BALANCE,
-    MIN_SLASHING_PENALTY_QUOTIENT, REPORTER_BOND_MOJOS, SLASH_APPEAL_WINDOW_EPOCHS,
+    MIN_SLASHING_PENALTY_QUOTIENT, PROPOSER_REWARD_QUOTIENT, REPORTER_BOND_MOJOS,
+    SLASH_APPEAL_WINDOW_EPOCHS, WHISTLEBLOWER_REWARD_QUOTIENT,
 };
 pub use error::SlashingError;
 pub use evidence::{
@@ -58,8 +59,8 @@ pub use pending::{
     AppealAttempt, AppealOutcome, PendingSlash, PendingSlashBook, PendingSlashStatus,
 };
 pub use traits::{
-    EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, PublicKeyLookup, ValidatorEntry,
-    ValidatorView,
+    EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, ProposerView, PublicKeyLookup,
+    RewardClawback, RewardPayout, ValidatorEntry, ValidatorView,
 };
 
 // Re-export the slash-lookback window from `dig-epoch` so downstream

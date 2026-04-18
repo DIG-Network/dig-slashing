@@ -44,9 +44,9 @@ use dig_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterSlashing, BondError, BondEscrow, BondTag, Checkpoint,
     EffectiveBalanceView, IndexedAttestation, InvalidBlockProof, InvalidBlockReason,
-    MIN_SLASHING_PENALTY_QUOTIENT, OffenseType, ProposerSlashing, SignedBlockHeader,
-    SlashingEvidence, SlashingEvidencePayload, SlashingManager, ValidatorEntry, ValidatorView,
-    block_signing_message,
+    MIN_SLASHING_PENALTY_QUOTIENT, OffenseType, ProposerSlashing, ProposerView, RewardPayout,
+    SignedBlockHeader, SlashingEvidence, SlashingEvidencePayload, SlashingManager, ValidatorEntry,
+    ValidatorView, block_signing_message,
 };
 
 /// Bond-escrow mock that accepts every lock/release/forfeit. DSL-022
@@ -66,6 +66,30 @@ impl BondEscrow for AcceptingBondEscrow {
     fn escrowed(&self, _: u32, _: BondTag) -> u64 {
         0
     }
+}
+
+/// Reward-payout stub — DSL-022 scope is pre-reward.
+struct NullReward;
+impl RewardPayout for NullReward {
+    fn pay(&mut self, _: Bytes32, _: u64) {}
+}
+
+/// Proposer stub — returns index 0, which every fixture registers
+/// via `inject_proposer`.
+const PROPOSER_IDX: u32 = 0;
+struct FixedProposer;
+impl ProposerView for FixedProposer {
+    fn proposer_at_slot(&self, _: u64) -> Option<u32> {
+        Some(PROPOSER_IDX)
+    }
+    fn current_slot(&self) -> u64 {
+        0
+    }
+}
+
+fn inject_proposer(map: &mut HashMap<u32, RecordingValidator>) {
+    let sk = SecretKey::from_seed(&[0xFEu8; 32]);
+    map.insert(PROPOSER_IDX, RecordingValidator::new(sk.public_key()));
 }
 
 // ── Validator fixtures with slash-call recording ────────────────────────
@@ -226,6 +250,7 @@ fn proposer_evidence(
             },
         }),
     };
+    inject_proposer(&mut map);
     (ev, MapView(map))
 }
 
@@ -257,6 +282,7 @@ fn invalid_block_evidence(
             failure_reason: InvalidBlockReason::BadStateRoot,
         }),
     };
+    inject_proposer(&mut map);
     (ev, MapView(map))
 }
 
@@ -329,6 +355,7 @@ fn attester_evidence_offense(
             },
         }),
     };
+    inject_proposer(&mut map);
     (ev, MapView(map))
 }
 
@@ -348,6 +375,8 @@ fn test_dsl_022_bps_dominates_proposer() {
             &mut view,
             &balances,
             &mut AcceptingBondEscrow,
+            &mut NullReward,
+            &FixedProposer,
             &network_id(),
         )
         .expect("proposer slash must succeed");
@@ -380,6 +409,8 @@ fn test_dsl_022_floor_dominates_attester_double() {
             &mut view,
             &balances,
             &mut AcceptingBondEscrow,
+            &mut NullReward,
+            &FixedProposer,
             &network_id(),
         )
         .expect("attester slash must succeed");
@@ -408,6 +439,8 @@ fn test_dsl_022_floor_dominates_attester_surround() {
             &mut view,
             &balances,
             &mut AcceptingBondEscrow,
+            &mut NullReward,
+            &FixedProposer,
             &network_id(),
         )
         .expect("attester surround slash must succeed");
@@ -434,6 +467,8 @@ fn test_dsl_022_invalid_block_floor_wins_one_mojo() {
             &mut view,
             &balances,
             &mut AcceptingBondEscrow,
+            &mut NullReward,
+            &FixedProposer,
             &network_id(),
         )
         .expect("invalid-block slash must succeed");
@@ -461,6 +496,8 @@ fn test_dsl_022_per_validator_vector_attester() {
             &mut view,
             &balances,
             &mut AcceptingBondEscrow,
+            &mut NullReward,
+            &FixedProposer,
             &network_id(),
         )
         .expect("attester slash");
@@ -493,6 +530,8 @@ fn test_dsl_022_skips_already_slashed() {
             &mut view,
             &balances,
             &mut AcceptingBondEscrow,
+            &mut NullReward,
+            &FixedProposer,
             &network_id(),
         )
         .expect("must succeed");
@@ -536,6 +575,8 @@ fn test_dsl_022_skips_absent_validator() {
         &mut view,
         &balances,
         &mut AcceptingBondEscrow,
+        &mut NullReward,
+        &FixedProposer,
         &network_id(),
     );
     assert!(
@@ -559,6 +600,8 @@ fn test_dsl_022_zero_effective_balance() {
             &mut view,
             &balances,
             &mut AcceptingBondEscrow,
+            &mut NullReward,
+            &FixedProposer,
             &network_id(),
         )
         .expect("zero balance must succeed");
@@ -588,6 +631,8 @@ fn test_dsl_022_determinism() {
             &mut view1,
             &balances,
             &mut AcceptingBondEscrow,
+            &mut NullReward,
+            &FixedProposer,
             &network_id(),
         )
         .unwrap();
@@ -597,6 +642,8 @@ fn test_dsl_022_determinism() {
             &mut view2,
             &balances,
             &mut AcceptingBondEscrow,
+            &mut NullReward,
+            &FixedProposer,
             &network_id(),
         )
         .unwrap();
@@ -619,6 +666,8 @@ fn test_dsl_022_slash_absolute_called_with_current_epoch() {
         &mut view,
         &balances,
         &mut AcceptingBondEscrow,
+        &mut NullReward,
+        &FixedProposer,
         &network_id(),
     )
     .expect("submit");
