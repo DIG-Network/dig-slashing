@@ -116,11 +116,12 @@ items:
   - id: DSL-113
     section: "Appeal Admission"
     summary: "Appeal admission mismatch rejected"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/remark/specs/DSL-113.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-113"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_113_appeal_admission_mismatch_rejected_test
+    notes: "Exercises DSL-112 fail path. No new production code — AdmissionPuzzleHashMismatch variant + short-circuit iteration shipped in DSL-104 and reused by DSL-112. 3-test suite: mismatch rejects with correct variant, both expected+got fields populated (derived DSL-111 hash + coin ph), 3-spend (match, mismatch_b, mismatch_c) bundle short-circuits on spend[1] (got == wrong_b, never wrong_c)."
 
   - id: DSL-114
     section: "Appeal Mempool Policy"
