@@ -136,11 +136,12 @@ items:
   - id: DSL-147
     section: "PendingSlashBook"
     summary: "PendingSlashBook::expired_by"
-    status: gap
-    spec_ref: "docs/requirements/domains/lifecycle/specs/DSL-147.md"
+    status: verified
+    spec_ref: "docs/requirements/domains/traits/specs/DSL-147.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-147"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_147_pending_slash_book_expired_by_test
+    notes: "Extends existing expired_by impl with status filter: only Accepted + ChallengeOpen surfaced; Reverted + Finalised terminal statuses retained in book for audit but never re-surfaced to finalise_expired_slashes (DSL-029). BTreeMap range `..current_epoch` gives strict-`<` cutoff + ascending order by construction. 7-test suite: Accepted past-window returned, boundary (== current) excluded + fires at current+1, Reverted + Finalised excluded, reverse-insert sorts output, empty book empty, ChallengeOpen included."
 
   - id: DSL-148
     section: "SlashingManager Construction"

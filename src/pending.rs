@@ -268,9 +268,26 @@ impl PendingSlashBook {
     /// Order is ascending by window_expiry — earliest-expiring first.
     #[must_use]
     pub fn expired_by(&self, current_epoch: u64) -> Vec<Bytes32> {
+        // Range `..current_epoch` is strict less-than → boundary
+        // case (`window_expires == current`) is EXCLUDED per
+        // DSL-147. BTreeMap range is ascending-ordered by key,
+        // giving deterministic output without an explicit sort.
+        //
+        // Filter Accepted + ChallengeOpen only — Reverted /
+        // Finalised terminal statuses stay in the book for
+        // audit trails but must not be re-surfaced to
+        // finalise_expired_slashes (DSL-029).
         self.by_window_expiry
             .range(..current_epoch)
-            .flat_map(|(_, hashes)| hashes.iter().copied())
+            .flat_map(|(_, hashes)| hashes.iter())
+            .filter(|hash| {
+                matches!(
+                    self.pending.get(hash).map(|p| &p.status),
+                    Some(PendingSlashStatus::Accepted)
+                        | Some(PendingSlashStatus::ChallengeOpen { .. }),
+                )
+            })
+            .copied()
             .collect()
     }
 }
