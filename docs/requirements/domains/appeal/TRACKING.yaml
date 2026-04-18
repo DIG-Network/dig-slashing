@@ -426,11 +426,12 @@ items:
   - id: DSL-161
     section: "SlashAppeal Hash + Serde"
     summary: "PendingSlash + AppealAttempt + PendingSlashStatus serde"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/appeal/specs/DSL-161.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-161"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_161_pending_slash_serde_roundtrip_test
+    notes: "No src/ changes — existing `#[derive(Serialize, Deserialize)]` on PendingSlash, PendingSlashStatus, AppealAttempt, AppealOutcome, PerValidatorSlash already satisfy bincode persistence contract. 6-test suite: each PendingSlashStatus variant standalone + nested in PendingSlash (Accepted unit, ChallengeOpen {first_appeal_filed_epoch, appeal_count} drives DSL-056/059, Reverted {winning_appeal_hash, reverted_at_epoch}, Finalised {finalised_at_epoch}), AppealAttempt all 3 AppealOutcome variants (Won, Lost {reason_hash}, Pending) both standalone + mixed in appeal_history vec, full PendingSlash tree (ChallengeOpen + 2-entry history + evidence + verified + per_validator + reporter_bond) byte-exact roundtrip with per-level spot checks."
 
   - id: DSL-164
     section: "SlashAppeal Hash + Serde"
