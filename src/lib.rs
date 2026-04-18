@@ -35,6 +35,7 @@ pub mod error;
 pub mod evidence;
 pub mod inactivity;
 pub mod manager;
+pub mod orchestration;
 pub mod participation;
 pub mod pending;
 pub mod protection;
@@ -92,6 +93,7 @@ pub use evidence::{
 };
 pub use inactivity::{InactivityScoreTracker, in_finality_stall};
 pub use manager::{FinalisationResult, PerValidatorSlash, SlashingManager, SlashingResult};
+pub use orchestration::{EpochBoundaryReport, JustificationView, run_epoch_boundary};
 pub use participation::{
     FlagDelta, ParticipationError, ParticipationFlags, ParticipationTracker, base_reward,
     classify_timeliness, compute_flag_deltas, proposer_inclusion_reward,

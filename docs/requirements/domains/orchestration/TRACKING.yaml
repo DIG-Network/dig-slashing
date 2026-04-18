@@ -6,11 +6,12 @@ items:
   - id: DSL-127
     section: "Epoch Boundary"
     summary: "run_epoch_boundary fixed ordering"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/orchestration/specs/DSL-127.md"
     catalogue_ref: "docs/resources/SPEC.md#dsl-127"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_127_epoch_boundary_order_test
+    notes: "Opens Phase 8. New src/orchestration.rs module with pub fn run_epoch_boundary + EpochBoundaryReport + JustificationView trait (DSL-143 preview). 8-step pipeline: compute_flag_deltas, update_for_epoch, epoch_penalties, finalise_expired_slashes, rotate_epoch, set_epoch, resize_for (conditional), prune_processed_older_than. Adds SlashingManager::prune_processed_older_than(cutoff) — retains processed entries with epoch >= cutoff AND range-removes slashed_in_window rows below cutoff. Prune cutoff = current.saturating_sub(CORRELATION_WINDOW_EPOCHS) preserves all correlation-relevant data. 5-test suite uses full trait-impl fakes for outcome-based ordering: end-to-end population + counter advances, inactivity update before finalise (stall triggers DSL-089 +4), prune last, validator-count growth triggers resize, justification-driven stall flag."
 
   - id: DSL-128
     section: "Genesis"

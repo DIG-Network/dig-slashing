@@ -174,7 +174,7 @@ After completing a requirement: write tests in `tests/dsl_NNN_<short_name>_test.
 
 ## Phase 8: Orchestration (DSL-127..130)
 
-- [ ] DSL-127 — run_epoch_boundary fixed ordering
+- [x] DSL-127 — run_epoch_boundary fixed ordering
 - [ ] DSL-128 — SlashingSystem::genesis
 - [ ] DSL-129 — SlashingManager::rewind_on_reorg
 - [ ] DSL-130 — rewind_all_on_reorg
