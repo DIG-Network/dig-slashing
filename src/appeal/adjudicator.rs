@@ -29,7 +29,7 @@ use crate::appeal::envelope::{SlashAppeal, SlashAppealPayload};
 use crate::appeal::ground::AttesterAppealGround;
 use crate::appeal::verdict::{AppealSustainReason, AppealVerdict};
 use crate::pending::PendingSlash;
-use crate::traits::ValidatorView;
+use crate::traits::{CollateralSlasher, ValidatorView};
 
 /// Revert base-slash amounts on a sustained appeal by calling
 /// `ValidatorEntry::credit_stake(amount)` per affected index.
@@ -109,6 +109,73 @@ pub fn adjudicate_sustained_revert_base_slash(
         }
     }
     reverted
+}
+
+/// Revert collateral debits on a sustained appeal by calling
+/// `CollateralSlasher::credit` per reverted validator.
+///
+/// Implements [DSL-065](../../../docs/requirements/domains/appeal/specs/DSL-065.md).
+/// Traces to SPEC §6.5.
+///
+/// # Verdict branching
+///
+/// Matches DSL-064's scope branching — `ValidatorNotInIntersection`
+/// restricts to the named index, every other sustained reason
+/// covers every slashed validator. Rejected is a no-op.
+///
+/// # Skip conditions
+///
+/// - `collateral: None` (light-client) → no calls at all, empty
+///   returned. Credit is a full-node concern.
+/// - `slash.collateral_slashed == 0` → skipped. No-op credits
+///   would be observable in consensus auditing (DSL-025 pattern);
+///   collateral revert is value-bearing only when a debit
+///   actually occurred.
+///
+/// # Returns
+///
+/// Indices that were actually credited (present in the scope AND
+/// had non-zero `collateral_slashed` AND a collateral slasher was
+/// supplied). Downstream side effects that key off collateral
+/// revert scope can use this list.
+#[must_use]
+pub fn adjudicate_sustained_revert_collateral(
+    pending: &PendingSlash,
+    appeal: &SlashAppeal,
+    verdict: &AppealVerdict,
+    collateral: Option<&mut dyn CollateralSlasher>,
+) -> Vec<u32> {
+    // Rejected branch → no-op.
+    let reason = match verdict {
+        AppealVerdict::Sustained { reason } => *reason,
+        AppealVerdict::Rejected { .. } => return Vec::new(),
+    };
+
+    // No slasher → nothing to do (light-client / bootstrap path).
+    let Some(slasher) = collateral else {
+        return Vec::new();
+    };
+
+    let named_index = if matches!(reason, AppealSustainReason::ValidatorNotInIntersection) {
+        named_validator_from_ground(appeal)
+    } else {
+        None
+    };
+
+    let mut credited: Vec<u32> = Vec::new();
+    for slash in &pending.base_slash_per_validator {
+        if let Some(named) = named_index
+            && slash.validator_index != named
+        {
+            continue;
+        }
+        if slash.collateral_slashed == 0 {
+            continue;
+        }
+        slasher.credit(slash.validator_index, slash.collateral_slashed);
+        credited.push(slash.validator_index);
+    }
+    credited
 }
 
 /// Extract the named `validator_index` from an attester

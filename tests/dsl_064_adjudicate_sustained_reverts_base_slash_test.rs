@@ -200,6 +200,7 @@ fn pending_with(
                 validator_index: *i,
                 base_slash_amount: *amt,
                 effective_balance_at_slash: 32_000_000_000,
+                collateral_slashed: 0,
             })
             .collect(),
         reporter_bond_mojos: 0,

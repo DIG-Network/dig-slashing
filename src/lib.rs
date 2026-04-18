@@ -43,8 +43,8 @@ pub use appeal::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, AttesterAppealGround,
     AttesterSlashingAppeal, InvalidBlockAppeal, InvalidBlockAppealGround, ProposerAppealGround,
     ProposerSlashingAppeal, SlashAppeal, SlashAppealPayload,
-    adjudicate_sustained_revert_base_slash, verify_attester_appeal_attestations_identical,
-    verify_attester_appeal_empty_intersection,
+    adjudicate_sustained_revert_base_slash, adjudicate_sustained_revert_collateral,
+    verify_attester_appeal_attestations_identical, verify_attester_appeal_empty_intersection,
     verify_attester_appeal_invalid_indexed_attestation_structure,
     verify_attester_appeal_not_slashable_by_predicate, verify_attester_appeal_signature_a_invalid,
     verify_attester_appeal_signature_b_invalid,
@@ -80,8 +80,8 @@ pub use pending::{
     AppealAttempt, AppealOutcome, PendingSlash, PendingSlashBook, PendingSlashStatus,
 };
 pub use traits::{
-    EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, ProposerView, PublicKeyLookup,
-    RewardClawback, RewardPayout, ValidatorEntry, ValidatorView,
+    CollateralSlasher, EffectiveBalanceView, ExecutionOutcome, InvalidBlockOracle, ProposerView,
+    PublicKeyLookup, RewardClawback, RewardPayout, ValidatorEntry, ValidatorView,
 };
 
 // Re-export the slash-lookback window from `dig-epoch` so downstream

@@ -91,6 +91,37 @@ pub trait RewardClawback {
     fn claw_back(&mut self, principal_ph: Bytes32, amount: u64) -> u64;
 }
 
+/// Collateral-slash reversal surface.
+///
+/// Traces to [SPEC §15.3](../../docs/resources/SPEC.md), catalogue row
+/// [DSL-065](../../docs/requirements/domains/appeal/specs/DSL-065.md).
+///
+/// # Consumer
+///
+/// - Appeal adjudication (DSL-065) calls
+///   `credit(validator_index, amount_mojos)` per reverted validator
+///   when a `CollateralSlasher` is supplied. Semantically a revert of
+///   the consensus-layer collateral debit that ran alongside the
+///   `ValidatorEntry::slash_absolute` stake debit at admission.
+///
+/// # Optional wiring
+///
+/// Light-client deployments may not track collateral at all. The
+/// adjudicator accepts `Option<&mut dyn CollateralSlasher>` and
+/// no-ops when `None` — collateral revert is a full-node concern.
+///
+/// # Idempotence
+///
+/// The trait does not specify idempotence. Callers MUST call
+/// `credit` exactly once per reverted validator — the adjudicator
+/// does so by construction (one pass over `base_slash_per_validator`).
+pub trait CollateralSlasher {
+    /// Credit `amount_mojos` of collateral back to `validator_index`.
+    /// Consensus-layer impl restores whatever collateral-position
+    /// bookkeeping it chose to debit at admission.
+    fn credit(&mut self, validator_index: u32, amount_mojos: u64);
+}
+
 /// Block-proposer lookup surface.
 ///
 /// Traces to [SPEC §15.3](../../docs/resources/SPEC.md), catalogue row
