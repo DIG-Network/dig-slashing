@@ -56,11 +56,12 @@ items:
   - id: DSL-006
     section: "Types"
     summary: "IndexedAttestation::verify_signature aggregate BLS verify success/failure"
-    status: gap
+    status: verified
     spec_ref: "docs/requirements/domains/evidence/specs/DSL-006.md"
     catalogue_ref: "docs/resources/SPEC.md#22.1"
-    tests: []
-    notes: ""
+    tests:
+      - dsl_006_indexed_attestation_verify_signature_test
+    notes: "verify_signature() in src/evidence/indexed_attestation.rs uses chia_bls::aggregate_verify with augmented scheme (pk || msg). PublicKeyLookup trait added in src/traits.rs (DSL-138 stub). SlashingError::BlsVerifyFailed variant added. 8-test suite: honest aggregate, bit-flip on sig, substituted pubkey, mutated message, missing pubkey in lookup, chia_bls direct parity, truncated+oversize sig widths, undecodable sig bytes."
 
   - id: DSL-007
     section: "Types"

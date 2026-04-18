@@ -10,6 +10,7 @@ description = "Validator slashing, attestation participation, inactivity account
 # chia-protocol serde feature transitively via `chia-protocol` with
 # `serde` so Bytes32 derives Deserialize/Serialize.
 bincode = "1.3"
+chia-bls = "0.26"
 chia-protocol = { version = "0.26", features = ["serde"] }
 chia-sha2 = "0.26"
 dig-block = "0.1"

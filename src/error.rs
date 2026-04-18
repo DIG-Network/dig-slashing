@@ -29,4 +29,16 @@ pub enum SlashingError {
     /// any BLS work. Reason string describes the specific violation.
     #[error("invalid indexed attestation: {0}")]
     InvalidIndexedAttestation(String),
+
+    /// Aggregate BLS verify returned `false` OR the signature bytes /
+    /// pubkey set could not be decoded at all.
+    ///
+    /// Raised by `IndexedAttestation::verify_signature` (DSL-006) and
+    /// by `verify_proposer_slashing` / `verify_invalid_block` (DSL-013 /
+    /// DSL-018). Intentionally coarse: the security model does not
+    /// distinguish "bad pubkey width", "missing validator index", or
+    /// "cryptographic mismatch" — all three are equally invalid
+    /// evidence and callers MUST reject the envelope uniformly.
+    #[error("BLS signature verification failed")]
+    BlsVerifyFailed,
 }

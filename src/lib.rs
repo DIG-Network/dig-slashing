@@ -31,6 +31,7 @@
 pub mod constants;
 pub mod error;
 pub mod evidence;
+pub mod traits;
 
 // ── Public re-exports (alphabetical within category) ────────────────────────
 
@@ -45,3 +46,4 @@ pub use evidence::{
     InvalidBlockReason, OffenseType, ProposerSlashing, SignedBlockHeader, SlashingEvidence,
     SlashingEvidencePayload,
 };
+pub use traits::PublicKeyLookup;
