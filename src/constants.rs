@@ -122,6 +122,30 @@ pub const SLASH_APPEAL_WINDOW_EPOCHS: u64 = 8;
 /// active-balance level; Ethereum mainnet value is 64.
 pub const BASE_REWARD_FACTOR: u64 = 64;
 
+/// Weight denominator for the Altair flag-reward split.
+///
+/// Traces to SPEC §2.3. Per-flag weights (`TIMELY_*_WEIGHT`)
+/// are specified in 64ths of the base reward. Unassigned
+/// weight (2 / 64 on mainnet — for the sync-committee slot we
+/// do not use) is an implicit zero-reward term.
+pub const WEIGHT_DENOMINATOR: u64 = 64;
+
+/// Reward weight for a correct SOURCE vote (TIMELY_SOURCE).
+///
+/// Traces to SPEC §2.3, §8.3. 14 / 64 ≈ 21.9% of base reward.
+pub const TIMELY_SOURCE_WEIGHT: u64 = 14;
+
+/// Reward weight for a correct TARGET vote (TIMELY_TARGET).
+///
+/// Traces to SPEC §2.3, §8.3. 26 / 64 ≈ 40.6% of base reward —
+/// highest of the three because target votes drive finality.
+pub const TIMELY_TARGET_WEIGHT: u64 = 26;
+
+/// Reward weight for a correct HEAD vote (TIMELY_HEAD).
+///
+/// Traces to SPEC §2.3, §8.3. 14 / 64 ≈ 21.9% — matches SOURCE.
+pub const TIMELY_HEAD_WEIGHT: u64 = 14;
+
 /// Minimum inclusion delay for an attestation to be
 /// reward-eligible, in slots.
 ///
