@@ -3,6 +3,13 @@ name = "dig-slashing"
 version = "0.1.0"
 edition = "2024"
 description = "Validator slashing, attestation participation, inactivity accounting, and fraud-proof appeals for the DIG Network L2 blockchain."
+license = "Apache-2.0"
+repository = "https://github.com/DIG-Network/dig-slashing"
+homepage = "https://github.com/DIG-Network/dig-slashing"
+documentation = "https://docs.rs/dig-slashing"
+readme = "README.md"
+keywords = ["blockchain", "slashing", "validator", "consensus", "dig-network"]
+categories = ["cryptography::cryptocurrencies"]
 
 [dependencies]
 # dig-protocol re-exports Bytes32 / Bytes48 / Bytes96 / Coin / CoinSpend /
