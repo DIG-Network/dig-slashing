@@ -1,0 +1,64 @@
+name: CI
+
+# Runs on every push to main and on every pull request — the coverage
+# gate (cargo-llvm-cov, --fail-under-lines 80) lives here so it guards
+# day-to-day development. publish.yml stays tag-only for crates.io.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Lint, test & coverage gate (≥80%)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          components: rustfmt, clippy, llvm-tools-preview
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Check clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Check documentation
+        run: cargo doc --no-deps --all-features
+
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      # The existing suite shares process-global state and must run
+      # single-threaded; --fail-under-lines 80 fails the build below the
+      # coverage floor. Also emit lcov + a summary for the run log.
+      - name: Run tests with coverage (gate at 80% lines)
+        run: >
+          cargo llvm-cov --all-features --workspace
+          --lcov --output-path lcov.info
+          --fail-under-lines 80
+          -- --test-threads=1
+
+      - name: Coverage summary
+        if: always()
+        run: cargo llvm-cov report --summary-only
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lcov-coverage
+          path: lcov.info
+          if-no-files-found: ignore
