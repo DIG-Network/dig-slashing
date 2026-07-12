@@ -41,15 +41,22 @@ jobs:
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
 
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@nextest
+
       # The existing suite shares process-global state and must run
-      # single-threaded; --fail-under-lines 80 fails the build below the
-      # coverage floor. Also emit lcov + a summary for the run log.
-      - name: Run tests with coverage (gate at 80% lines)
+      # single-threaded (see .config/nextest.toml: test-threads = 1); flaky
+      # tests get 2 retries (surfaced, not silently hidden — a test still
+      # failing after retries fails the build) via nextest's retry config.
+      # cargo-llvm-cov drives nextest directly so coverage is still
+      # collected in the SAME run — never run nextest and llvm-cov as
+      # separate steps, that collects zero coverage and fails the gate.
+      # --fail-under-lines 80 fails the build below the coverage floor.
+      - name: Run tests with coverage + flaky-retry gate (≥80% lines)
         run: >
-          cargo llvm-cov --all-features --workspace
+          cargo llvm-cov nextest --all-features --workspace
           --lcov --output-path lcov.info
           --fail-under-lines 80
-          -- --test-threads=1
 
       - name: Coverage summary
         if: always()
