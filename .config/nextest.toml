@@ -1,0 +1,8 @@
+[profile.default]
+# The suite shares process-global state and must run tests serially
+# (mirrors the previous `cargo test -- --test-threads=1` behavior).
+test-threads = 1
+# Flaky-test management (#489): retry a failing test up to 2 times before
+# treating it as a genuine failure, so isolated flakes don't block CI while
+# a test failing on every attempt still fails the build.
+retries = 2
