@@ -118,4 +118,111 @@ impl AttestationData {
         let out: [u8; 32] = h.finalize();
         Bytes32::new(out)
     }
+
+    /// Whether this attestation forms a slashable pair with `other`.
+    ///
+    /// The single source of truth for the attester-slashing predicate
+    /// (DSL-014 double-vote, DSL-015 surround-vote). Both the evidence
+    /// verifier (`verify_attester_slashing`) and the appeal ground
+    /// (`verify_attester_appeal_not_slashable_by_predicate`) decide
+    /// slashability from HERE. Keeping one definition is load-bearing for
+    /// soundness: the appeal is the exact logical inverse of the evidence
+    /// check, so a second copy could drift into an unfair slash (evidence
+    /// slashes, appeal cannot revert) or an un-slashable one.
+    ///
+    /// Returns `true` iff EITHER predicate holds:
+    /// - **Double vote (DSL-014):** same `target.epoch`, but the two
+    ///   attestations are not byte-identical.
+    /// - **Surround vote (DSL-015):** one `(source.epoch, target.epoch)`
+    ///   window strictly surrounds the other, checked in both directions.
+    ///
+    /// Symmetric in its two operands:
+    /// `a.is_slashable_against(b) == b.is_slashable_against(a)`.
+    #[must_use]
+    pub(crate) fn is_slashable_against(&self, other: &AttestationData) -> bool {
+        let double_vote = self.target.epoch == other.target.epoch && self != other;
+        let surround_vote = (self.source.epoch < other.source.epoch
+            && self.target.epoch > other.target.epoch)
+            || (other.source.epoch < self.source.epoch
+                && other.target.epoch > self.target.epoch);
+        double_vote || surround_vote
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::evidence::checkpoint::Checkpoint;
+
+    /// Build an `AttestationData` from `(source_epoch, target_epoch)`; the
+    /// checkpoint roots vary with the epoch so distinct epochs give
+    /// distinct (non-byte-identical) attestations.
+    fn att(source_epoch: u64, target_epoch: u64) -> AttestationData {
+        AttestationData {
+            slot: target_epoch,
+            index: 0,
+            beacon_block_root: Bytes32::new([0u8; 32]),
+            source: Checkpoint {
+                epoch: source_epoch,
+                root: Bytes32::new([source_epoch as u8; 32]),
+            },
+            target: Checkpoint {
+                epoch: target_epoch,
+                root: Bytes32::new([target_epoch as u8; 32]),
+            },
+        }
+    }
+
+    #[test]
+    fn double_vote_same_target_different_data_is_slashable() {
+        let a = att(1, 5);
+        let mut b = att(1, 5);
+        b.beacon_block_root = Bytes32::new([9u8; 32]);
+        assert!(a.is_slashable_against(&b));
+        assert!(b.is_slashable_against(&a));
+    }
+
+    #[test]
+    fn byte_identical_attestations_are_not_slashable() {
+        let a = att(1, 5);
+        let b = att(1, 5);
+        assert!(!a.is_slashable_against(&b));
+    }
+
+    #[test]
+    fn surround_vote_is_slashable_both_directions() {
+        // a = [1, 6] strictly surrounds b = [2, 5].
+        let a = att(1, 6);
+        let b = att(2, 5);
+        assert!(a.is_slashable_against(&b));
+        assert!(b.is_slashable_against(&a));
+    }
+
+    #[test]
+    fn distinct_non_surrounding_non_double_vote_is_not_slashable() {
+        // Disjoint windows, different target epochs, neither surrounds.
+        let a = att(1, 2);
+        let b = att(3, 4);
+        assert!(!a.is_slashable_against(&b));
+        assert!(!b.is_slashable_against(&a));
+    }
+
+    #[test]
+    fn predicate_is_symmetric_across_a_matrix() {
+        for sa in 0..4u64 {
+            for ta in sa..sa + 4 {
+                for sb in 0..4u64 {
+                    for tb in sb..sb + 4 {
+                        let a = att(sa, ta);
+                        let b = att(sb, tb);
+                        assert_eq!(
+                            a.is_slashable_against(&b),
+                            b.is_slashable_against(&a),
+                            "asymmetry at a=({sa},{ta}) b=({sb},{tb})"
+                        );
+                    }
+                }
+            }
+        }
+    }
 }

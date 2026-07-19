@@ -366,16 +366,16 @@ pub fn verify_attester_slashing(
         ));
     }
 
-    // 3. Predicate decision. A slashing is valid iff EITHER predicate
-    // holds. DSL-014: same target epoch + different data. DSL-015:
-    // one window strictly surrounds the other (checked both ways).
-    let a_data = &payload.attestation_a.data;
-    let b_data = &payload.attestation_b.data;
-    let is_double_vote = a_data.target.epoch == b_data.target.epoch && a_data != b_data;
-    let is_surround_vote = (a_data.source.epoch < b_data.source.epoch
-        && a_data.target.epoch > b_data.target.epoch)
-        || (b_data.source.epoch < a_data.source.epoch && b_data.target.epoch > a_data.target.epoch);
-    if !(is_double_vote || is_surround_vote) {
+    // 3. Predicate decision. A slashing is valid iff the shared
+    // attester-slashing predicate holds — DSL-014 (double-vote) or
+    // DSL-015 (surround-vote). Defined once on `AttestationData` so this
+    // check and the appeal ground cannot drift (see
+    // `AttestationData::is_slashable_against`).
+    if !payload
+        .attestation_a
+        .data
+        .is_slashable_against(&payload.attestation_b.data)
+    {
         return Err(SlashingError::AttesterSlashingNotSlashable);
     }
 
