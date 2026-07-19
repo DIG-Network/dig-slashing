@@ -310,18 +310,19 @@ fn verify_proposer_appeal_signature_side(
 pub fn verify_attester_appeal_not_slashable_by_predicate(
     evidence: &AttesterSlashing,
 ) -> AppealVerdict {
+    // The appeal is the exact logical inverse of the evidence check, so it
+    // MUST decide from the same predicate — `AttestationData::is_slashable_against`
+    // (DSL-014 double-vote / DSL-015 surround-vote). Sustains the appeal
+    // precisely when the pair is NOT slashable.
     let a = &evidence.attestation_a.data;
     let b = &evidence.attestation_b.data;
-    let double_vote = a.target.epoch == b.target.epoch && a != b;
-    let surround_vote = (a.source.epoch < b.source.epoch && a.target.epoch > b.target.epoch)
-        || (b.source.epoch < a.source.epoch && b.target.epoch > a.target.epoch);
-    if !(double_vote || surround_vote) {
-        AppealVerdict::Sustained {
-            reason: AppealSustainReason::NotSlashableByPredicate,
-        }
-    } else {
+    if a.is_slashable_against(b) {
         AppealVerdict::Rejected {
             reason: AppealRejectReason::GroundDoesNotHold,
+        }
+    } else {
+        AppealVerdict::Sustained {
+            reason: AppealSustainReason::NotSlashableByPredicate,
         }
     }
 }
