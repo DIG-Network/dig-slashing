@@ -149,14 +149,14 @@ impl InactivityScoreTracker {
     /// global recovery handles score decay and that is the only
     /// no-stall effect.
     ///
-    /// # In-stall (DSL-092 — stub today)
+    /// # In-stall (DSL-092)
     ///
-    /// Returns empty until DSL-092 lands the formula
-    /// `penalty_mojos = eff_bal * score /
-    /// INACTIVITY_PENALTY_QUOTIENT`. Callers that iterate the
-    /// return see zero entries either way; once DSL-092 ships,
-    /// they'll receive one `(validator_index, penalty_mojos)`
-    /// pair per validator whose score contributes.
+    /// Applies the penalty formula `penalty_mojos = eff_bal * score /
+    /// INACTIVITY_PENALTY_QUOTIENT` and returns one
+    /// `(validator_index, penalty_mojos)` pair per validator whose score
+    /// yields a non-zero penalty. Validators with a zero score, or whose
+    /// penalty truncates to zero, are omitted so consumers iterate only
+    /// value-bearing debits.
     #[must_use]
     pub fn epoch_penalties(
         &self,
