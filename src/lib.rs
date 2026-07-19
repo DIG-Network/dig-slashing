@@ -25,8 +25,18 @@
 //!
 //! - [`constants`] — protocol constants (BPS, quotients, domain tags)
 //! - [`evidence`] — offense types, evidence envelopes, verifiers
-//!
-//! (Further modules land as their DSL-NNN requirements are implemented.)
+//! - [`appeal`] — fraud-proof appeal grounds, verifiers, adjudication
+//! - [`bonds`] — reporter/appellant bond escrow
+//! - [`error`] — the `SlashingError` surface
+//! - [`inactivity`] — continuous inactivity-score accounting + penalties
+//! - [`manager`] — slashing lifecycle state machine (`SlashingManager`)
+//! - [`orchestration`] — epoch-boundary + reorg-rewind entry points
+//! - [`participation`] — attestation participation flags + rewards
+//! - [`pending`] — pending-slash book + appeal-attempt tracking
+//! - [`protection`] — validator-local slashing protection
+//! - [`remark`] — REMARK wire encode/parse + block-admission policy
+//! - [`system`] — `SlashingSystem` genesis + bundle of the trackers
+//! - [`traits`] — embedder-implemented trait contracts
 
 pub mod appeal;
 pub mod bonds;

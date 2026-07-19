@@ -78,32 +78,31 @@ pub struct VerifiedEvidence {
 ///    Blocks a validator from self-slashing to collect the whistleblower
 ///    reward.
 ///
-/// 3. **Per-payload dispatch**:
+/// 3. **Per-payload dispatch** — each variant drives its dedicated
+///    verifier, which enforces the payload-specific preconditions + BLS
+///    math:
 ///    - Proposer → [`verify_proposer_slashing`] (DSL-013).
-///    - Attester / InvalidBlock → placeholder accept (DSL-014..020 land
-///      in subsequent commits).
+///    - Attester → [`verify_attester_slashing`] (DSL-014..017: double-vote
+///      / surround-vote predicates, intersection, predicate failure).
+///    - InvalidBlock → [`verify_invalid_block`] (DSL-018..020), dispatched
+///      with a `None` oracle — bootstrap semantics that enforce the
+///      signature + epoch checks only. A caller that needs full block
+///      re-execution calls [`verify_invalid_block`] directly with
+///      `Some(oracle)`.
 ///
-/// # Not yet enforced (placeholder accept)
-///
-/// - DSL-014/015: attester double-vote / surround-vote predicates.
-/// - DSL-016/017: attester intersection / predicate failure.
-/// - DSL-018/019/020: invalid-block signature / epoch / oracle.
-///
-/// Until those land, envelopes passing the lookback check return a
-/// placeholder `VerifiedEvidence` — consumers MUST NOT treat this
-/// function as fully soundness-complete yet. The placeholder is
-/// observable only in test fixtures (DSL-011 test only exercises the
-/// boundary + error path).
+/// The dispatcher never reclassifies `offense_type`: it returns the same
+/// `VerifiedEvidence { offense_type, slashable }` or a payload-specific
+/// error variant.
 ///
 /// # Parameters
 ///
 /// - `evidence`: the envelope to verify.
-/// - `_validator_view`: validator set handle. Consumed by DSL-012+
-///   (currently unused but locked into the signature per SPEC §5.1).
-/// - `_network_id`: chain id for BLS signing-root derivation. Consumed
-///   by DSL-013/018 (currently unused).
-/// - `current_epoch`: epoch the verifier is running in. ONLY required
-///   right now for the OffenseTooOld check.
+/// - `validator_view`: validator-set handle; the per-payload verifiers
+///   read active-status + effective-balance through it (SPEC §5.1).
+/// - `network_id`: chain id for BLS signing-root derivation
+///   (DSL-013/018).
+/// - `current_epoch`: epoch the verifier is running in; bounds the
+///   OffenseTooOld check.
 pub fn verify_evidence(
     evidence: &SlashingEvidence,
     validator_view: &dyn ValidatorView,
