@@ -143,8 +143,7 @@ impl AttestationData {
         let double_vote = self.target.epoch == other.target.epoch && self != other;
         let surround_vote = (self.source.epoch < other.source.epoch
             && self.target.epoch > other.target.epoch)
-            || (other.source.epoch < self.source.epoch
-                && other.target.epoch > self.target.epoch);
+            || (other.source.epoch < self.source.epoch && other.target.epoch > self.target.epoch);
         double_vote || surround_vote
     }
 }
