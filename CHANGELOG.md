@@ -4,6 +4,11 @@ All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org) and
 [Conventional Commits](https://www.conventionalcommits.org).
 
+## [0.1.4] - 2026-07-20
+
+### Bug Fixes
+- Submit_evidence resolves proposer target before any mutation (#4)
+
 ## [0.1.3] - 2026-07-19
 
 ### Refactor
