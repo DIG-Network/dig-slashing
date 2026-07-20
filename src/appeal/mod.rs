@@ -11,11 +11,11 @@
 //! [`InvalidBlockAppeal`]), the [`SlashAppeal`] envelope, and the
 //! per-ground verifiers that produce an [`AppealVerdict`].
 //!
-//! # Scope (incremental)
+//! # Surface
 //!
-//! Module grows one DSL at a time. First commit lands DSL-034
-//! (ProposerAppeal HeadersIdentical). Sibling grounds + the
-//! dispatcher + adjudicator come in subsequent commits.
+//! All three appeal payload shapes, the full set of per-ground
+//! verifiers (DSL-034..054), and the [`adjudicate_appeal`]
+//! dispatcher/adjudicator (DSL-064..073) are implemented.
 
 pub mod adjudicator;
 pub mod envelope;

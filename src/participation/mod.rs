@@ -11,14 +11,14 @@
 //! validator per epoch. Drives Ethereum-parity reward + penalty
 //! computation for attestation inclusion.
 //!
-//! # Scope (incremental)
+//! # Surface
 //!
-//! Module grows one DSL at a time. First commit lands DSL-074
-//! (the `ParticipationFlags` bitmask type). Future DSLs add:
+//! The full participation stack is implemented:
 //!
+//!   - DSL-074: the `ParticipationFlags` bitmask type
 //!   - DSL-075..077: `classify_timeliness`
-//!   - DSL-078..080: `ParticipationTracker` state machine
-//!   - DSL-081..086: reward / penalty deltas
+//!   - DSL-078..080: the `ParticipationTracker` state machine
+//!   - DSL-081..086: reward / penalty flag deltas
 
 pub mod error;
 pub mod flags;

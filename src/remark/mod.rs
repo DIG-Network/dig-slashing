@@ -11,25 +11,21 @@
 //! namespace, and the parser that the consensus / mempool layer
 //! invokes on every block.
 //!
-//! # Scope (incremental)
+//! # Surface
 //!
-//! Opens Phase 6 REMARK Admission. Module grows one DSL at a
-//! time. First commit lands DSL-102 — the evidence-side wire
-//! encoder + parser. Future DSLs extend this surface:
+//! Phase 6 REMARK Admission is implemented end to end:
 //!
-//!   - DSL-103: `slashing_evidence_remark_puzzle_reveal_v1`
+//!   - DSL-102/103: evidence-side wire encoder + parser + puzzle
 //!   - DSL-104/105: admission preconditions (coin match / mismatch)
-//!   - DSL-106..108: mempool policy (expiry, dupe, caps)
-//!   - DSL-109: payload cap
-//!   - DSL-110..120: full appeal-side parity
+//!   - DSL-106..109: mempool policy (expiry, dupe, caps, payload cap)
+//!   - DSL-110..120: appeal-side parity
 //!
 //! # Submodules
 //!
-//! - [`evidence_wire`] — DSL-102 evidence encoder + parser
-//!
-//! Further submodules (`evidence_puzzle`, `appeal_wire`,
-//! `appeal_puzzle`, `admission`, `policy`) land with their
-//! DSL-NNN requirements.
+//! - [`evidence_wire`] — evidence encoder + parser + puzzle
+//! - [`appeal_wire`] — appeal encoder + parser + puzzle
+//! - [`admissions`] — block-level admission processing
+//! - [`policy`] — mempool + block-cap admission policy
 
 pub mod admissions;
 pub mod appeal_wire;

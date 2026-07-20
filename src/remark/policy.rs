@@ -22,11 +22,12 @@
 //! the DSL-102 parser, so unrelated app REMARKs sharing the block
 //! never trip this check.
 //!
-//! # Scope (incremental)
+//! # Surface
 //!
-//! First commit lands DSL-104 (matching-coin admission). DSL-105
-//! extends the mismatch path with the `AdmissionPuzzleHashMismatch`
-//! error. DSL-106..109 add mempool policy on top.
+//! The full admission-policy set is implemented: matching-coin
+//! admission + `AdmissionPuzzleHashMismatch` (DSL-104/105), the
+//! mempool policy (expiry, dedup, payload caps) and block-level
+//! caps (DSL-106..109), for both the evidence and appeal sides.
 
 use std::collections::{HashMap, HashSet};
 

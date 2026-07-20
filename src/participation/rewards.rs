@@ -5,15 +5,19 @@
 //! catalogue rows
 //! [DSL-081..086](../../../docs/requirements/domains/participation/specs/).
 //!
-//! # Scope (incremental)
+//! # Surface
 //!
-//! First commit lands `base_reward` (DSL-081). Later DSLs add:
+//! Implemented here:
 //!
+//!   - DSL-081: `base_reward`
 //!   - DSL-082: `compute_flag_deltas` reward on hit
 //!   - DSL-083: penalty on miss (source + target; head exempt)
-//!   - DSL-084: inactivity-leak bias
-//!   - DSL-085: proposer-reward slice
-//!   - DSL-086: epoch-boundary `apply_deltas`
+//!   - DSL-084: inactivity-leak bias (folded into `compute_flag_deltas`)
+//!   - DSL-085: `proposer_inclusion_reward` slice
+//!
+//! `compute_flag_deltas` returns per-validator [`FlagDelta`] values;
+//! applying them to balances at the epoch boundary (DSL-086) is the
+//! caller's responsibility, not this module's.
 
 use serde::{Deserialize, Serialize};
 
