@@ -283,6 +283,29 @@ impl SlashingManager {
             return Err(SlashingError::PendingBookFull);
         }
 
+        // Resolve the proposer reward target BEFORE any mutation. This is
+        // a READ-ONLY precondition: `proposer_at_slot` returning `None` is
+        // a consensus-layer bug (→ `ProposerUnavailable`), and a resolved
+        // index absent from the validator set (→ `ValidatorNotRegistered`)
+        // must both be surfaced WITHOUT slashing anyone or locking the
+        // reporter bond (dig_ecosystem #346 finding-B). Resolving up front
+        // preserves the DSL-023 atomicity invariant ("lock BEFORE any
+        // validator-side mutation; failure → no validator-side mutation")
+        // while adding a fail-fast read-only guard ahead of it. The
+        // puzzle-hash read is stable across the slash loop — `slash_absolute`
+        // changes balance, not identity — so the success path is
+        // behaviour-preserving; only the fallible resolution moves up, the
+        // actual `reward_payout.pay(proposer_ph, …)` stays after
+        // `prop_reward` is computed post-loop.
+        let current_slot = proposer.current_slot();
+        let proposer_idx = proposer
+            .proposer_at_slot(current_slot)
+            .ok_or(SlashingError::ProposerUnavailable)?;
+        let proposer_ph = validator_set
+            .get(proposer_idx)
+            .ok_or(SlashingError::ValidatorNotRegistered(proposer_idx))?
+            .puzzle_hash();
+
         // DSL-023: lock reporter bond BEFORE any validator-side mutation.
         // Failure surfaces as `BondLockFailed` with validator state still
         // untouched — ordering invariant tested by
@@ -368,17 +391,9 @@ impl SlashingManager {
         // reward) so auditors see a deterministic two-call pattern.
         reward_payout.pay(evidence.reporter_puzzle_hash, wb_reward);
 
-        // Proposer inclusion payout. `proposer_at_slot(current_slot)`
-        // returning `None` is a consensus-layer bug — surface as
-        // `ProposerUnavailable` rather than silently skipping.
-        let current_slot = proposer.current_slot();
-        let proposer_idx = proposer
-            .proposer_at_slot(current_slot)
-            .ok_or(SlashingError::ProposerUnavailable)?;
-        let proposer_ph = validator_set
-            .get(proposer_idx)
-            .ok_or(SlashingError::ValidatorNotRegistered(proposer_idx))?
-            .puzzle_hash();
+        // Proposer inclusion payout. The reward target (`proposer_ph`) was
+        // resolved up front as a read-only precondition, so a missing
+        // proposer never reaches this mutating section.
         reward_payout.pay(proposer_ph, prop_reward);
 
         // DSL-024: insert the PendingSlash record + register the hash

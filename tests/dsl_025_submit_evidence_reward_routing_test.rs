@@ -609,12 +609,16 @@ fn test_dsl_025_reward_routing_determinism() {
 }
 
 /// DSL-025 row 9: `ProposerView::proposer_at_slot` returning `None`
-/// surfaces as `SlashingError::ProposerUnavailable`. Reporter payout
-/// already fired; validator state was mutated — this is a
-/// consensus-layer bug surface, not a user-visible failure path.
+/// surfaces as `SlashingError::ProposerUnavailable`. The proposer reward
+/// target is resolved as a READ-ONLY precondition ahead of the bond lock
+/// and slash loop (dig_ecosystem #346 finding-B), so an unresolvable
+/// proposer mutates NOTHING: no reward payout, no book insert, no
+/// `processed` entry. Atomicity is asserted end-to-end by the dedicated
+/// `dsl_025_submit_evidence_proposer_unavailable_atomicity_test` suite.
 #[test]
 fn test_dsl_025_proposer_unavailable_errors() {
     let (ev, mut view) = proposer_fixture(9, 3);
+    let hash = ev.hash();
     let balances = MapBalances(HashMap::from([(9u32, MIN_EFFECTIVE_BALANCE)]));
     let mut bond = AcceptingBondEscrow;
     let mut reward = RecordingReward::new();
@@ -633,8 +637,8 @@ fn test_dsl_025_proposer_unavailable_errors() {
         )
         .expect_err("proposer=None must surface");
     assert_eq!(err, SlashingError::ProposerUnavailable);
-    // Reporter reward HAS been paid (it runs before the proposer
-    // lookup) — confirms the pipeline ordering.
-    assert_eq!(reward.calls.borrow().len(), 1);
-    assert_eq!(reward.calls.borrow()[0].ph, REPORTER_PH);
+    // No reward is paid — resolution fails before any mutation.
+    assert_eq!(reward.calls.borrow().len(), 0);
+    assert_eq!(mgr.book().len(), 0);
+    assert!(!mgr.is_processed(&hash));
 }

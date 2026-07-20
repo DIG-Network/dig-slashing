@@ -1,6 +1,6 @@
 [package]
 name = "dig-slashing"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 description = "Validator slashing, attestation participation, inactivity accounting, and fraud-proof appeals for the DIG Network L2 blockchain."
 license = "Apache-2.0"
