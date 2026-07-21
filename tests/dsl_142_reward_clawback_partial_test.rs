@@ -43,7 +43,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::RewardClawback;
 
 /// Reference mock with per-address balances.

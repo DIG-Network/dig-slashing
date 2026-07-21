@@ -32,7 +32,7 @@
 //!   6. `test_dsl_007_empty_inputs` (edge: either side empty)
 //!   7. `test_dsl_007_single_element_overlap`
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterSlashing, BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation,
 };

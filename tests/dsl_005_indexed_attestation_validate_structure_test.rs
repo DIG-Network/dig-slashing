@@ -24,7 +24,7 @@
 //!   7. `test_dsl_005_bad_sig_width_too_long_rejected`
 //!   8. `test_dsl_005_valid_ascending_accepted`
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation,
     MAX_VALIDATORS_PER_COMMITTEE, SlashingError,

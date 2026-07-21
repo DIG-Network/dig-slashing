@@ -53,7 +53,7 @@
 //!      proves the domain prefix is actually in the input.
 
 use chia_sha2::Sha256;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     DOMAIN_SLASH_APPEAL, ProposerAppealGround, ProposerSlashingAppeal, SlashAppeal,
     SlashAppealPayload,

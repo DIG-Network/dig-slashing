@@ -26,7 +26,7 @@
 use std::collections::HashMap;
 use std::hash::{BuildHasher, Hasher, RandomState};
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{BondError, BondEscrow, BondTag};
 
 // ── mock BondEscrow — HashMap<(idx, tag), amount> ───────────────

@@ -34,7 +34,7 @@
 //!   6. `test_dsl_009_signature_length_not_enforced_by_type` — non-96 is legal
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{BLS_SIGNATURE_SIZE, SignedBlockHeader};
 
 /// Canonical test header — arbitrary values; this suite doesn't validate

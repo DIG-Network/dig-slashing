@@ -26,7 +26,7 @@
 //!      — status = `Accepted` → pipeline Ok (guard does not
 //!      false-positive on in-window slashes)
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterAppealGround, AttesterSlashing, AttesterSlashingAppeal,
     BLS_SIGNATURE_SIZE, BondError, BondEscrow, BondTag, Checkpoint, IndexedAttestation,

@@ -18,7 +18,7 @@
 //!   3. `test_dsl_052_off_by_one` — differ by 1 (boundary)
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, BLS_SIGNATURE_SIZE, InvalidBlockProof,
     InvalidBlockReason, SignedBlockHeader, verify_invalid_block_appeal_evidence_epoch_mismatch,

@@ -22,7 +22,7 @@
 //!   6. `test_dsl_161_pending_slash_full_tree` — full PendingSlash with populated appeal_history; 2 appeals at different epochs + distinct outcomes, both recovered post-roundtrip.
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealAttempt, AppealOutcome, BLS_SIGNATURE_SIZE, OffenseType, PendingSlash,
     PendingSlashStatus, PerValidatorSlash, ProposerSlashing, SignedBlockHeader, SlashingEvidence,

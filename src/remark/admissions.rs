@@ -16,7 +16,7 @@
 //!
 //! Per-envelope failures populate the rejected vecs without aborting the block — a block with one bad evidence and ten good ones still admits ten. Block-cap overflow truncates the excess envelopes and counts the drop; it does NOT reject the block outright.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::bonds::BondEscrow;

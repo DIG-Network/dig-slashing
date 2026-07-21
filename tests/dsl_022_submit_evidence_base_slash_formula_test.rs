@@ -40,7 +40,7 @@ use std::collections::HashMap;
 
 use chia_bls::{PublicKey, SecretKey, Signature};
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterSlashing, BondError, BondEscrow, BondTag, Checkpoint,
     EffectiveBalanceView, IndexedAttestation, InvalidBlockProof, InvalidBlockReason,

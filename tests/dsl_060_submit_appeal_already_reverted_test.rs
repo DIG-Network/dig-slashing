@@ -19,7 +19,7 @@
 //!   2. `test_dsl_060_accepted_status_passes`
 //!      — status = `Accepted` → pipeline Ok (no status-guard trip)
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterAppealGround, AttesterSlashing, AttesterSlashingAppeal,
     BLS_SIGNATURE_SIZE, BondError, BondEscrow, BondTag, Checkpoint, IndexedAttestation,

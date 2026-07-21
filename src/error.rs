@@ -12,7 +12,7 @@
 //! New variants land as their DSL-NNN requirements are implemented. Each
 //! variant's docstring points at the requirement that introduced it.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use thiserror::Error;
 
 /// Every failure mode `dig-slashing`'s verifiers, manager, and adjudicator

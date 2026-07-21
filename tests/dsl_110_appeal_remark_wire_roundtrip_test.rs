@@ -28,7 +28,7 @@
 //!      invalid payloads → parser returns only valid ones in
 //!      input order
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     ProposerAppealGround, ProposerSlashingAppeal, SLASH_APPEAL_REMARK_MAGIC_V1,
     SLASH_EVIDENCE_REMARK_MAGIC_V1, SlashAppeal, SlashAppealPayload,

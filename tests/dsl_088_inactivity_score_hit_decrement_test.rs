@@ -12,7 +12,7 @@
 //!   3. `test_dsl_088_in_stall_still_decrements` — stall=true +
 //!      TARGET hit → score still decrements
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, Checkpoint, InactivityScoreTracker, ParticipationFlags, ParticipationTracker,
     TIMELY_TARGET_FLAG_INDEX,

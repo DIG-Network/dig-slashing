@@ -46,7 +46,7 @@ use std::collections::HashMap;
 use chia_bls::Signature;
 use chia_protocol::{Bytes, Coin, CoinSpend, Program, SpendBundle};
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     BLS_SIGNATURE_SIZE, OffenseType, ProposerSlashing, SLASH_LOOKBACK_EPOCHS, SignedBlockHeader,
     SlashingError, SlashingEvidence, SlashingEvidencePayload,

@@ -37,7 +37,7 @@
 //!      attestation passes the surround + same-coord checks
 //!      (defaulted 0/0/None state means no prior constraint)
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::SlashingProtection;
 
 /// DSL-100 row 1: legacy JSON without `last_attested_block_hash`

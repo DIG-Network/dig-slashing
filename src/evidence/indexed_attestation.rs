@@ -23,7 +23,7 @@
 //! math.
 
 use chia_bls::{PublicKey, Signature};
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::constants::{BLS_SIGNATURE_SIZE, MAX_VALIDATORS_PER_COMMITTEE};

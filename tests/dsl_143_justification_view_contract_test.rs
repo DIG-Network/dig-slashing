@@ -37,7 +37,7 @@
 
 use std::collections::HashMap;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{Checkpoint, JustificationView};
 
 /// Full reference impl. Backing tables map slot → root and

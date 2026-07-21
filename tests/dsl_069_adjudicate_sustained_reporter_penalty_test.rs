@@ -29,7 +29,7 @@ use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
 
 use chia_bls::{PublicKey, SecretKey};
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealSustainReason, AppealVerdict, AttestationData, AttesterSlashing, BLS_SIGNATURE_SIZE,
     BPS_DENOMINATOR, Checkpoint, EffectiveBalanceView, INVALID_BLOCK_BASE_BPS, IndexedAttestation,

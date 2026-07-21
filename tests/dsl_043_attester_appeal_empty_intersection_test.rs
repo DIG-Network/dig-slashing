@@ -14,7 +14,7 @@
 //!   2. `test_dsl_043_overlap_rejected` — [1,2] ∩ [2,3] = {2}
 //!   3. `test_dsl_043_identical_rejected` — same indices
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, AttestationData, AttesterSlashing,
     BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation, verify_attester_appeal_empty_intersection,

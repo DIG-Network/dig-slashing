@@ -40,7 +40,7 @@
 //!      rewind check_attestation on the new tip succeeds (the
 //!      point of the whole operation)
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::SlashingProtection;
 
 /// DSL-098 row 1: the hash slot is cleared UNCONDITIONALLY. Tested

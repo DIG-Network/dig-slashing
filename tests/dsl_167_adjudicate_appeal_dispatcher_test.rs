@@ -23,7 +23,7 @@
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     APPELLANT_BOND_MOJOS, AppealAdjudicationResult, AppealOutcome, AppealRejectReason,
     AppealSustainReason, AppealVerdict, AttestationData, AttesterAppealGround, AttesterSlashing,

@@ -38,7 +38,7 @@ use std::collections::HashMap;
 
 use chia_bls::{PublicKey, SecretKey};
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     BLS_SIGNATURE_SIZE, DOMAIN_BEACON_PROPOSER, InvalidBlockProof, InvalidBlockReason, OffenseType,
     SignedBlockHeader, SlashingError, SlashingEvidence, SlashingEvidencePayload, ValidatorEntry,

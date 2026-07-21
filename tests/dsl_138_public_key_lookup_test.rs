@@ -30,7 +30,7 @@
 use std::cell::RefCell;
 
 use chia_bls::{PublicKey, SecretKey};
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{PublicKeyLookup, ValidatorEntry, ValidatorView};
 
 fn deterministic_pk(seed: u8) -> PublicKey {

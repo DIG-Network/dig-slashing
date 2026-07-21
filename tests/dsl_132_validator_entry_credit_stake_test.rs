@@ -36,7 +36,7 @@
 //!      stake unchanged
 
 use chia_bls::PublicKey;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::ValidatorEntry;
 
 /// Reference impl with SPEC §15.1 credit_stake semantics —

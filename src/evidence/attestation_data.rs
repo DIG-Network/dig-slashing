@@ -28,7 +28,7 @@
 //!   the hash, so mutation anywhere shifts the output.
 
 use chia_sha2::Sha256;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::constants::DOMAIN_BEACON_ATTESTER;

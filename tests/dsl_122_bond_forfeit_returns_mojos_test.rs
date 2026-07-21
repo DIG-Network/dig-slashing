@@ -33,7 +33,7 @@
 
 use std::collections::HashMap;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{BondError, BondEscrow, BondTag};
 
 /// Same reference mock as DSL-121. Copy-paste rather than share

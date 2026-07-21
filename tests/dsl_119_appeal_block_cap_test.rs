@@ -18,7 +18,7 @@
 //!      `>`)
 //!   3. `test_dsl_119_empty_ok` — 0 admits vacuously
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     MAX_APPEALS_PER_BLOCK, ProposerAppealGround, ProposerSlashingAppeal, SlashAppeal,
     SlashAppealPayload, SlashingError, enforce_block_level_appeal_caps,

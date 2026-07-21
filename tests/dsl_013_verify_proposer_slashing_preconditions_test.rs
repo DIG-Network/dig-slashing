@@ -39,7 +39,7 @@
 
 use chia_bls::{PublicKey, SecretKey};
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     BLS_SIGNATURE_SIZE, DOMAIN_BEACON_PROPOSER, OffenseType, ProposerSlashing, SignedBlockHeader,
     SlashingError, SlashingEvidence, SlashingEvidencePayload, ValidatorEntry, ValidatorView,

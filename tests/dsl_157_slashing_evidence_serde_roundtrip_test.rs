@@ -49,7 +49,7 @@
 //!      96 × 8 bytes as u64-prefixed `Vec<u8>`).
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterSlashing, BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation,
     InvalidBlockProof, InvalidBlockReason, OffenseType, ProposerSlashing, SignedBlockHeader,

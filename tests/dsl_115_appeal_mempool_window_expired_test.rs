@@ -29,7 +29,7 @@
 
 use std::collections::HashMap;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     ProposerAppealGround, ProposerSlashingAppeal, SLASH_APPEAL_WINDOW_EPOCHS, SlashAppeal,
     SlashAppealPayload, SlashingError, enforce_slash_appeal_window_policy,

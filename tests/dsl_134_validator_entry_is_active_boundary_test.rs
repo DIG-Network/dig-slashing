@@ -34,7 +34,7 @@
 //!      means always active after activation
 
 use chia_bls::PublicKey;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::ValidatorEntry;
 
 /// Reference impl parameterised over activation + exit.

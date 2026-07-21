@@ -20,7 +20,7 @@
 //!      — seed 3 distinct rejected attempts → 4th accepted
 //!      (`appeal_history.len() == 3 < MAX_APPEAL_ATTEMPTS_PER_SLASH`)
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealAttempt, AppealOutcome, AttestationData, AttesterAppealGround, AttesterSlashing,
     AttesterSlashingAppeal, BLS_SIGNATURE_SIZE, BondError, BondEscrow, BondTag, Checkpoint,

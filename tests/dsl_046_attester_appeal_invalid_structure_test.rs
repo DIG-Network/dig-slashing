@@ -26,7 +26,7 @@
 //! side B, so the OR-disjunction in the verifier is exercised from
 //! the A leg; the well-formed row plants both sides clean.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, AttestationData, AttesterSlashing,
     BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation, MAX_VALIDATORS_PER_COMMITTEE,

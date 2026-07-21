@@ -21,7 +21,7 @@
 
 use chia_bls::Signature;
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 
 use crate::appeal::ground::ProposerAppealGround;
 use crate::appeal::verdict::{AppealRejectReason, AppealSustainReason, AppealVerdict};

@@ -35,7 +35,7 @@
 //!      calls compose (later calls see already-debited stake)
 
 use chia_bls::PublicKey;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::ValidatorEntry;
 
 /// Reference `ValidatorEntry` impl matching SPEC §15.1 exactly.

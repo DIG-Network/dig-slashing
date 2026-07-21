@@ -19,7 +19,7 @@
 //!      collision with `last_attested_block_hash == None` →
 //!      false
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::SlashingProtection;
 
 /// DSL-095 row 1: record then re-check same hash → true.

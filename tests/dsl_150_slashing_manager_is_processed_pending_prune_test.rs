@@ -47,7 +47,7 @@
 //!      returns Some — the book is NOT touched by prune.
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealAttempt, BLS_SIGNATURE_SIZE, OffenseType, PendingSlash, PendingSlashStatus,
     PerValidatorSlash, ProposerSlashing, SignedBlockHeader, SlashingEvidence,

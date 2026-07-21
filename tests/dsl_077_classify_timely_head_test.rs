@@ -18,7 +18,7 @@
 //!   3. `test_dsl_077_delay_0_not_set` — below lower boundary
 //!   4. `test_dsl_077_non_canonical_not_set` — canonicality gate
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{AttestationData, Checkpoint, ParticipationFlags, classify_timeliness};
 
 fn data_at_slot(slot: u64) -> AttestationData {

@@ -24,7 +24,7 @@
 use std::collections::HashMap;
 
 use chia_bls::{PublicKey, SecretKey, Signature};
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, AttestationData, AttesterSlashing,
     BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation, PublicKeyLookup,

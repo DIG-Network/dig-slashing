@@ -16,7 +16,7 @@
 //!   3. `test_dsl_042_surround_rejected` — a surrounds b
 //!   4. `test_dsl_042_mirror_surround_rejected` — b surrounds a
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, AttestationData, AttesterSlashing,
     BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation,

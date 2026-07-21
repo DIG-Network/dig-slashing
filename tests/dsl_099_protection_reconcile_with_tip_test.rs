@@ -47,7 +47,7 @@
 //!      below the new tip must not be uplifted (tip acts as a CAP
 //!      only, never as an assignment)
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::SlashingProtection;
 
 /// DSL-099 row 1: both watermarks get lowered in a single call;

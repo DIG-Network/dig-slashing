@@ -37,7 +37,7 @@
 //!      (proves the "keep scanning" semantics)
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     BLS_SIGNATURE_SIZE, OffenseType, ProposerSlashing, SLASH_EVIDENCE_REMARK_MAGIC_V1,
     SignedBlockHeader, SlashingEvidence, SlashingEvidencePayload,

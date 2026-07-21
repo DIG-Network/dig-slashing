@@ -32,7 +32,7 @@
 //!   3. `test_dsl_063_small_payload_accepted`
 //!      — 1 KiB witness → Ok
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterAppealGround, AttesterSlashing, AttesterSlashingAppeal,
     BLS_SIGNATURE_SIZE, BondError, BondEscrow, BondTag, Checkpoint, IndexedAttestation,

@@ -48,7 +48,7 @@ use std::collections::BTreeMap;
 
 use dig_epoch::CORRELATION_WINDOW_EPOCHS;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::bonds::BondEscrow;
@@ -81,7 +81,7 @@ pub trait JustificationView {
     fn current_justified_checkpoint(&self) -> crate::evidence::Checkpoint {
         crate::evidence::Checkpoint {
             epoch: 0,
-            root: dig_protocol::Bytes32::new([0u8; 32]),
+            root: dig_peer_protocol::Bytes32::new([0u8; 32]),
         }
     }
 
@@ -90,7 +90,7 @@ pub trait JustificationView {
     fn previous_justified_checkpoint(&self) -> crate::evidence::Checkpoint {
         crate::evidence::Checkpoint {
             epoch: 0,
-            root: dig_protocol::Bytes32::new([0u8; 32]),
+            root: dig_peer_protocol::Bytes32::new([0u8; 32]),
         }
     }
 
@@ -101,21 +101,21 @@ pub trait JustificationView {
     fn finalized_checkpoint(&self) -> crate::evidence::Checkpoint {
         crate::evidence::Checkpoint {
             epoch: self.latest_finalized_epoch(),
-            root: dig_protocol::Bytes32::new([0u8; 32]),
+            root: dig_peer_protocol::Bytes32::new([0u8; 32]),
         }
     }
 
     /// Canonical block root at `slot`, or `None` for
     /// uncommitted / future slots. DSL-076/077 head check
     /// consumer. Default: always `None`.
-    fn canonical_block_root_at_slot(&self, _slot: u64) -> Option<dig_protocol::Bytes32> {
+    fn canonical_block_root_at_slot(&self, _slot: u64) -> Option<dig_peer_protocol::Bytes32> {
         None
     }
 
     /// Canonical target root for `epoch` (start-of-epoch
     /// block root), or `None` past chain tip. DSL-076 target-root
     /// consumer. Default: `None`.
-    fn canonical_target_root_for_epoch(&self, _epoch: u64) -> Option<dig_protocol::Bytes32> {
+    fn canonical_target_root_for_epoch(&self, _epoch: u64) -> Option<dig_peer_protocol::Bytes32> {
         None
     }
 }

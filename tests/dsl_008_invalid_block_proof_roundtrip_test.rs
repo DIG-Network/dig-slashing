@@ -31,7 +31,7 @@
 //!   7. `test_dsl_008_partial_eq_reason` — mutation in reason field
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{BLS_SIGNATURE_SIZE, InvalidBlockProof, InvalidBlockReason, SignedBlockHeader};
 
 /// Canonical block header fixture.

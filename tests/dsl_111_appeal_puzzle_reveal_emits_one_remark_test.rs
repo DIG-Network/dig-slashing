@@ -29,7 +29,7 @@ use chia_sdk_types::{Condition, run_puzzle};
 use clvm_traits::FromClvm;
 use clvmr::serde::node_from_bytes;
 use clvmr::{Allocator, SExp};
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     ProposerAppealGround, ProposerSlashingAppeal, SlashAppeal, SlashAppealPayload,
     parse_slash_appeals_from_conditions, slash_appeal_remark_puzzle_hash_v1,

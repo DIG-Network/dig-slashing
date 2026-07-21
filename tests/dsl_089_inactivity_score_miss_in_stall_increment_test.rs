@@ -18,7 +18,7 @@
 //!   4. `test_dsl_089_linear_growth` — 10 consecutive misses in
 //!      stall → score += 40
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, Checkpoint, INACTIVITY_SCORE_BIAS, InactivityScoreTracker,
     ParticipationTracker,

@@ -19,7 +19,7 @@
 
 use std::collections::{BTreeMap, HashMap};
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::error::SlashingError;

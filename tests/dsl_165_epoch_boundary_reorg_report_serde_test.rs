@@ -21,7 +21,7 @@
 //!   5. `test_dsl_165_empty_vecs_preserved` — empty-vec cases for both reports roundtrip verbatim.
 //!   6. `test_dsl_165_stall_flag_both` — in_finality_stall true + false both preserved.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     EpochBoundaryReport, FinalisationResult, FlagDelta, PerValidatorSlash, ReorgReport,
     SlashingResult,

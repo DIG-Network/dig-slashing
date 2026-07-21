@@ -32,7 +32,7 @@
 //!      DSL-064 revert rewinding a finalised slash's lock)
 
 use chia_bls::PublicKey;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::ValidatorEntry;
 
 struct MockValidator {

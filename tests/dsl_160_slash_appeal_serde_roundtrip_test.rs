@@ -50,7 +50,7 @@
 //!      `#[serde(with = "serde_bytes")]`); JSON emits as integer
 //!      array; cross-codec roundtrip equal.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttesterAppealGround, AttesterSlashingAppeal, InvalidBlockAppeal, InvalidBlockAppealGround,
     ProposerAppealGround, ProposerSlashingAppeal, SlashAppeal, SlashAppealPayload,

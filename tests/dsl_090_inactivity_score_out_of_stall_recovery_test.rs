@@ -16,7 +16,7 @@
 //!      stall=true → 50 unchanged (only DSL-088 hits would
 //!      change it, and there are none here)
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, Checkpoint, INACTIVITY_SCORE_RECOVERY_RATE, InactivityScoreTracker,
     ParticipationTracker,

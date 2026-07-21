@@ -28,7 +28,7 @@
 //! function.
 
 use chia_bls::{PublicKey, Signature};
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 
 use crate::constants::{
     BLS_SIGNATURE_SIZE, DOMAIN_BEACON_PROPOSER, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES,

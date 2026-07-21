@@ -33,7 +33,7 @@
 use std::cell::RefCell;
 
 use chia_bls::PublicKey;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     BondError, BondEscrow, BondTag, EffectiveBalanceView, EpochBoundaryReport,
     InactivityScoreTracker, JustificationView, ParticipationTracker, RewardPayout, SlashingManager,

@@ -32,7 +32,7 @@
 //!   5. `test_dsl_128_no_stall_at_genesis` — `in_finality_stall(0, 0)
 //!      == false`
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{GenesisParameters, ParticipationFlags, SlashingSystem, in_finality_stall};
 
 fn params(genesis_epoch: u64, validator_count: usize) -> GenesisParameters {

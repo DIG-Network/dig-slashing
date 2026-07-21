@@ -9,7 +9,7 @@
 //! appeal_count increments (DSL-072).
 
 use chia_sha2::Sha256;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::pending::AppealOutcome;

@@ -41,7 +41,7 @@
 use std::collections::HashMap;
 
 use chia_bls::{PublicKey, SecretKey, Signature};
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, OffenseType, SlashingError,
     SlashingEvidence, SlashingEvidencePayload, ValidatorEntry, ValidatorView, verify_evidence,

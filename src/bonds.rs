@@ -17,7 +17,7 @@
 //! the unique escrow key — two concurrent bonds on the same principal
 //! cannot collide because the envelope/appeal hash is mixed in.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
