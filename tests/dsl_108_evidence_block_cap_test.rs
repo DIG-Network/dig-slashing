@@ -27,7 +27,7 @@
 //!   3. `test_dsl_108_empty_ok` — 0 evidences admits vacuously
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     BLS_SIGNATURE_SIZE, MAX_SLASH_PROPOSALS_PER_BLOCK, OffenseType, ProposerSlashing,
     SignedBlockHeader, SlashingError, SlashingEvidence, SlashingEvidencePayload,

@@ -29,7 +29,7 @@
 //!   6. `test_dsl_147_empty_book_empty_vec` — degenerate case
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealAttempt, BLS_SIGNATURE_SIZE, OffenseType, PendingSlash, PendingSlashBook,
     PendingSlashStatus, PerValidatorSlash, ProposerSlashing, SignedBlockHeader, SlashingEvidence,

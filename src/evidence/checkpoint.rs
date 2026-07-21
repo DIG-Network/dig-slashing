@@ -23,7 +23,7 @@
 //! defaulted. The type is `Copy` so it can be passed by value across every
 //! downstream API without lifetime or borrow friction.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 /// A `(epoch, root)` FFG vote pair.

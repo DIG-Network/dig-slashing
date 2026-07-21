@@ -22,7 +22,7 @@
 //!      — `UnknownEvidence(String)` payload carries 64-char lowercase
 //!      hex of the evidence hash
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttesterAppealGround, AttesterSlashingAppeal, BondError, BondEscrow, BondTag, SlashAppeal,
     SlashAppealPayload, SlashingError, SlashingManager,

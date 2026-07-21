@@ -21,7 +21,7 @@
 //!   3. `test_dsl_058_different_ground_accepted`
 //!      — same evidence, different ground → accepted
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealAttempt, AppealOutcome, AttestationData, AttesterAppealGround, AttesterSlashing,
     AttesterSlashingAppeal, BLS_SIGNATURE_SIZE, BondError, BondEscrow, BondTag, Checkpoint,

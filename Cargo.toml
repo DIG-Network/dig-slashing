@@ -1,6 +1,6 @@
 [package]
 name = "dig-slashing"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 description = "Validator slashing, attestation participation, inactivity accounting, and fraud-proof appeals for the DIG Network L2 blockchain."
 license = "Apache-2.0"
@@ -12,7 +12,7 @@ keywords = ["blockchain", "slashing", "validator", "consensus", "dig-network"]
 categories = ["cryptography::cryptocurrencies"]
 
 [dependencies]
-# dig-protocol re-exports Bytes32 / Bytes48 / Bytes96 / Coin / CoinSpend /
+# dig-peer-protocol re-exports Bytes32 / Bytes48 / Bytes96 / Coin / CoinSpend /
 # SpendBundle from chia-protocol plus DIG L2 extensions. We enable the
 # chia-protocol serde feature transitively via `chia-protocol` with
 # `serde` so Bytes32 derives Deserialize/Serialize.
@@ -24,7 +24,7 @@ clvm-utils = "0.26"
 clvmr = "0.14"
 dig-block = "0.1"
 dig-epoch = "0.1"
-dig-protocol = "0.1"
+dig-peer-protocol = "0.2"
 serde = { version = "1", features = ["derive"] }
 serde_bytes = "0.11"
 serde_json = "1"

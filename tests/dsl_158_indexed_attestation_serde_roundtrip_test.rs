@@ -47,7 +47,7 @@
 //!      `source.epoch` observable post-roundtrip; pins that
 //!      deeply-nested fields are NOT flattened or stubbed.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{AttestationData, BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation};
 
 // ── fixtures ────────────────────────────────────────────────────

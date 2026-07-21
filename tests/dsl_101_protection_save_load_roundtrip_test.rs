@@ -30,7 +30,7 @@
 //!   4. `test_dsl_101_load_missing_path_default` — non-existent
 //!      path → `Ok(default())`, never an I/O error
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::SlashingProtection;
 use std::path::PathBuf;
 

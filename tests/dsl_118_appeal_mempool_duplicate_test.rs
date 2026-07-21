@@ -20,7 +20,7 @@
 //!   3. `test_dsl_118_distinct_ok` — all distinct admits
 //!   4. `test_dsl_118_empty_inputs_ok` — vacuous
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     ProposerAppealGround, ProposerSlashingAppeal, SlashAppeal, SlashAppealPayload, SlashingError,
     enforce_slash_appeal_mempool_dedup_policy,

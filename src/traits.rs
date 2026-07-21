@@ -15,7 +15,7 @@
 
 use chia_bls::PublicKey;
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 
 use crate::error::SlashingError;
 use crate::evidence::invalid_block::InvalidBlockReason;

@@ -12,7 +12,7 @@
 //! land the hash method once adjudication needs it.
 
 use chia_sha2::Sha256;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::appeal::ground::{AttesterSlashingAppeal, InvalidBlockAppeal, ProposerSlashingAppeal};

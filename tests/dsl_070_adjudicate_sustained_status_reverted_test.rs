@@ -27,7 +27,7 @@
 //!      appeal against the same evidence returns
 //!      `SlashAlreadyReverted`
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     APPELLANT_BOND_MOJOS, AppealOutcome, AppealSustainReason, AppealVerdict, AttestationData,
     AttesterAppealGround, AttesterSlashing, AttesterSlashingAppeal, BLS_SIGNATURE_SIZE, BondError,

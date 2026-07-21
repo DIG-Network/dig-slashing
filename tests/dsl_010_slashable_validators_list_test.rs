@@ -31,7 +31,7 @@
 //!   6. `test_dsl_010_attester_sorted_ascending` — intersection output sorted
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterSlashing, BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation,
     InvalidBlockProof, InvalidBlockReason, OffenseType, ProposerSlashing, SignedBlockHeader,

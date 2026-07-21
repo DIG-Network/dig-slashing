@@ -51,14 +51,14 @@ fn sample_data() -> AttestationData {
     AttestationData {
         slot: 42,
         index: 0,
-        beacon_block_root: dig_protocol::Bytes32::new([0x11u8; 32]),
+        beacon_block_root: dig_peer_protocol::Bytes32::new([0x11u8; 32]),
         source: Checkpoint {
             epoch: 1,
-            root: dig_protocol::Bytes32::new([0x22u8; 32]),
+            root: dig_peer_protocol::Bytes32::new([0x22u8; 32]),
         },
         target: Checkpoint {
             epoch: 2,
-            root: dig_protocol::Bytes32::new([0x33u8; 32]),
+            root: dig_peer_protocol::Bytes32::new([0x33u8; 32]),
         },
     }
 }

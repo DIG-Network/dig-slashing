@@ -31,7 +31,7 @@ use std::collections::HashMap;
 
 use chia_bls::{PublicKey, SecretKey};
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealSustainReason, AppealVerdict, AttestationData, AttesterAppealGround, AttesterSlashing,
     AttesterSlashingAppeal, BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation, InvalidBlockReason,

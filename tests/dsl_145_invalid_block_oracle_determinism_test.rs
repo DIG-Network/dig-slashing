@@ -31,7 +31,7 @@
 use std::cell::Cell;
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{ExecutionOutcome, InvalidBlockOracle, InvalidBlockReason, SlashingError};
 
 fn sample_header(state_byte: u8) -> L2BlockHeader {

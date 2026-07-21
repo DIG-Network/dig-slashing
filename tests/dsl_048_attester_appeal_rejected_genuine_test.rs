@@ -44,7 +44,7 @@
 use std::collections::BTreeMap;
 
 use chia_bls::{PublicKey, SecretKey, Signature};
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealRejectReason, AppealVerdict, AttestationData, AttesterSlashing, Checkpoint,
     IndexedAttestation, PublicKeyLookup, verify_attester_appeal_attestations_identical,

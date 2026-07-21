@@ -43,7 +43,7 @@
 
 use chia_sha2::Sha256;
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttesterSlashing, BLS_SIGNATURE_SIZE, DOMAIN_SLASHING_EVIDENCE, IndexedAttestation,
     InvalidBlockProof, InvalidBlockReason, OffenseType, ProposerSlashing, SignedBlockHeader,

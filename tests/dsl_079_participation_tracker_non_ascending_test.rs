@@ -13,7 +13,7 @@
 //!   3. `test_dsl_079_single_element_ok` — `[1]` (no windows)
 //!   4. `test_dsl_079_ascending_ok` — `[1, 2, 3]`
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, Checkpoint, ParticipationError, ParticipationFlags, ParticipationTracker,
     TIMELY_SOURCE_FLAG_INDEX,

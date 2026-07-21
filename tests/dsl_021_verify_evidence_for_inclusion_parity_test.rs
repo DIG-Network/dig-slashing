@@ -33,7 +33,7 @@ use std::collections::HashMap;
 
 use chia_bls::{PublicKey, SecretKey};
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterSlashing, Checkpoint, IndexedAttestation, InvalidBlockProof,
     InvalidBlockReason, OffenseType, ProposerSlashing, SLASH_LOOKBACK_EPOCHS, SignedBlockHeader,

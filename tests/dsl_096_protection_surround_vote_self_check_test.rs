@@ -25,7 +25,7 @@
 //!   4. `test_dsl_096_same_source_higher_target` — prior (3,5)
 //!      + candidate (3,6) → true (equal source → not strict)
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::SlashingProtection;
 
 fn seed(src: u64, tgt: u64) -> (SlashingProtection, Bytes32) {

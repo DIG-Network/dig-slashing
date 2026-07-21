@@ -29,7 +29,7 @@
 
 use std::cell::RefCell;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealSustainReason, AppealVerdict, AttestationData, AttesterAppealGround, AttesterSlashing,
     AttesterSlashingAppeal, BLS_SIGNATURE_SIZE, Checkpoint, CollateralSlasher, IndexedAttestation,

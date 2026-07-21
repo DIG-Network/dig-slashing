@@ -18,7 +18,7 @@
 //!   4. `test_dsl_035_deterministic`
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, BLS_SIGNATURE_SIZE, ProposerSlashing,
     SignedBlockHeader, verify_proposer_appeal_proposer_index_mismatch,

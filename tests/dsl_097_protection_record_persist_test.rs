@@ -26,7 +26,7 @@
 //!      prefix + exactly 64 lowercase hex chars, independent of
 //!      input byte pattern.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::SlashingProtection;
 
 /// DSL-097 row 1: `record_proposal` writes the slot field and

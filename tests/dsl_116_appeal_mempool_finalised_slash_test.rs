@@ -28,7 +28,7 @@
 
 use std::collections::HashMap;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     PendingSlashStatus, ProposerAppealGround, ProposerSlashingAppeal, SlashAppeal,
     SlashAppealPayload, SlashingError, enforce_slash_appeal_terminal_status_policy,

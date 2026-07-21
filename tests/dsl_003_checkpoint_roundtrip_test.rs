@@ -23,7 +23,7 @@
 use std::collections::HashMap;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::Checkpoint;
 
 /// Construct a canonical test checkpoint. Shared by every test below so

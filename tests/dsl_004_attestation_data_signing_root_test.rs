@@ -25,7 +25,7 @@
 //!   7. `test_dsl_004_changes_on_network_id` — cross-network replay protection
 
 use chia_sha2::Sha256;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{AttestationData, Checkpoint, DOMAIN_BEACON_ATTESTER};
 
 /// Canonical fixture. Every test starts from this value.

@@ -15,7 +15,7 @@
 //!   2. `test_dsl_041_distinct_rejected`
 //!   3. `test_dsl_041_sig_only_difference_still_distinct`
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, AttestationData, AttesterSlashing,
     BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation,

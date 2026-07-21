@@ -19,7 +19,7 @@
 //!   3. `test_dsl_076_delay_33_not_set` — past upper boundary
 //!   4. `test_dsl_076_non_canonical_not_set` — canonicality gate
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, Checkpoint, ParticipationFlags, TIMELY_TARGET_MAX_DELAY_SLOTS,
     classify_timeliness,

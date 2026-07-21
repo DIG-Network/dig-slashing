@@ -16,7 +16,7 @@
 //! intentionally a thin wrapper — it owns zero logic beyond the
 //! constructor.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 
 use crate::inactivity::InactivityScoreTracker;
 use crate::manager::SlashingManager;

@@ -22,7 +22,7 @@
 //!   3. `test_dsl_084_no_stall_normal` — all flags hit, no stall
 //!      → reward = base * 54 / 64 (matches DSL-082 all-three row)
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, Checkpoint, EffectiveBalanceView, MIN_EFFECTIVE_BALANCE, ParticipationFlags,
     ParticipationTracker, TIMELY_HEAD_FLAG_INDEX, TIMELY_HEAD_WEIGHT, TIMELY_SOURCE_FLAG_INDEX,

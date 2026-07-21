@@ -31,7 +31,7 @@
 use std::collections::{HashMap, HashSet};
 
 use chia_protocol::SpendBundle;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 
 use dig_epoch::SLASH_LOOKBACK_EPOCHS;
 

@@ -22,7 +22,7 @@
 //!   3. `test_dsl_082_head_only_reward`    — base * 14 / 64
 //!   4. `test_dsl_082_all_three_reward`    — base * 54 / 64
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, Checkpoint, EffectiveBalanceView, MIN_EFFECTIVE_BALANCE, ParticipationFlags,
     ParticipationTracker, TIMELY_HEAD_FLAG_INDEX, TIMELY_HEAD_WEIGHT, TIMELY_SOURCE_FLAG_INDEX,

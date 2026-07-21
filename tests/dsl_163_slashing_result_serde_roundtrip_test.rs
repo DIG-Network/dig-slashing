@@ -24,7 +24,7 @@
 //!   4. `test_dsl_163_json_roundtrip_all` — same three types under serde_json (RPC wire path).
 //!   5. `test_dsl_163_zero_preserved` — Default::default() instances for both SlashingResult and FinalisationResult roundtrip verbatim; proves zero-filled / empty-vec / Bytes32([0;32]) fields are NOT silently dropped.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{FinalisationResult, PerValidatorSlash, SlashingResult};
 
 // ── fixtures ───────────────────────────────────────────────────

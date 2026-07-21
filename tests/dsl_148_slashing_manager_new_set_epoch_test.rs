@@ -26,7 +26,7 @@
 //!   5. `test_dsl_148_default_is_new_zero` — `Default::default()`
 //!      equivalent to `new(0)`
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::SlashingManager;
 
 /// DSL-148 row 1: fresh manager has empty internal state.

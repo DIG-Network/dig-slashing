@@ -27,7 +27,7 @@
 //!   5. `test_dsl_171_never_pending` — exhaustive over every `AppealVerdict` value the crate can produce; no branch yields `Pending`.
 
 use chia_sha2::Sha256;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{AppealOutcome, AppealRejectReason, AppealSustainReason, AppealVerdict};
 
 // ── helpers ──────────────────────────────────────────────────

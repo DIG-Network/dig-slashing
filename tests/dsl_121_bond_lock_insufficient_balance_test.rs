@@ -28,7 +28,7 @@
 
 use std::collections::HashMap;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{BondError, BondEscrow, BondTag};
 
 /// Minimal reference `BondEscrow`. Tracks a per-principal free

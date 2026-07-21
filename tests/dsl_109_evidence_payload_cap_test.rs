@@ -40,7 +40,7 @@
 //!   3. `test_dsl_109_small_ok` — 1 KiB-ish payload → admits
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     BLS_SIGNATURE_SIZE, InvalidBlockProof, InvalidBlockReason, MAX_SLASH_PROPOSAL_PAYLOAD_BYTES,
     OffenseType, SignedBlockHeader, SlashingError, SlashingEvidence, SlashingEvidencePayload,

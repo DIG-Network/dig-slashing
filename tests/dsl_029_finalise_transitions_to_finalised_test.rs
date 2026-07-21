@@ -27,7 +27,7 @@ use std::collections::HashMap;
 
 use chia_bls::{PublicKey, SecretKey};
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     BondError, BondEscrow, BondTag, EffectiveBalanceView, MIN_EFFECTIVE_BALANCE, OffenseType,
     PendingSlashStatus, ProposerSlashing, ProposerView, RewardPayout, SLASH_APPEAL_WINDOW_EPOCHS,

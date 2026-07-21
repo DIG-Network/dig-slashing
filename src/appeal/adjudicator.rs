@@ -27,7 +27,7 @@
 
 use std::collections::BTreeMap;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 use crate::appeal::envelope::{SlashAppeal, SlashAppealPayload};

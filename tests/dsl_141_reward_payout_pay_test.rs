@@ -38,7 +38,7 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::RewardPayout;
 
 /// Reference mock that accumulates per-address totals.

@@ -24,7 +24,7 @@
 
 use clvmr::Allocator;
 use clvmr::serde::node_to_bytes;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 
 use crate::SLASH_APPEAL_REMARK_MAGIC_V1;
 use crate::appeal::envelope::SlashAppeal;

@@ -27,7 +27,7 @@
 //!   4. `test_dsl_083_all_miss_composite`   — no flags set →
 //!      penalty = base * 40 / 64
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, Checkpoint, EffectiveBalanceView, MIN_EFFECTIVE_BALANCE, ParticipationFlags,
     ParticipationTracker, TIMELY_HEAD_FLAG_INDEX, TIMELY_SOURCE_FLAG_INDEX, TIMELY_SOURCE_WEIGHT,

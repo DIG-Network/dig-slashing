@@ -23,7 +23,7 @@
 //!   4. `test_dsl_164_outcome_variants` — Won, Lost { reason_hash }, Pending all roundtrip (covers AppealOutcome enum surface inside AppealAdjudicationResult).
 //!   5. `test_dsl_164_vec_ordering` — multi-validator reverted_stake_mojos + reverted_collateral_mojos preserve index-ordering under both codecs (guards against BTreeMap-style reordering drift).
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{AppealAdjudicationResult, AppealOutcome};
 
 // ── fixtures ───────────────────────────────────────────────────

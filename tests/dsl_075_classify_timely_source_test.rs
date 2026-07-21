@@ -17,7 +17,7 @@
 //!   3. `test_dsl_075_delay_6_not_set` — past upper boundary
 //!   4. `test_dsl_075_unjustified_not_set` — justification gate
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, Checkpoint, MIN_ATTESTATION_INCLUSION_DELAY, ParticipationFlags,
     TIMELY_SOURCE_MAX_DELAY_SLOTS, classify_timeliness,

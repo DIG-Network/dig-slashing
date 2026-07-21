@@ -31,7 +31,7 @@ items:
     catalogue_ref: "docs/resources/SPEC.md#22.1"
     tests:
       - dsl_003_checkpoint_roundtrip_test
-    notes: "Checkpoint { epoch: u64, root: Bytes32 } in src/evidence/checkpoint.rs. Bytes32 via dig-protocol re-export. 5-test suite: bincode + json roundtrip, field-wise equality, Hash/HashMap consistency, Copy."
+    notes: "Checkpoint { epoch: u64, root: Bytes32 } in src/evidence/checkpoint.rs. Bytes32 via dig-peer-protocol re-export. 5-test suite: bincode + json roundtrip, field-wise equality, Hash/HashMap consistency, Copy."
 
   - id: DSL-004
     section: "Types"

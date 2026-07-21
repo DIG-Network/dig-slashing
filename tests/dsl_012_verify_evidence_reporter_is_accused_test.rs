@@ -35,7 +35,7 @@
 //!   6. `test_dsl_012_runs_after_offense_too_old` — ordering invariant
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, AttesterSlashing, BLS_SIGNATURE_SIZE, Checkpoint, IndexedAttestation,
     InvalidBlockProof, InvalidBlockReason, OffenseType, ProposerSlashing, SLASH_LOOKBACK_EPOCHS,

@@ -27,7 +27,7 @@
 
 use std::path::PathBuf;
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use serde::{Deserialize, Serialize};
 
 /// Per-validator local slashing-protection state.

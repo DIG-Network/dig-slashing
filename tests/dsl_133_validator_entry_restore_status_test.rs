@@ -29,7 +29,7 @@
 //!      effect (restore doesn't permanently immunize)
 
 use chia_bls::PublicKey;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::ValidatorEntry;
 
 /// Reference impl matching SPEC §15.1.

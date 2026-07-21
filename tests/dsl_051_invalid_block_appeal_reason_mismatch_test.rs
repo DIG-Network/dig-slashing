@@ -26,7 +26,7 @@
 use std::cell::RefCell;
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AppealRejectReason, AppealSustainReason, AppealVerdict, BLS_SIGNATURE_SIZE, ExecutionOutcome,
     InvalidBlockOracle, InvalidBlockProof, InvalidBlockReason, SignedBlockHeader, SlashingError,

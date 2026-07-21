@@ -22,7 +22,7 @@
 //!   4. `test_dsl_080_epoch_number_updated` —
 //!      `current_epoch_number == new_epoch`
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     AttestationData, Checkpoint, ParticipationFlags, ParticipationTracker,
     TIMELY_SOURCE_FLAG_INDEX, TIMELY_TARGET_FLAG_INDEX,

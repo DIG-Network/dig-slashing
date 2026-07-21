@@ -19,7 +19,7 @@
 //!   3. `test_dsl_170_distinct_network_ids` — two systems with different ids keep their ids distinct (no shared static storage).
 //!   4. `test_dsl_170_genesis_params_unchanged` — GenesisParameters still constructs with the same 3 public fields in the existing order.
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{GenesisParameters, SlashingSystem};
 
 // ── tests ──────────────────────────────────────────────────

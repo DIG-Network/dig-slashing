@@ -35,7 +35,7 @@
 //!   6. `test_dsl_011_same_epoch_accepted`         — epoch == current
 
 use dig_block::L2BlockHeader;
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     BLS_SIGNATURE_SIZE, InvalidBlockProof, InvalidBlockReason, OffenseType, SLASH_LOOKBACK_EPOCHS,
     SignedBlockHeader, SlashingError, SlashingEvidence, SlashingEvidencePayload, ValidatorEntry,

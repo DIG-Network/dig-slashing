@@ -27,7 +27,7 @@ use std::collections::HashMap;
 
 use chia_bls::Signature;
 use chia_protocol::{Bytes, Coin, CoinSpend, Program, SpendBundle};
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     ProposerAppealGround, ProposerSlashingAppeal, SlashAppeal, SlashAppealPayload, SlashingError,
     encode_slash_appeal_remark_payload_v1, enforce_slash_appeal_remark_admission,

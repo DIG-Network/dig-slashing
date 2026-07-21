@@ -26,7 +26,7 @@
 //!   4. `test_dsl_072_lost_attempt_appended` — last history
 //!      entry is `AppealAttempt{outcome: Lost{reason_hash}}`
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     APPELLANT_BOND_MOJOS, AppealOutcome, AppealRejectReason, AppealVerdict, AttestationData,
     AttesterAppealGround, AttesterSlashing, AttesterSlashingAppeal, BLS_SIGNATURE_SIZE, Checkpoint,

@@ -25,7 +25,7 @@
 //!      binary-search tuner
 //!   3. `test_dsl_120_small_ok` — 1 KiB admits
 
-use dig_protocol::Bytes32;
+use dig_peer_protocol::Bytes32;
 use dig_slashing::{
     InvalidBlockAppeal, InvalidBlockAppealGround, MAX_APPEAL_PAYLOAD_BYTES, SlashAppeal,
     SlashAppealPayload, SlashingError, enforce_slash_appeal_payload_cap,
