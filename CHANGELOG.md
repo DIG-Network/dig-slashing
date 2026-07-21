@@ -4,6 +4,11 @@ All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org) and
 [Conventional Commits](https://www.conventionalcommits.org).
 
+## [0.1.5] - 2026-07-21
+
+### Build
+- Migrate dig-protocol dependency to dig-peer-protocol (#6)
+
 ## [0.1.4] - 2026-07-20
 
 ### Bug Fixes
