@@ -5,12 +5,11 @@
 //! catalogue rows
 //! [DSL-064..073](../../../docs/requirements/domains/appeal/specs/).
 //!
-//! # Scope (incremental)
+//! # Surface
 //!
-//! The module grows one DSL at a time. First commit (DSL-064)
-//! lands `adjudicate_sustained_revert_base_slash` — the
-//! stake-restoration primitive. Future DSLs add:
+//! Each economic consequence is a free function (a "slice"):
 //!
+//!   - DSL-064: revert base slash (stake restoration)
 //!   - DSL-065: collateral revert
 //!   - DSL-066: `restore_status`
 //!   - DSL-067: reward clawback
@@ -21,9 +20,8 @@
 //!   - DSL-072: rejected → `ChallengeOpen` increment
 //!   - DSL-073: clawback shortfall absorbed from bond
 //!
-//! Each DSL lands as a new free function here; a top-level
-//! `adjudicate_appeal` dispatcher composes them once enough
-//! slices exist to be worth orchestrating.
+//! The top-level [`adjudicate_appeal`] dispatcher composes these
+//! slices in fixed order for the sustained + rejected branches.
 
 use std::collections::BTreeMap;
 
@@ -47,9 +45,8 @@ use crate::traits::{
 /// Aggregate result of an appeal adjudication pass.
 ///
 /// Traces to [DSL-164](../../../docs/requirements/domains/appeal/specs/DSL-164.md).
-/// Produced by the (future) top-level `adjudicate_appeal`
-/// dispatcher that composes the per-DSL slice functions in this
-/// module. Consumed by:
+/// Produced by the top-level [`adjudicate_appeal`] dispatcher that
+/// composes the per-DSL slice functions in this module. Consumed by:
 ///
 ///   - Audit logs — full reproduction of what happened on a sustained
 ///     or rejected appeal.

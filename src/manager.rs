@@ -5,22 +5,18 @@
 //! [DSL-022..033](../docs/requirements/domains/lifecycle/specs/) plus
 //! the Phase-10 gap fills (DSL-146..152).
 //!
-//! # Scope (incremental)
+//! # Surface
 //!
-//! This module grows one DSL at a time. The shipped surface right now
-//! covers only DSL-022 — the base-slash formula applied per slashable
-//! validator in `submit_evidence`. Subsequent DSLs add:
+//! `SlashingManager` implements the full optimistic-slashing lifecycle:
 //!
-//!   - bond escrow (DSL-023),
-//!   - `PendingSlash` book + status (DSL-024, DSL-146..150),
+//!   - base-slash formula per slashable validator (DSL-022),
+//!   - reporter-bond escrow (DSL-023),
+//!   - the `PendingSlash` book + status transitions (DSL-024, DSL-146..150),
 //!   - reward routing + correlation penalty (DSL-025, DSL-030),
-//!   - finalisation + duplicate-rejection / capacity checks
-//!     (DSL-029..033, DSL-026..028),
-//!   - reorg rewind (DSL-129, DSL-130).
-//!
-//! Each addition lands as a method on `SlashingManager` or a new field
-//! in `SlashingResult`; the DSL-022 surface remains byte-stable across
-//! commits.
+//!   - duplicate-rejection + capacity checks (DSL-026..028),
+//!   - finalisation of expired pending slashes (DSL-029..033),
+//!   - appeal admission (`submit_appeal`, DSL-055..063),
+//!   - reorg rewind (DSL-129) + processed/window pruning.
 
 use std::collections::{BTreeMap, HashMap};
 
@@ -76,8 +72,8 @@ pub struct PerValidatorSlash {
 /// record per pending slash that transitioned from
 /// `Accepted`/`ChallengeOpen` to `Finalised` during the call.
 ///
-/// Traces to [SPEC §3.9](../../docs/resources/SPEC.md). Fields other
-/// than `evidence_hash` land as their owning DSLs ship:
+/// Traces to [SPEC §3.9](../../docs/resources/SPEC.md). Populated by
+/// `finalise_expired_slashes`:
 ///
 ///   - `per_validator_correlation_penalty` — DSL-030.
 ///   - `reporter_bond_returned` — DSL-031.
@@ -87,23 +83,19 @@ pub struct FinalisationResult {
     /// Evidence hash of the finalised pending slash.
     pub evidence_hash: Bytes32,
     /// Per-validator correlation penalty applied at finalisation
-    /// (DSL-030). `(validator_index, penalty_mojos)`. Empty until
-    /// DSL-030 ships.
+    /// (DSL-030). `(validator_index, penalty_mojos)`.
     pub per_validator_correlation_penalty: Vec<(u32, u64)>,
     /// Reporter bond returned in full at finalisation (DSL-031).
-    /// `0` until DSL-031 ships.
     pub reporter_bond_returned: u64,
-    /// Epoch the validator's exit lock runs until (DSL-032). `0`
-    /// until DSL-032 ships.
+    /// Epoch the validator's exit lock runs until (DSL-032).
     pub exit_lock_until_epoch: u64,
 }
 
 /// Aggregate result of a `submit_evidence` call.
 ///
-/// Traces to [SPEC §3.9](../../docs/resources/SPEC.md). Fields other
-/// than `per_validator` land as their owning DSLs ship; they are
-/// present here with `0` / empty defaults so callers can destructure
-/// without a compile break when those DSLs land.
+/// Traces to [SPEC §3.9](../../docs/resources/SPEC.md). Every field is
+/// populated on a successful admission; the owning DSL is noted per
+/// field below.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Default)]
 pub struct SlashingResult {
     /// One entry per accused index actually debited. Already-slashed
@@ -124,10 +116,9 @@ pub struct SlashingResult {
 /// Top-level slashing lifecycle manager.
 ///
 /// Traces to [SPEC §7](../docs/resources/SPEC.md). Owns the
-/// processed-hash dedup map, the pending-slash book, and correlation-
-/// window counters — all of which land in subsequent DSL commits. For
-/// DSL-022 the manager holds only the `current_epoch` field, which is
-/// consumed when calling `ValidatorEntry::slash_absolute`.
+/// `current_epoch`, the processed-hash dedup map, the pending-slash
+/// book, and the correlation-window counters — all consumed by the
+/// submit / finalise / appeal / rewind flows below.
 #[derive(Debug, Clone)]
 pub struct SlashingManager {
     /// Current epoch the manager is running in. Used as the `epoch`
@@ -222,16 +213,23 @@ impl SlashingManager {
     /// [DSL-022](../../docs/requirements/domains/lifecycle/specs/DSL-022.md).
     /// Traces to SPEC §7.3 step 5, §4.
     ///
-    /// # Pipeline (DSL-022 + DSL-023 scope)
+    /// # Pipeline
     ///
-    /// 1. `verify_evidence(...)` → `VerifiedEvidence` (DSL-011..020).
-    ///    Failure propagates as `SlashingError`.
-    /// 2. `bond_escrow.lock(reporter_idx, REPORTER_BOND_MOJOS,
+    /// 1. DSL-026 duplicate-evidence dedup: reject with
+    ///    `AlreadySlashed` if the evidence hash is already processed.
+    /// 2. `verify_evidence(...)` → `VerifiedEvidence` (DSL-011..020).
+    ///    Failure propagates as `SlashingError`; no state mutation.
+    /// 3. DSL-027 capacity check: reject with `PendingBookFull` when
+    ///    the book is at capacity.
+    /// 4. Resolve the proposer reward target as a read-only
+    ///    precondition (`ProposerUnavailable` / `ValidatorNotRegistered`)
+    ///    BEFORE any mutation (dig_ecosystem #346 finding-B).
+    /// 5. `bond_escrow.lock(reporter_idx, REPORTER_BOND_MOJOS,
     ///    BondTag::Reporter(evidence.hash()))` (DSL-023). Lock
     ///    failure collapses to `SlashingError::BondLockFailed` with
     ///    no validator-side mutation — hence the ordering (bond
     ///    BEFORE any `slash_absolute`).
-    /// 3. For each slashable index:
+    /// 6. For each slashable index:
     ///    - `eff_bal = effective_balances.get(idx)`
     ///    - `bps_term = eff_bal * base_bps / BPS_DENOMINATOR`
     ///    - `floor_term = eff_bal / MIN_SLASHING_PENALTY_QUOTIENT`
@@ -239,18 +237,19 @@ impl SlashingManager {
     ///    - Skip iff `validator_set.get(idx).is_slashed()` OR index
     ///      absent from the view (defensive tolerance per SPEC §7.3).
     ///    - Otherwise `validator_set.get_mut(idx).slash_absolute(
-    ///      base_slash, self.current_epoch)`.
-    ///    - Record a `PerValidatorSlash`.
-    /// 4. Return `SlashingResult { per_validator,
-    ///    reporter_bond_escrowed: REPORTER_BOND_MOJOS, .. }` — reward
-    ///    / pending-slash fields stay `0` / empty until DSL-024/025.
+    ///      base_slash, self.current_epoch)`, record a
+    ///      `PerValidatorSlash`, and register the debit in
+    ///      `slashed_in_window` (DSL-030).
+    /// 7. DSL-025 reward routing: pay the whistleblower + proposer
+    ///    rewards and compute the burn amount.
+    /// 8. DSL-024: insert the `PendingSlash` record + mark the hash
+    ///    processed, then return a fully-populated `SlashingResult`.
     ///
-    /// # Deviations from SPEC signature
+    /// # Collateral
     ///
-    /// SPEC §7.3 lists additional parameters (`CollateralSlasher`,
-    /// `RewardPayout`, `ProposerView`) that are consumed by
-    /// DSL-025. Signature grows incrementally — each future DSL adds
-    /// the trait it needs.
+    /// The stake-only path records `collateral_slashed: 0`; the
+    /// `CollateralSlasher` wiring is driven by the consensus-layer
+    /// orchestration, not this entry point.
     #[allow(clippy::too_many_arguments)]
     pub fn submit_evidence(
         &mut self,
@@ -410,6 +409,20 @@ impl SlashingManager {
             reporter_bond_mojos: REPORTER_BOND_MOJOS,
             appeal_history: Vec::new(),
         };
+        // The `?` below is de-facto unreachable: the DSL-027 capacity
+        // pre-check above (`self.book.len() >= self.book.capacity()`)
+        // guarantees headroom before any mutation runs, so the book
+        // cannot be full here. This assert ties the two together so a
+        // future refactor that separates the pre-check from the insert
+        // can't silently reopen a partial-mutation window (rewards paid
+        // + validators slashed, but the record rejected). Compiles out
+        // in release — behaviour is unchanged.
+        debug_assert!(
+            self.book.len() < self.book.capacity(),
+            "book must have capacity headroom here — guaranteed by the \
+             DSL-027 pre-check; a full book at insert time means the \
+             pre-check and the insert have drifted apart",
+        );
         self.book.insert(record)?;
         self.processed.insert(evidence_hash, self.current_epoch);
 
@@ -431,16 +444,14 @@ impl SlashingManager {
     /// Implements [DSL-029](../../docs/requirements/domains/lifecycle/specs/DSL-029.md).
     /// Traces to SPEC §7.4 steps 1, 6–7.
     ///
-    /// # Scope (incremental)
+    /// # Side effects per finalised slash
     ///
-    /// This method currently covers the status transition + result
-    /// emission only. Side effects land in subsequent DSLs:
-    ///
-    ///   - DSL-030 populates `per_validator_correlation_penalty`.
-    ///   - DSL-031 populates `reporter_bond_returned` via
-    ///     `bond_escrow.release`.
-    ///   - DSL-032 populates `exit_lock_until_epoch` via
-    ///     `validator_set.schedule_exit`.
+    ///   - DSL-030: applies + reports `per_validator_correlation_penalty`.
+    ///   - DSL-031: releases the reporter bond (`bond_escrow.release`)
+    ///     and reports `reporter_bond_returned`.
+    ///   - DSL-032: schedules the validator exit lock
+    ///     (`validator_set.schedule_exit`) and reports
+    ///     `exit_lock_until_epoch`.
     ///
     /// # Behaviour
     ///
@@ -570,21 +581,23 @@ impl SlashingManager {
     /// Implements [DSL-055](../../docs/requirements/domains/appeal/specs/DSL-055.md).
     /// Traces to SPEC §6.1, §7.2.
     ///
-    /// # Scope (incremental)
+    /// # Pipeline
     ///
-    /// First-cut pipeline stops at the UnknownEvidence precondition:
-    /// if `appeal.evidence_hash` is not present in the pending-slash
-    /// book the method returns `SlashingError::UnknownEvidence(hex)`
-    /// WITHOUT touching the bond escrow. Later DSLs extend the
-    /// pipeline:
+    /// Runs the full appeal-admission pipeline, in order, so every
+    /// structural rejection short-circuits before any collateral is
+    /// touched:
+    ///   - DSL-055: `UnknownEvidence` (book lookup — FIRST, pre-bond)
+    ///   - DSL-060/061: `SlashAlreadyReverted` / `SlashAlreadyFinalised`
     ///   - DSL-056: `WindowExpired`
     ///   - DSL-057: `VariantMismatch`
     ///   - DSL-058: `DuplicateAppeal`
     ///   - DSL-059: `TooManyAttempts`
-    ///   - DSL-060/061: `SlashAlreadyReverted` / `SlashAlreadyFinalised`
-    ///   - DSL-062: appellant-bond lock (FIRST bond-touching step)
     ///   - DSL-063: `PayloadTooLarge`
-    ///   - DSL-064+: dispatch to per-ground verifiers + adjudicate
+    ///   - DSL-062: appellant-bond lock (LAST step, first bond touch)
+    ///
+    /// Verdict dispatch + economic adjudication (DSL-064+) are NOT
+    /// part of admission — they run via
+    /// [`adjudicate_appeal`](crate::appeal::adjudicate_appeal).
     ///
     /// # Error ordering invariant
     ///
@@ -707,7 +720,8 @@ impl SlashingManager {
             )
             .map_err(|e| SlashingError::AppellantBondLockFailed(e.to_string()))?;
 
-        // Subsequent DSLs add: dispatch + adjudicate (DSL-064+).
+        // Admission complete. Verdict dispatch + adjudication
+        // (DSL-064+) run separately via `adjudicate_appeal`.
         Ok(())
     }
 

@@ -13,11 +13,14 @@
 //! (ValidatorNotActiveAtEpoch, BlockActuallyValid) additionally
 //! consult a trait handle passed at the dispatcher layer.
 //!
-//! # Scope (incremental)
+//! # Surface
 //!
-//! First commit lands DSL-034 only. Subsequent DSLs add one verifier
-//! each; the dispatcher `verify_appeal` lands once enough grounds
-//! exist to exercise it.
+//! All per-ground verifiers (DSL-034..054) are implemented — the
+//! proposer, attester, and invalid-block ground families. Each is a
+//! standalone `verify_*` function producing an [`AppealVerdict`];
+//! callers select the verifier for the appeal's ground directly (there
+//! is no single `verify_appeal` dispatcher — the verdict feeds
+//! [`adjudicate_appeal`](crate::appeal::adjudicate_appeal)).
 
 use chia_bls::Signature;
 use dig_block::L2BlockHeader;

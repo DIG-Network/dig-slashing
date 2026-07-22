@@ -11,17 +11,17 @@
 //! `MIN_EPOCHS_TO_INACTIVITY_PENALTY` and zero-resets scores
 //! on recovery.
 //!
-//! # Scope (incremental)
+//! # Surface
 //!
-//! Module grows one DSL at a time. First commit lands DSL-087
-//! (`in_finality_stall` threshold). Future DSLs add:
+//! The full inactivity stack is implemented:
 //!
-//!   - DSL-088: `InactivityScoreVec` storage
+//!   - DSL-087: `in_finality_stall` threshold
+//!   - DSL-088: `InactivityScoreTracker` storage
 //!   - DSL-089: per-epoch accumulate
 //!   - DSL-090: recovery reset
 //!   - DSL-091: penalty formula
 //!   - DSL-092: leak-only gate
-//!   - DSL-093: post-stall zero penalties
+//!   - DSL-093: score-vector resize
 
 pub mod penalty;
 pub mod score;

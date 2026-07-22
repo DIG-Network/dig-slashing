@@ -13,17 +13,16 @@
 //! purely advisory at the network level, but load-bearing at
 //! the single-validator level.
 //!
-//! # Scope (incremental)
+//! # Surface
 //!
-//! Module grows one DSL at a time. First commit lands DSL-094
-//! (proposal-slot monotonic check). Future DSLs add:
+//! The full self-slashing-protection state machine is implemented:
 //!
+//!   - DSL-094: proposal-slot monotonic check
 //!   - DSL-095: attestation same-(src,tgt) different-hash check
 //!   - DSL-096: would-surround self-check
-//!   - DSL-097: `record_proposal` + `record_attestation`
-//!     persistence
+//!   - DSL-097: `record_proposal` + `record_attestation` persistence
 //!   - DSL-098: `rewind_attestation_to_epoch`
-//!   - DSL-099/100/101: reorg, bootstrap, persistence details
+//!   - DSL-099/100/101: reorg, bootstrap, persistence (`save`/`load`)
 
 use std::path::PathBuf;
 
@@ -32,18 +31,20 @@ use serde::{Deserialize, Serialize};
 
 /// Per-validator local slashing-protection state.
 ///
-/// Implements [DSL-094](../docs/requirements/domains/protection/specs/DSL-094.md)
-/// (+ DSL-095/096/097 in later commits). Traces to SPEC §14.
+/// Implements [DSL-094..101](../docs/requirements/domains/protection/specs/).
+/// Traces to SPEC §14.
 ///
 /// # Fields
 ///
 /// - `last_proposed_slot` — largest slot the validator has
 ///   proposed at. `check_proposal_slot` requires a strictly
 ///   greater slot before signing a new proposal.
-///
-/// Future DSLs add `last_source_epoch`, `last_target_epoch`,
-/// `attested_hash_by_target` and similar fields as their
-/// guards come online.
+/// - `last_attested_source_epoch` / `last_attested_target_epoch`
+///   — the source/target epochs of the last attestation; guard
+///   double-vote (DSL-095) + surround-vote (DSL-096).
+/// - `last_attested_block_hash` — block root of the last
+///   attestation; distinguishes a re-attestation from a
+///   conflicting one.
 ///
 /// # Default
 ///
