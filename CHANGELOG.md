@@ -4,6 +4,14 @@ All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org) and
 [Conventional Commits](https://www.conventionalcommits.org).
 
+## [0.1.6] - 2026-07-23
+
+### Bug Fixes
+- Repair red main — migrate stale dig_protocol import + release v0.1.6 (#8)
+
+### Chores
+- #346-C doc-honesty sweep + submit_evidence hardening follow-ups (#5)
+
 ## [0.1.5] - 2026-07-21
 
 ### Build
