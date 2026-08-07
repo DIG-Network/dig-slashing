@@ -4,6 +4,11 @@ All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org) and
 [Conventional Commits](https://www.conventionalcommits.org).
 
+## [0.1.7] - 2026-08-07
+
+### CI
+- **dig-slashing:** Title GitHub Releases dig-slashing, not dig-constants (#2318)
+
 ## [0.1.6] - 2026-07-23
 
 ### Bug Fixes
