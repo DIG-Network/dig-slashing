@@ -74,16 +74,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: "dig-constants v${{ steps.extract_version.outputs.VERSION }}"
+          release_name: "dig-slashing v${{ steps.extract_version.outputs.VERSION }}"
           body: |
-            ## dig-constants v${{ steps.extract_version.outputs.VERSION }}
+            ## dig-slashing v${{ steps.extract_version.outputs.VERSION }}
 
-            DIG network constants — genesis challenge, consensus parameters, and network configuration.
+            Validator slashing, attestation participation, inactivity accounting, and fraud-proof appeals for the DIG Network L2 blockchain.
 
             ### Installation
             ```toml
             [dependencies]
-            dig-constants = "${{ steps.extract_version.outputs.VERSION }}"
+            dig-slashing = "${{ steps.extract_version.outputs.VERSION }}"
             ```
           draft: false
           prerelease: false
